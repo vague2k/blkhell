@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
 
 //go:embed schema.sql
@@ -22,7 +22,7 @@ func Init() (*Queries, error) {
 		return nil, err
 	}
 
-	db, err := sql.Open("sqlite3", dbFile)
+	db, err := sql.Open("sqlite", dbFile)
 	if err != nil {
 		return nil, fmt.Errorf("could not init db: %w", err)
 	}

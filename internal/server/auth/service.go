@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/internal/server/database"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -45,7 +45,7 @@ func (s *Service) Authenticate(ctx context.Context, username, password string) (
 		return nil, errors.New("invalid username")
 	}
 
-	if checkPassword(user.PasswordHash, password) != nil {
+	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
 		return nil, errors.New("invalid password")
 	}
 
@@ -60,7 +60,8 @@ func (s *Service) CreateSession(ctx context.Context, userID int64) (string, time
 	}
 	sessionID := hex.EncodeToString(b)
 
-	expires := time.Now().Add(24 * time.Hour)
+	// 1 week before the session id expires
+	expires := time.Now().Add(7 * (24 * time.Hour))
 
 	_, err = s.db.CreateSession(ctx, database.CreateSessionParams{
 		ID:        sessionID,
@@ -99,8 +100,4 @@ func (s *Service) RequireAuth(next http.Handler) http.Handler {
 func hashPassword(password string) (string, error) {
 	b, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(b), err
-}
-
-func checkPassword(hash, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

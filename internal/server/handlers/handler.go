@@ -1,6 +1,6 @@
 package handlers
 
-import "github.com/vague2k/blkhell/server/auth"
+import "github.com/vague2k/blkhell/internal/server/auth"
 
 type Handler struct {
 	auth *auth.Service

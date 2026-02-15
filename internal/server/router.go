@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/vague2k/blkhell/server/auth"
-	"github.com/vague2k/blkhell/server/handlers"
+	"github.com/vague2k/blkhell/internal/server/auth"
+	"github.com/vague2k/blkhell/internal/server/handlers"
 )
 
 func (s *Server) RegisterRoutes(authService *auth.Service) {

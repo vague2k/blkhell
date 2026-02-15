@@ -17,7 +17,11 @@ templ Login() {
 						Blackheaven members only...
 					</p>
 				</div>
-				<form class="flex flex-col gap-3 w-1/2">
+				<form
+					hx-post="/login"
+					hx-target="#login-toast"
+					class="flex flex-col gap-3 w-1/2"
+				>
 					@input.Input(input.Props{
 						Type:        input.TypeText,
 						Name:        "username",
@@ -30,10 +34,12 @@ templ Login() {
 					})
 					@button.Button(button.Props{
 						Variant: button.VariantDefault,
+						Type:    button.TypeSubmit,
 					}) {
 						Login
 					}
 				</form>
+				<div id="login-toast"></div>
 			</div>
 		</div>
 	}

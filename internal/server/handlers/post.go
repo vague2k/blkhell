@@ -1,6 +1,10 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/vague2k/blkhell/views/templui/toast"
+)
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
@@ -8,7 +12,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := h.auth.Authenticate(r.Context(), username, password)
 	if err != nil {
-		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		toast.Toast(toast.Props{
+			Icon:          true,
+			Title:         "Invalid credentials",
+			Description:   err.Error(),
+			Variant:       toast.VariantError,
+			Position:      toast.PositionTopRight,
+			Dismissible:   true,
+			ShowIndicator: true,
+		}).Render(r.Context(), w)
 		return
 	}
 

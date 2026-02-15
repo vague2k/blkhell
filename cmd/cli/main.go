@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/vague2k/blkhell/cli"
+	"github.com/vague2k/blkhell/internal/cli"
 )
 
 func main() {

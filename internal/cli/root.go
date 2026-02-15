@@ -2,8 +2,8 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vague2k/blkhell/server/auth"
-	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/internal/server/auth"
+	"github.com/vague2k/blkhell/internal/server/database"
 )
 
 type App struct {
@@ -12,7 +12,7 @@ type App struct {
 }
 
 func NewRootCmd() *cobra.Command {
-	app := App{}
+	app := &App{}
 	cmd := &cobra.Command{
 		Use:   "blkhell",
 		Short: "Blkhell CLI",
