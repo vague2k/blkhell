@@ -1,0 +1,40 @@
+package pages
+
+import (
+	"github.com/vague2k/blkhell/views/layouts"
+
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/input"
+)
+
+templ Login() {
+	@layouts.BaseLayout() {
+		<div class="h-full flex justify-center items-center">
+			<div class="flex flex-col gap-4 items-center justify-center px-4 w-full max-w-2xl">
+				<div class="text-center">
+					<h1 class="text-4xl font-medium tracking-tight">blkhell.</h1>
+					<p class="text-muted-foreground text-sm max-w-md mx-auto">
+						Blackheaven members only...
+					</p>
+				</div>
+				<form class="flex flex-col gap-3 w-1/2">
+					@input.Input(input.Props{
+						Type:        input.TypeText,
+						Name:        "username",
+						Placeholder: "Username",
+					})
+					@input.Input(input.Props{
+						Type:        input.TypePassword,
+						Name:        "password",
+						Placeholder: "Password",
+					})
+					@button.Button(button.Props{
+						Variant: button.VariantDefault,
+					}) {
+						Login
+					}
+				</form>
+			</div>
+		</div>
+	}
+}

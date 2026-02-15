@@ -1,0 +1,7 @@
+{
+    "componentsDir": "views/templui",
+    "utilsDir": "utils",
+    "moduleName": "github.com/vague2k/blkhell",
+    "jsDir": "views/assets/js/components",
+    "jsPublicPath": "assets/js/components"
+}
