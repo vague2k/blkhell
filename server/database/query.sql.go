@@ -80,6 +80,17 @@ func (q *Queries) DeleteSession(ctx context.Context, id string) error {
 	return err
 }
 
+const deleteUserByUsername = `-- name: DeleteUserByUsername :exec
+;
+
+DELETE FROM users WHERE username = ?
+`
+
+func (q *Queries) DeleteUserByUsername(ctx context.Context, username string) error {
+	_, err := q.db.ExecContext(ctx, deleteUserByUsername, username)
+	return err
+}
+
 const getSession = `-- name: GetSession :one
 ;
 

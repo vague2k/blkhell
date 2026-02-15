@@ -27,3 +27,6 @@ WHERE id = ? ;
 -- name: DeleteExpiredSessions :exec
 DELETE FROM sessions
 WHERE expires_at < CURRENT_TIMESTAMP ;
+
+-- name: DeleteUserByUsername :exec
+DELETE FROM users WHERE username = ? ;
