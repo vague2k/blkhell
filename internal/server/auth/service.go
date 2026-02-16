@@ -72,6 +72,39 @@ func (s *Service) CreateSession(ctx context.Context, userID int64) (string, time
 	return sessionID, expires, err
 }
 
+func (s *Service) ValidateSession(ctx context.Context, token string) (int64, error) {
+	session, err := s.db.GetSession(ctx, token)
+	if err != nil {
+		return 0, err // not found or DB error
+	}
+
+	if time.Now().After(session.ExpiresAt) {
+		_ = s.db.DeleteSession(ctx, token)
+		return 0, errors.New("session expired")
+	}
+
+	return session.UserID, nil
+}
+
+func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		return nil, err
+	}
+
+	userID, err := s.ValidateSession(r.Context(), cookie.Value)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.db.GetUserByID(r.Context(), userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 func (s *Service) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_id")
