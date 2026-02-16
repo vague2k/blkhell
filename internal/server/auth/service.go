@@ -72,18 +72,20 @@ func (s *Service) CreateSession(ctx context.Context, userID int64) (string, time
 	return sessionID, expires, err
 }
 
-func (s *Service) ValidateSession(ctx context.Context, token string) (int64, error) {
-	session, err := s.db.GetSession(ctx, token)
+func (s *Service) DestroySession(r *http.Request) error {
+	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		return 0, err // not found or DB error
+		return err
 	}
 
-	if time.Now().After(session.ExpiresAt) {
-		_ = s.db.DeleteSession(ctx, token)
-		return 0, errors.New("session expired")
+	err = s.db.DeleteSession(r.Context(), cookie.Value)
+	if err != nil {
+		return err
 	}
 
-	return session.UserID, nil
+	cookie.Expires = time.Now()
+
+	return nil
 }
 
 func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
@@ -92,12 +94,12 @@ func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
 		return nil, err
 	}
 
-	userID, err := s.ValidateSession(r.Context(), cookie.Value)
+	session, err := s.db.GetSession(r.Context(), cookie.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := s.db.GetUserByID(r.Context(), userID)
+	user, err := s.db.GetUserByID(r.Context(), session.UserID)
 	if err != nil {
 		return nil, err
 	}

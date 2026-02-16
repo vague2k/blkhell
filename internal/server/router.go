@@ -21,4 +21,5 @@ func (s *Server) RegisterRoutes(authService *auth.Service) {
 
 	// backend endpoints
 	s.router.Post("/login", h.Login)
+	s.router.Delete("/logout", h.Logout)
 }

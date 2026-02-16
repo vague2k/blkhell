@@ -2,6 +2,11 @@ package layouts
 
 import "github.com/vague2k/blkhell/views/templui/input"
 import "github.com/vague2k/blkhell/views/templui/toast"
+import "github.com/vague2k/blkhell/views/templui/sidebar"
+import "github.com/vague2k/blkhell/views/templui/dialog"
+import "github.com/vague2k/blkhell/views/templui/popover"
+import "github.com/vague2k/blkhell/views/templui/collapsible"
+import "github.com/vague2k/blkhell/views/templui/dropdown"
 
 templ BaseLayout() {
 	<!DOCTYPE html>
@@ -14,6 +19,11 @@ templ BaseLayout() {
 			<script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
 			@input.Script()
 			@toast.Script()
+			@sidebar.Script()
+			@dialog.Script()
+			@popover.Script()
+			@collapsible.Script()
+			@dropdown.Script()
 		</head>
 		<body class="h-full">
 			<div class="h-full flex flex-col">
