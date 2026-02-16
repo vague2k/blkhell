@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Unison Pro";
+  src: url("/assets/fonts/unison/Unison-Pro-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Unison Pro";
+  src: url("/assets/fonts/unison/Unison-Pro-Light-Italic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Unison Pro";
+  src: url("/assets/fonts/unison/Unison-Pro-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Unison Pro";
+  src: url("/assets/fonts/unison/Unison-Pro-Bold-Italic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}

@@ -2,24 +2,23 @@ package server
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/vague2k/blkhell/internal/server/auth"
 	"github.com/vague2k/blkhell/internal/server/handlers"
 )
 
-func (s *Server) RegisterRoutes(authService *auth.Service) {
-	h := handlers.NewHandler(authService)
-
+func (s *Server) RegisterRoutes(h *handlers.Handler) {
 	// pages
 	s.router.Get("/login", h.LoginPage)
 
 	// all pages that require auth to access
 	s.router.Group(func(r chi.Router) {
-		r.Use(authService.RequireAuth)
+		r.Use(h.Auth.RequireAuth)
 		r.Get("/", h.DashboardPage)
 		r.Get("/dashboard", h.DashboardPage)
+		r.Get("/settings", h.SettingsPage)
 	})
 
 	// backend endpoints
 	s.router.Post("/login", h.Login)
 	s.router.Delete("/logout", h.Logout)
+	s.router.Put("/edit", h.Edit)
 }

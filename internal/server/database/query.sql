@@ -20,6 +20,12 @@ RETURNING * ;
 SELECT * FROM sessions
 WHERE id = ? ;
 
+-- name: UpdateUser :one
+UPDATE users
+SET username = ?, password_hash = ?, role = ?
+WHERE id = ?
+RETURNING * ;
+
 -- name: DeleteSession :exec
 DELETE FROM sessions
 WHERE id = ? ;

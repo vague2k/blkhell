@@ -3,20 +3,28 @@ package components
 import "github.com/vague2k/blkhell/views/templui/sidebar"
 import "github.com/vague2k/blkhell/views/templui/icon"
 import "github.com/vague2k/blkhell/views/templui/dropdown"
+import "github.com/vague2k/blkhell/internal/server/database"
+import "golang.org/x/text/cases"
+import "golang.org/x/text/language"
 
-templ Sidebar() {
+templ Sidebar(user *database.User) {
+	{{ username := cases.Title(language.English).String(user.Username) }}
 	@sidebar.Layout() {
-		@sidebar.Sidebar() {
+		@sidebar.Sidebar(sidebar.Props{
+			Variant: sidebar.VariantFloating,
+		}) {
 			@sidebar.Header() {
 				<div class="flex flex-col p-2">
-					<span class="font-semibold">Blkhell.</span>
+					<span class="font-unison tracking-widest">Blkhell.</span>
 					<span class="text-muted-foreground font-normal text-xs">A blackheaven solution.</span>
 				</div>
 			}
 			@sidebar.Content() {
 				@sidebar.Group() {
 					@sidebar.Menu() {
-						@sidebar.MenuItem() {
+						@sidebar.MenuItem(sidebar.MenuItemProps{
+							Class: "hover:bg-muted rounded-lg",
+						}) {
 							@sidebar.MenuButton(sidebar.MenuButtonProps{
 								Href:    "/",
 								Tooltip: "Dashboard",
@@ -30,14 +38,16 @@ templ Sidebar() {
 			}
 			@sidebar.Footer() {
 				@sidebar.Menu() {
-					@sidebar.MenuItem() {
+					@sidebar.MenuItem(sidebar.MenuItemProps{
+						Class: "hover:bg-muted rounded-md",
+					}) {
 						@dropdown.Dropdown() {
 							@dropdown.Trigger() {
 								@sidebar.MenuButton(sidebar.MenuButtonProps{
 									Size: sidebar.MenuButtonSizeLg,
 								}) {
 									<div class="grid flex-1 text-left text-sm leading-tight">
-										<span class="truncate font-medium">USERNAME HERE</span>
+										<span class="truncate font-medium">{ username }</span>
 									</div>
 									@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
 								}
@@ -47,10 +57,13 @@ templ Sidebar() {
 								Placement: dropdown.PlacementTopStart,
 							}) {
 								@dropdown.Label() {
-									USERNAME HERE
+									{ username }
 								}
 								@dropdown.Separator()
-								@dropdown.Item() {
+								@dropdown.Item(dropdown.ItemProps{
+									Class: "cursor-pointer",
+									Href:  "/settings",
+								}) {
 									<span class="flex items-center">
 										@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
 										Settings
@@ -75,6 +88,9 @@ templ Sidebar() {
 					}
 				}
 			}
+		}
+		@sidebar.Inset() {
+			{ children... }
 		}
 	}
 }

@@ -2,31 +2,21 @@ package handlers
 
 import (
 	"net/http"
-
-	"github.com/vague2k/blkhell/views/templui/toast"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	user, err := h.auth.Authenticate(r.Context(), username, password)
+	user, err := h.Auth.Authenticate(r.Context(), username, password)
 	if err != nil {
-		toast.Toast(toast.Props{
-			Icon:          true,
-			Title:         "Invalid credentials",
-			Description:   err.Error(),
-			Variant:       toast.VariantError,
-			Position:      toast.PositionTopRight,
-			Dismissible:   true,
-			ShowIndicator: true,
-		}).Render(r.Context(), w)
+		toastError(w, r, err.Error())
 		return
 	}
 
-	sessionID, expires, err := h.auth.CreateSession(r.Context(), user.ID)
+	sessionID, expires, err := h.Auth.CreateSession(r.Context(), user.ID)
 	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
+		toastError(w, r, "500 Internal error: Could not create session.")
 		return
 	}
 

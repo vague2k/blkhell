@@ -5,9 +5,9 @@ import (
 )
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	err := h.auth.DestroySession(r)
+	err := h.Auth.DestroySession(r)
 	if err != nil {
-		http.Error(w, "Server error", http.StatusInternalServerError)
+		toastError(w, r, "500 Internal error: Could not destroy session.")
 		return
 	}
 

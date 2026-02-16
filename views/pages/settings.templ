@@ -1,0 +1,81 @@
+package pages
+
+import "github.com/vague2k/blkhell/views/layouts"
+import "github.com/vague2k/blkhell/internal/server/database"
+import "github.com/vague2k/blkhell/views/templui/separator"
+import "github.com/vague2k/blkhell/views/templui/input"
+import "github.com/vague2k/blkhell/views/templui/button"
+import "github.com/vague2k/blkhell/views/templui/form"
+
+templ Settings(user *database.User) {
+	@layouts.BaseSidebarLayout(user) {
+		<div class="p-4 w-full h-full">
+			<div class="flex flex-col">
+				<h1 class="text-4xl tracking-widest font-unison">Settings</h1>
+				<p class="text-muted-foreground">
+					Manage your account settings and preferences.
+				</p>
+			</div>
+			@separator.Separator(separator.Props{
+				Class: "my-4",
+			})
+			<form
+				hx-put="/edit"
+				hx-target="#settings-toast"
+				class="flex flex-col gap-3 w-1/3"
+			>
+				@form.Item() {
+					@form.Label() {
+						Username
+					}
+					@input.Input(input.Props{
+						ID:          "username-input",
+						Type:        input.TypeText,
+						Name:        "username",
+						Placeholder: "Username",
+					})
+					@form.Description() {
+						The username you use to login with.
+					}
+				}
+				@form.Item() {
+					@form.Label() {
+						Password
+					}
+					@input.Input(input.Props{
+						ID:          "old-password-input",
+						Type:        input.TypePassword,
+						Name:        "old-password",
+						Placeholder: "Old Password",
+					})
+					@input.Input(input.Props{
+						ID:          "new-password-input",
+						Type:        input.TypePassword,
+						Name:        "new-password",
+						Placeholder: "New Password",
+					})
+					@form.Description() {
+						Use your old password to change it.
+						<br/>
+						If you don't remember your old password, ask albert to change it for you.
+					}
+				}
+				<div class="flex gap-2 mt-4">
+					@button.Button(button.Props{
+						Variant: button.VariantDefault,
+						Type:    button.TypeSubmit,
+					}) {
+						Save Changes
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantOutline,
+						Href:    "/",
+					}) {
+						Back to home
+					}
+				</div>
+			</form>
+			<div id="settings-toast"></div>
+		</div>
+	}
+}

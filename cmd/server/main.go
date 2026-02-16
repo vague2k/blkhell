@@ -8,6 +8,7 @@ import (
 	"github.com/vague2k/blkhell/internal/server"
 	"github.com/vague2k/blkhell/internal/server/auth"
 	"github.com/vague2k/blkhell/internal/server/database"
+	"github.com/vague2k/blkhell/internal/server/handlers"
 )
 
 func main() {
@@ -23,6 +24,8 @@ func main() {
 
 	authService := auth.New(queries)
 
+	handler := handlers.NewHandler(authService, queries)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8090"
@@ -31,7 +34,7 @@ func main() {
 	s := server.NewServer(port)
 
 	s.SetupAssetsRoutes()
-	s.RegisterRoutes(authService)
+	s.RegisterRoutes(handler)
 
 	if err := s.Run(); err != nil {
 		log.Fatalf("server stopped: %v", err)
