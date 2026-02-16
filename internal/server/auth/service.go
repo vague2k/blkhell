@@ -25,14 +25,14 @@ func New(db *database.Queries) *Service {
 }
 
 func (s *Service) CreateNewUser(ctx context.Context, username, password, role string) error {
-	hash, err := hashPassword(password)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
 	_, err = s.db.CreateUser(ctx, database.CreateUserParams{
 		Username:     username,
-		PasswordHash: hash,
+		PasswordHash: string(hash),
 		Role:         role,
 	})
 
@@ -95,9 +95,4 @@ func (s *Service) RequireAuth(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), userKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func hashPassword(password string) (string, error) {
-	b, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	return string(b), err
 }

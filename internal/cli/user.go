@@ -22,12 +22,23 @@ func newUserCmd(app *App) *cobra.Command {
 }
 
 func newCreateUserCmd(app *App) *cobra.Command {
-	return &cobra.Command{
+	var role string
+	cmd := &cobra.Command{
 		Use:   "create [username]",
 		Short: "Create a new user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
 			username := args[0]
+
+			// check for valid role
+			validRoles := map[string]bool{
+				"user":  true,
+				"admin": true,
+			}
+			if !validRoles[role] {
+				return fmt.Errorf("invalid role: %s", role)
+			}
 
 			fmt.Print("Enter password: ")
 			passwordBytes, err := term.ReadPassword(int(os.Stdin.Fd()))
@@ -37,10 +48,10 @@ func newCreateUserCmd(app *App) *cobra.Command {
 			fmt.Println()
 
 			err = app.Auth.CreateNewUser(
-				context.Background(),
+				ctx,
 				username,
 				string(passwordBytes),
-				"user",
+				role,
 			)
 			if err != nil {
 				return err
@@ -50,6 +61,9 @@ func newCreateUserCmd(app *App) *cobra.Command {
 			return nil
 		},
 	}
+
+	cmd.Flags().StringVarP(&role, "role", "r", "user", "Role for the new user.")
+	return cmd
 }
 
 func newRemoveUserCmd(app *App) *cobra.Command {

@@ -3,14 +3,13 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/vague2k/blkhell/views/pages"
 )
 
-func (h *Handler) LoginPage() http.Handler {
-	return templ.Handler(pages.Login())
+func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
+	pages.Login().Render(r.Context(), w)
 }
 
-func (h *Handler) DashboardPage() http.Handler {
-	return templ.Handler(pages.Dashboard())
+func (h *Handler) DashboardPage(w http.ResponseWriter, r *http.Request) {
+	pages.Dashboard().Render(r.Context(), w)
 }

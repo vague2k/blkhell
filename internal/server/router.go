@@ -10,14 +10,15 @@ func (s *Server) RegisterRoutes(authService *auth.Service) {
 	h := handlers.NewHandler(authService)
 
 	// pages
-	s.router.Handle("/login", h.LoginPage())
+	s.router.Get("/login", h.LoginPage)
+
 	// all pages that require auth to access
 	s.router.Group(func(r chi.Router) {
 		r.Use(authService.RequireAuth)
-		r.Handle("/", h.DashboardPage())
-		r.Handle("/dashboard", h.DashboardPage())
+		r.Get("/", h.DashboardPage)
+		r.Get("/dashboard", h.DashboardPage)
 	})
 
-	// endpoints
+	// backend endpoints
 	s.router.Post("/login", h.Login)
 }
