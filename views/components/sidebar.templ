@@ -23,7 +23,7 @@ templ Sidebar(user *database.User) {
 				@sidebar.Group() {
 					@sidebar.Menu() {
 						@sidebar.MenuItem(sidebar.MenuItemProps{
-							Class: "hover:bg-muted rounded-lg",
+							Class: "hover:bg-muted rounded-lg transition-all duration-100",
 						}) {
 							@sidebar.MenuButton(sidebar.MenuButtonProps{
 								Href:    "/",
@@ -39,15 +39,19 @@ templ Sidebar(user *database.User) {
 			@sidebar.Footer() {
 				@sidebar.Menu() {
 					@sidebar.MenuItem(sidebar.MenuItemProps{
-						Class: "hover:bg-muted rounded-md",
+						Class: "hover:bg-muted rounded-md transition-all duration-100",
 					}) {
 						@dropdown.Dropdown() {
 							@dropdown.Trigger() {
 								@sidebar.MenuButton(sidebar.MenuButtonProps{
 									Size: sidebar.MenuButtonSizeLg,
 								}) {
+									<span class="flex justify-center items-center h-8 w-8 bg-primary rounded-full">
+										{ string(username[0]) }
+									</span>
 									<div class="grid flex-1 text-left text-sm leading-tight">
 										<span class="truncate font-medium">{ username }</span>
+										<span class="truncate text-muted-foreground text-xs">blackheaven member</span>
 									</div>
 									@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
 								}
@@ -57,20 +61,27 @@ templ Sidebar(user *database.User) {
 								Placement: dropdown.PlacementTopStart,
 							}) {
 								@dropdown.Label() {
-									{ username }
+									<div class="flex gap-2">
+										<span class="flex justify-center items-center h-8 w-8 bg-primary rounded-full">
+											{ string(username[0]) }
+										</span>
+										<div class="grid flex-1 text-left text-sm leading-tight">
+											<span class="truncate font-medium">{ username }</span>
+											<span class="truncate text-muted-foreground text-xs">blackheaven member</span>
+										</div>
+									</div>
 								}
 								@dropdown.Separator()
 								@dropdown.Item(dropdown.ItemProps{
-									Class: "cursor-pointer",
-									Href:  "/settings",
+									Href: "/settings",
 								}) {
 									<span class="flex items-center">
 										@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
 										Settings
 									</span>
 								}
+								@dropdown.Separator()
 								@dropdown.Item(dropdown.ItemProps{
-									Class: "cursor-pointer",
 									Attributes: templ.Attributes{
 										"hx-delete":  "/logout",
 										"hx-trigger": "click",

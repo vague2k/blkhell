@@ -86,7 +86,18 @@ templ Toast(props ...Props) {
 		) }
 		{ p.Attributes... }
 	>
-		<div class="w-full bg-popover text-popover-foreground rounded-lg shadow-xs border pt-5 pb-4 px-4 flex items-center justify-center relative overflow-hidden group">
+		<div
+			class={ utils.TwMerge(
+                "w-full bg-popover text-popover-foreground rounded-xl shadow-xs border px-4 py-2.5 flex items-center justify-center relative overflow-hidden group",
+                // Variant colors
+                "data-[variant=default]:border-border",
+                "data-[variant=success]:border-green-500",
+                "data-[variant=error]:border-red-500",
+                "data-[variant=warning]:border-yellow-500",
+                "data-[variant=info]:border-blue-500",
+        ) }
+			data-variant={ string(p.Variant) }
+		>
 			// Progress indicator
 			if p.ShowIndicator && p.Duration > 0 {
 				<div class="absolute top-0 left-0 right-0 h-1 overflow-hidden">
@@ -121,10 +132,10 @@ templ Toast(props ...Props) {
 			// Content
 			<span class="flex-1 min-w-0">
 				if p.Title != "" {
-					<p class="text-sm font-semibold truncate">{ p.Title }</p>
+					<p class="text-[13px] font-medium truncate">{ p.Title }</p>
 				}
 				if p.Description != "" {
-					<p class="text-sm opacity-90 mt-1">{ p.Description }</p>
+					<p class="text-[13px] font-normal opacity-90 mt-0.5">{ p.Description }</p>
 				}
 			</span>
 			// Dismiss button

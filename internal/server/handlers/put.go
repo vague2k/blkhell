@@ -15,7 +15,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 	newPassword := r.FormValue("new-password")
 
 	if username == "" && newPassword == "" {
-		toastError(w, r, "You must enter a new username or a new password")
+		toastError(w, r, "You must enter a new username or password.")
 		return
 	}
 
@@ -33,7 +33,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 
 	if username != "" {
 		if username == user.Username {
-			toastError(w, r, "New username must be different from the current username")
+			toastError(w, r, "New username must be different from the current username.")
 			return
 		}
 		params.Username = username
@@ -43,7 +43,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 
 	if newPassword != "" {
 		if oldPassword == "" {
-			toastError(w, r, "You must enter your old password to set a new one")
+			toastError(w, r, "You must enter your old password to set a new one.")
 			return
 		}
 
@@ -65,7 +65,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 	_, err = h.DB.UpdateUser(r.Context(), params)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			toastError(w, r, "The user you're trying to update doesn't exist")
+			toastError(w, r, "The user you're trying to update doesn't exist.")
 			return
 		}
 		if err != nil {
