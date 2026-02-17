@@ -2,18 +2,96 @@ package pages
 
 import "github.com/vague2k/blkhell/views/layouts"
 import "github.com/vague2k/blkhell/internal/server/database"
+import "github.com/vague2k/blkhell/views/templui/separator"
+import "github.com/vague2k/blkhell/views/templui/button"
+import "github.com/vague2k/blkhell/views/templui/icon"
 
 templ Dashboard(user *database.User) {
 	@layouts.BaseSidebarLayout(user) {
-		<div class="h-full flex justify-center items-center">
-			<div class="flex flex-col gap-4 items-center justify-center px-4 w-full max-w-2xl">
-				<div class="text-center space-y-4">
-					<h1 class="text-4xl font-medium tracking-tight">Logged In.</h1>
-					<p class="text-muted-foreground text-sm max-w-md mx-auto">
-						You did it asshole.
-					</p>
-				</div>
+		<div class="p-4 w-full h-full">
+			<div class="flex flex-col">
+				<h1 class="text-4xl tracking-widest font-unison">Dashboard</h1>
+				<p class="text-muted-foreground">
+					A central location for all our assets.
+				</p>
 			</div>
+			@separator.Separator(separator.Props{
+				Class: "my-4",
+			})
+			<form
+				id="file-upload-form"
+				hx-post="/upload"
+				hx-encoding="multipart/form-data"
+				hx-target="#upload-form"
+				hx-swap="outerHTML"
+				class="flex p-8 flex-col items-center justify-center border border-dashed rounded-lg h-fit cursor-pointer"
+			>
+				<input
+					type="file"
+					name="file"
+					id="file-upload-input"
+					class="hidden"
+				/>
+				@icon.Upload(icon.Props{Size: 42, Class: "mb-6"})
+				<span id="upload-text">Drag and drop file to upload</span>
+				@separator.Separator(separator.Props{
+					Class: "my-2 max-w-sm",
+				}) {
+					or
+				}
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Type:    "button",
+					ID:      "browse-btn",
+				}) {
+					Browse
+				}
+			</form>
+			<script>
+				(function () {
+					const form = document.getElementById("file-upload-form");
+					const input = document.getElementById("file-upload-input");
+					const browseBtn = document.getElementById("browse-btn");
+
+					browseBtn.addEventListener("click", () => {
+						input.click();
+					});
+
+					// click anywhere in form
+					form.addEventListener("click", (e) => {
+						if (e.target.tagName !== "BUTTON") {
+							input.click();
+						}
+					});
+
+					// when file selected from "browse"
+					input.addEventListener("change", () => {
+						if (input.files.length > 0) {
+							form.submit();
+						}
+					});
+
+					form.addEventListener("dragover", (e) => {
+						e.preventDefault();
+						form.classList.add("border-primary");
+					});
+
+					form.addEventListener("dragleave", () => {
+						form.classList.remove("border-primary");
+					});
+
+					// Drop
+					form.addEventListener("drop", (e) => {
+						e.preventDefault();
+						form.classList.remove("border-primary");
+
+						if (e.dataTransfer.files.length > 0) {
+							input.files = e.dataTransfer.files;
+							form.submit();
+						}
+					});
+				})();
+			</script>
 		</div>
 	}
 }
