@@ -28,7 +28,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8090"
+		panic("PORT env var is not set")
 	}
 
 	s := server.NewServer(port)

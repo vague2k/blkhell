@@ -19,6 +19,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 
 	// backend endpoints
 	s.router.Post("/login", h.Login)
+	s.router.Post("/upload", h.Upload)
 	s.router.Delete("/logout", h.Logout)
 	s.router.Put("/edit", h.Edit)
 }

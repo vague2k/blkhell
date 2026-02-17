@@ -3,8 +3,8 @@ package pages
 import "github.com/vague2k/blkhell/views/layouts"
 import "github.com/vague2k/blkhell/internal/server/database"
 import "github.com/vague2k/blkhell/views/templui/separator"
-import "github.com/vague2k/blkhell/views/templui/button"
 import "github.com/vague2k/blkhell/views/templui/icon"
+import "github.com/vague2k/blkhell/views/templui/progress"
 
 templ Dashboard(user *database.User) {
 	@layouts.BaseSidebarLayout(user) {
@@ -22,9 +22,9 @@ templ Dashboard(user *database.User) {
 				id="file-upload-form"
 				hx-post="/upload"
 				hx-encoding="multipart/form-data"
-				hx-target="#upload-form"
-				hx-swap="outerHTML"
-				class="flex p-8 flex-col items-center justify-center border border-dashed rounded-lg h-fit cursor-pointer transition-all duration-100"
+				hx-trigger="submit"
+				hx-target="#upload-toast"
+				class="flex mb-3 p-8 flex-col items-center justify-center border border-dashed rounded-lg h-fit cursor-pointer transition-all duration-100"
 			>
 				<input
 					type="file"
@@ -33,65 +33,93 @@ templ Dashboard(user *database.User) {
 					class="hidden"
 				/>
 				@icon.Upload(icon.Props{Size: 42, Class: "mb-6"})
-				<span id="upload-text">Drag and drop file to upload</span>
+				<span>Drag and drop file to upload</span>
 				@separator.Separator(separator.Props{
 					Class: "my-2 max-w-sm",
 				}) {
 					or
 				}
-				@button.Button(button.Props{
-					Variant: button.VariantOutline,
-					Type:    "button",
-					ID:      "browse-btn",
-				}) {
-					Browse
-				}
+				<span>Click to browse</span>
 			</form>
-			<script>
-				(function () {
-					const form = document.getElementById("file-upload-form");
-					const input = document.getElementById("file-upload-input");
-					const browseBtn = document.getElementById("browse-btn");
-
-					browseBtn.addEventListener("click", () => {
-						input.click();
-					});
-
-					// click anywhere in form
-					form.addEventListener("click", (e) => {
-						if (e.target.tagName !== "BUTTON") {
-							input.click();
-						}
-					});
-
-					// when file selected from "browse"
-					input.addEventListener("change", () => {
-						if (input.files.length > 0) {
-							form.submit();
-						}
-					});
-
-					form.addEventListener("dragover", (e) => {
-						e.preventDefault();
-						form.classList.add("border-primary");
-					});
-
-					form.addEventListener("dragleave", () => {
-						form.classList.remove("border-primary");
-					});
-
-					// Drop
-					form.addEventListener("drop", (e) => {
-						e.preventDefault();
-						form.classList.remove("border-primary");
-
-						if (e.dataTransfer.files.length > 0) {
-							input.files = e.dataTransfer.files;
-							form.submit();
-						}
-					});
-				})();
-			</script>
+			<div
+				id="upload-progress-container"
+				class="hidden w-1/2 transition-all duration-300"
+			>
+				<span class="flex items-center gap-2">
+					@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin"})
+					<span class="text-sm w-30">
+						Uploading file
+					</span>
+					@progress.Progress(progress.Props{
+						ID: "upload-progress-bar",
+					})
+				</span>
+			</div>
+			<div id="upload-toast"></div>
 		</div>
+		<script>
+            (function () {
+                const form = document.getElementById("file-upload-form");
+                const input = document.getElementById("file-upload-input");
+                const browseBtn = document.getElementById("browse-btn");
+
+                // click anywhere in form
+                form.addEventListener("click", (e) => {
+                    if (e.target.tagName !== "BUTTON") {
+                        input.click();
+                    }
+                });
+
+                // when file selected from "browse"
+                input.addEventListener("change", () => {
+                    if (input.files.length > 0) {
+                    htmx.trigger(form, "submit")
+                    }
+                });
+
+                form.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                    form.classList.add("border-primary");
+                });
+
+                form.addEventListener("dragleave", () => {
+                    form.classList.remove("border-primary");
+                });
+
+                // Drop
+                form.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    form.classList.remove("border-primary");
+
+                    if (e.dataTransfer.files.length > 0) {
+                        input.files = e.dataTransfer.files;
+                        htmx.trigger(form, "submit")
+                    }
+                });
+
+
+                const progressContainer = document.getElementById("upload-progress-container");
+                const progressBar = document.getElementById("upload-progress-bar");
+
+                htmx.on(form, "htmx:xhr:loadstart", function () {
+                    progressContainer.classList.remove("hidden");
+                    progressBar.setAttribute("aria-valuenow", 0);
+                });
+
+                htmx.on(form, "htmx:xhr:progress", function (evt) {
+                    if (evt.detail.lengthComputable) {
+                        const percent = (evt.detail.loaded / evt.detail.total) * 100;
+                        progressBar.setAttribute("aria-valuenow", percent);
+                    }
+                });
+
+                htmx.on(form, "htmx:xhr:loadend", function () {
+                    setTimeout(() => {
+                        progressContainer.classList.add("hidden");
+                        progressBar.setAttribute("aria-valuenow", 0);
+                    }, 400);
+                });
+            })();
+        </script>
 	}
 }

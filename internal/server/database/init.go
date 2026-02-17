@@ -15,9 +15,7 @@ import (
 var schema string
 
 func Init() (*Queries, error) {
-	isDev := os.Getenv("GO_ENV") != "production"
-
-	dbFile, err := resolveDBPath(isDev)
+	dbFile, err := createDatabaseDirectory()
 	if err != nil {
 		return nil, err
 	}
@@ -34,25 +32,12 @@ func Init() (*Queries, error) {
 	return New(db), nil
 }
 
-func resolveDBPath(isDev bool) (string, error) {
-	if isDev {
-		return createDatabaseDirectory(".")
+func createDatabaseDirectory() (string, error) {
+	dbDir := os.Getenv("DB_DIR")
+	if dbDir == "" {
+		panic("DB_DIR env var is not set")
 	}
-
-	dataHome := os.Getenv("XDG_DATA_HOME")
-	if dataHome == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		dataHome = filepath.Join(home, ".local", "share")
-	}
-
-	return createDatabaseDirectory(dataHome)
-}
-
-func createDatabaseDirectory(base string) (string, error) {
-	dir := filepath.Join(base, "blkhell")
+	dir := filepath.Join(dbDir, "database")
 	dbFile := filepath.Join(dir, "blkhell.db")
 
 	if err := os.MkdirAll(dir, 0o755); err != nil {
