@@ -4,8 +4,8 @@ package dialog
 
 import (
 	"context"
-	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/utils"
+	"github.com/vague2k/blkhell/views/templui/icon"
 )
 
 type contextKey string
@@ -150,7 +150,7 @@ templ Content(props ...ContentProps) {
 	<div
 		class={ utils.TwMerge(
 				"fixed inset-0 z-50 bg-black/50",
-				"transition-opacity duration-300",
+				"transition-opacity duration-200",
 				"data-[tui-dialog-open=false]:opacity-0",
 				"data-[tui-dialog-open=true]:opacity-100",
 				"data-[tui-dialog-open=false]:pointer-events-none",
