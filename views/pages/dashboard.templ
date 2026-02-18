@@ -8,7 +8,6 @@ import "github.com/vague2k/blkhell/views/templui/progress"
 import "github.com/vague2k/blkhell/views/templui/sidebar"
 import "github.com/vague2k/blkhell/views/templui/input"
 import "github.com/vague2k/blkhell/views/templui/button"
-import "github.com/vague2k/blkhell/views/components"
 
 templ Dashboard(user *database.User) {
 	@layouts.BaseSidebarLayout(user) {
@@ -78,16 +77,14 @@ templ Dashboard(user *database.User) {
 					</span>
 				</div>
 			</div>
-			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-				@components.PlaceholderImage()
-			</div>
+			<div
+				id="dashboard-image-gallery"
+				hx-get="/hx/uploaded-images"
+				hx-trigger="load, refreshGallery"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+			></div>
 		</div>
 		<div id="upload-toast"></div>
 		<script>
@@ -95,6 +92,7 @@ templ Dashboard(user *database.User) {
                 const form = document.getElementById("file-upload-form");
                 const input = document.getElementById("file-upload-input");
                 const uploadBtn = document.getElementById("upload-button-topbar");
+                const imageGallery = document.getElementById("dashboard-image-gallery");
 
                 uploadBtn.addEventListener("click", (e) => {
                     e.preventDefault();
@@ -156,6 +154,12 @@ templ Dashboard(user *database.User) {
                         progressContainer.classList.add("hidden");
                         progressBar.setAttribute("aria-valuenow", 0);
                     }, 400);
+                });
+
+                htmx.on(form, "htmx:afterRequest", function (evt) {
+                    if (evt.target.id === "file-upload-form" && imageGallery) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
                 });
             })();
         </script>

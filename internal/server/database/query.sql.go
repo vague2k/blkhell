@@ -10,41 +10,98 @@ import (
 	"time"
 )
 
+const createImage = `-- name: CreateImage :one
+;
+
+INSERT INTO images (id, user_id, path, filename, ext, size)
+VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, user_id, path, filename, ext, size, created_at
+`
+
+type CreateImageParams struct {
+	ID       string
+	UserID   string
+	Path     string
+	Filename string
+	Ext      string
+	Size     int64
+}
+
+func (q *Queries) CreateImage(ctx context.Context, arg CreateImageParams) (Image, error) {
+	row := q.db.QueryRowContext(ctx, createImage,
+		arg.ID,
+		arg.UserID,
+		arg.Path,
+		arg.Filename,
+		arg.Ext,
+		arg.Size,
+	)
+	var i Image
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Path,
+		&i.Filename,
+		&i.Ext,
+		&i.Size,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createSession = `-- name: CreateSession :one
 ;
 
-INSERT INTO sessions (id, user_id, expires_at)
-VALUES (?, ?, ?)
-RETURNING id, user_id, expires_at
+INSERT INTO sessions (id, token, user_id, expires_at)
+VALUES (?, ?, ?, ?)
+RETURNING id, token, user_id, expires_at, created_at
 `
 
 type CreateSessionParams struct {
 	ID        string
-	UserID    int64
+	Token     string
+	UserID    string
 	ExpiresAt time.Time
 }
 
 func (q *Queries) CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error) {
-	row := q.db.QueryRowContext(ctx, createSession, arg.ID, arg.UserID, arg.ExpiresAt)
+	row := q.db.QueryRowContext(ctx, createSession,
+		arg.ID,
+		arg.Token,
+		arg.UserID,
+		arg.ExpiresAt,
+	)
 	var i Session
-	err := row.Scan(&i.ID, &i.UserID, &i.ExpiresAt)
+	err := row.Scan(
+		&i.ID,
+		&i.Token,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, password_hash, role)
-VALUES (?, ?, ?)
+INSERT INTO users (id, username, password_hash, role)
+VALUES (?, ?, ?, ?)
 RETURNING id, username, password_hash, role, created_at
 `
 
 type CreateUserParams struct {
+	ID           string
 	Username     string
 	PasswordHash string
 	Role         string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.PasswordHash, arg.Role)
+	row := q.db.QueryRowContext(ctx, createUser,
+		arg.ID,
+		arg.Username,
+		arg.PasswordHash,
+		arg.Role,
+	)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -91,17 +148,62 @@ func (q *Queries) DeleteUserByUsername(ctx context.Context, username string) err
 	return err
 }
 
-const getSession = `-- name: GetSession :one
+const getImages = `-- name: GetImages :many
 ;
 
-SELECT id, user_id, expires_at FROM sessions
-WHERE id = ?
+SELECT id, user_id, path, filename, ext, size, created_at FROM images
+ORDER BY filename
 `
 
-func (q *Queries) GetSession(ctx context.Context, id string) (Session, error) {
-	row := q.db.QueryRowContext(ctx, getSession, id)
+func (q *Queries) GetImages(ctx context.Context) ([]Image, error) {
+	rows, err := q.db.QueryContext(ctx, getImages)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Image
+	for rows.Next() {
+		var i Image
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSessionByToken = `-- name: GetSessionByToken :one
+;
+
+SELECT id, token, user_id, expires_at, created_at FROM sessions
+WHERE token = ?
+AND expires_at > CURRENT_TIMESTAMP
+`
+
+func (q *Queries) GetSessionByToken(ctx context.Context, token string) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getSessionByToken, token)
 	var i Session
-	err := row.Scan(&i.ID, &i.UserID, &i.ExpiresAt)
+	err := row.Scan(
+		&i.ID,
+		&i.Token,
+		&i.UserID,
+		&i.ExpiresAt,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
@@ -112,7 +214,7 @@ SELECT id, username, password_hash, role, created_at FROM users
 WHERE id = ?
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id int64) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
 	row := q.db.QueryRowContext(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -158,7 +260,7 @@ type UpdateUserParams struct {
 	Username     string
 	PasswordHash string
 	Role         string
-	ID           int64
+	ID           string
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

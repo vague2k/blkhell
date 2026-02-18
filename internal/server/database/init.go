@@ -37,12 +37,10 @@ func createDatabaseDirectory() (string, error) {
 	if dbDir == "" {
 		panic("DB_DIR env var is not set")
 	}
-	dir := filepath.Join(dbDir, "database")
-	dbFile := filepath.Join(dir, "blkhell.db")
 
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dbDir, 0o755); err != nil {
 		return "", fmt.Errorf("could not create database dir: %w", err)
 	}
 
-	return dbFile, nil
+	return filepath.Join(dbDir, "blkhell.db"), nil
 }

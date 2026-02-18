@@ -1,0 +1,9 @@
+package components
+
+import "github.com/vague2k/blkhell/internal/server/database"
+
+templ ImageGallery(images []database.Image) {
+	for _, image := range images {
+		@ImageButton(image)
+	}
+}

@@ -9,14 +9,26 @@ import (
 	"time"
 )
 
+type Image struct {
+	ID        string
+	UserID    string
+	Path      string
+	Filename  string
+	Ext       string
+	Size      int64
+	CreatedAt time.Time
+}
+
 type Session struct {
 	ID        string
-	UserID    int64
+	Token     string
+	UserID    string
 	ExpiresAt time.Time
+	CreatedAt sql.NullTime
 }
 
 type User struct {
-	ID           int64
+	ID           string
 	Username     string
 	PasswordHash string
 	Role         string

@@ -22,4 +22,5 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 	s.router.Post("/upload", h.Upload)
 	s.router.Delete("/logout", h.Logout)
 	s.router.Put("/edit", h.Edit)
+	s.router.Get("/hx/uploaded-images", h.HXUploadedImages)
 }

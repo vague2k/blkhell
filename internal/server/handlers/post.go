@@ -6,7 +6,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	"github.com/vague2k/blkhell/internal/server/database"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
@@ -19,15 +23,15 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sessionID, expires, err := h.Auth.CreateSession(r.Context(), user.ID)
+	sessionToken, expires, err := h.Auth.CreateSession(r.Context(), user.ID)
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not create session.")
 		return
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionID,
+		Name:     "session_token",
+		Value:    sessionToken,
 		Path:     "/",
 		HttpOnly: true,
 		Secure:   true,
@@ -73,39 +77,71 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create the uploads dir if not exist
-	dir, err := createUploadDirectory()
+	dir, err := createUploadDirectories()
 	if err != nil {
 		toastError(w, r, "500 Internal error: "+err.Error())
 		return
 	}
 
-	dst, err := os.Create(fmt.Sprintf("%s/%d%s", dir, time.Now().UnixNano(), filepath.Ext(fileHeader.Filename)))
+	fileExt := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	fileName := strings.TrimSuffix(fileHeader.Filename, fileExt)
+	filePath := fmt.Sprintf(
+		"%s/%s-%d%s",
+		dir,
+		fileName,
+		time.Now().UnixNano(),
+		fileExt,
+	)
+
+	dst, err := os.Create(filePath)
 	if err != nil {
-		toastError(w, r, "500 Internal error: Could not create file.")
+		toastError(w, r, "Could not create file.")
 		return
 	}
 	defer dst.Close()
-
-	_, err = io.Copy(dst, file)
+	size, err := io.Copy(dst, file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		toastError(w, r, "Could not save file.")
 		return
 	}
 
-	toastSuccess(w, r, "Your upload was Successful!")
+	user, err := h.Auth.GetUserFromRequest(r)
+	if err != nil {
+		toastError(w, r, "Could not get user.")
+		return
+	}
+
+	image, err := h.DB.CreateImage(r.Context(), database.CreateImageParams{
+		ID:       uuid.NewString(),
+		UserID:   user.ID,
+		Path:     filePath,
+		Filename: fileName,
+		Ext:      strings.TrimPrefix(fileExt, "."),
+		Size:     size,
+	})
+	if err != nil {
+		toastError(w, r, "500 Internal error: Could not create image in database.")
+		return
+	}
+
+	toastSuccess(w, r, fmt.Sprintf("'%s.%s' was uploaded successfully!", image.Filename, image.Ext))
 }
 
 // TODO: move this method somewhere else
-func createUploadDirectory() (string, error) {
-	uploadsDir := os.Getenv("UPLOADS_DIR")
-	if uploadsDir == "" {
-		panic("UPLOADS_DIR env var is not set")
-	}
-	dir := filepath.Join(uploadsDir, "uploads")
+func createUploadDirectories() (string, error) {
+	uploadsDir := getDirectoryPathFromEnv("UPLOADS_DIR")
 
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
 		return "", fmt.Errorf("could not create uploads dir: %w", err)
 	}
 
-	return dir, nil
+	return uploadsDir, nil
+}
+
+func getDirectoryPathFromEnv(key string) string {
+	dir := os.Getenv(key)
+	if dir == "" {
+		panic(fmt.Sprintf("%s env var is not set", key))
+	}
+	return dir
 }

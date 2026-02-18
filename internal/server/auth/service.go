@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/internal/server/database"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -31,6 +32,7 @@ func (s *Service) CreateNewUser(ctx context.Context, username, password, role st
 	}
 
 	_, err = s.db.CreateUser(ctx, database.CreateUserParams{
+		ID:           uuid.NewString(),
 		Username:     username,
 		PasswordHash: string(hash),
 		Role:         role,
@@ -52,28 +54,29 @@ func (s *Service) Authenticate(ctx context.Context, username, password string) (
 	return &user, nil
 }
 
-func (s *Service) CreateSession(ctx context.Context, userID int64) (string, time.Time, error) {
+func (s *Service) CreateSession(ctx context.Context, userID string) (string, time.Time, error) {
 	b := make([]byte, 32)
 	_, err := rand.Read(b)
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	sessionID := hex.EncodeToString(b)
+	sessionToken := hex.EncodeToString(b)
 
 	// 1 week before the session id expires
 	expires := time.Now().Add(7 * (24 * time.Hour))
 
 	_, err = s.db.CreateSession(ctx, database.CreateSessionParams{
-		ID:        sessionID,
+		ID:        uuid.NewString(),
+		Token:     sessionToken,
 		UserID:    userID,
 		ExpiresAt: expires,
 	})
 
-	return sessionID, expires, err
+	return sessionToken, expires, err
 }
 
 func (s *Service) DestroySession(r *http.Request) error {
-	cookie, err := r.Cookie("session_id")
+	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		return err
 	}
@@ -89,12 +92,12 @@ func (s *Service) DestroySession(r *http.Request) error {
 }
 
 func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
-	cookie, err := r.Cookie("session_id")
+	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		return nil, err
 	}
 
-	session, err := s.db.GetSession(r.Context(), cookie.Value)
+	session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
 	if err != nil {
 		return nil, err
 	}
@@ -109,13 +112,13 @@ func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
 
 func (s *Service) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_id")
+		cookie, err := r.Cookie("session_token")
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		session, err := s.db.GetSession(r.Context(), cookie.Value)
+		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
 		if err != nil || time.Now().After(session.ExpiresAt) {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return

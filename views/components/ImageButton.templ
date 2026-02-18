@@ -1,0 +1,41 @@
+package components
+
+import "github.com/vague2k/blkhell/internal/server/database"
+import "fmt"
+
+templ ImageButton(image database.Image) {
+	<div class="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:border-foreground/20">
+		<button class="relative aspect-square w-full overflow-hidden bg-secondary/50 cursor-pointer">
+			<img class="size-full object-cover transition-transform duration-200 group-hover:scale-105" src={ image.Path[6:] }/>
+		</button>
+		<div class="flex items-center gap-2 px-3 py-2">
+			<div class="min-w-0 flex-1">
+				<p class="truncate text-xs font-normal text-foreground">
+					{ image.Filename + "." + image.Ext }
+				</p>
+				<p class="text-[10px] text-muted-foreground">
+					{ formatFileSize(image.Size) }
+				</p>
+			</div>
+		</div>
+	</div>
+}
+
+func formatFileSize(bytes int64) string {
+	const (
+		KB = 1024
+		MB = KB * 1024
+		GB = MB * 1024
+	)
+
+	switch {
+	case bytes >= GB:
+		return fmt.Sprintf("%.2fGB", float64(bytes)/float64(GB))
+	case bytes >= MB:
+		return fmt.Sprintf("%.2fMB", float64(bytes)/float64(MB))
+	case bytes >= KB:
+		return fmt.Sprintf("%.2fKB", float64(bytes)/float64(KB))
+	default:
+		return fmt.Sprintf("%dB", bytes)
+	}
+}

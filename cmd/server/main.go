@@ -34,6 +34,7 @@ func main() {
 	s := server.NewServer(port)
 
 	s.SetupAssetsRoutes()
+	s.SetupUploadRoutes()
 	s.RegisterRoutes(handler)
 
 	if err := s.Run(); err != nil {

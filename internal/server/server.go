@@ -55,3 +55,20 @@ func (s *Server) SetupAssetsRoutes() {
 
 	s.router.Handle("GET /assets/*", http.StripPrefix("/assets/", assetHandler))
 }
+
+func (s *Server) SetupUploadRoutes() {
+	isDevelopment := os.Getenv("GO_ENV") != "production"
+	uploadDir := os.Getenv("UPLOADS_DIR")
+	if uploadDir == "" {
+		panic("UPLOADS_DIR env var is not set")
+	}
+
+	uploadsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isDevelopment {
+			w.Header().Set("Cache-Control", "no-store")
+		}
+		http.FileServer(http.Dir(uploadDir)).ServeHTTP(w, r)
+	})
+
+	s.router.Handle("GET /uploads/*", http.StripPrefix("/uploads/", uploadsHandler))
+}

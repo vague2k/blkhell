@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
 
@@ -31,4 +32,13 @@ func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	pages.Settings(user).Render(r.Context(), w)
+}
+
+func (h *Handler) HXUploadedImages(w http.ResponseWriter, r *http.Request) {
+	images, err := h.DB.GetImages(r.Context())
+	if err != nil {
+		http.Error(w, "Couldn't get user from request", http.StatusInternalServerError)
+		return
+	}
+	components.ImageGallery(images).Render(r.Context(), w)
 }

@@ -1,4 +1,6 @@
 .env
 views/assets/css/output.css
 *_templ.go
-/blkhell/
+
+# local dev
+/data
