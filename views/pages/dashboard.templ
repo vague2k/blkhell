@@ -5,26 +5,49 @@ import "github.com/vague2k/blkhell/internal/server/database"
 import "github.com/vague2k/blkhell/views/templui/separator"
 import "github.com/vague2k/blkhell/views/templui/icon"
 import "github.com/vague2k/blkhell/views/templui/progress"
+import "github.com/vague2k/blkhell/views/templui/sidebar"
+import "github.com/vague2k/blkhell/views/templui/input"
+import "github.com/vague2k/blkhell/views/templui/button"
+import "github.com/vague2k/blkhell/views/components"
 
 templ Dashboard(user *database.User) {
 	@layouts.BaseSidebarLayout(user) {
-		<div class="p-4 w-full h-full">
+		<div class="p-2 flex items-center justify-between gap-2 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@button.Button(button.Props{
+				ID:      "upload-button-topbar",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.Upload(icon.Props{Size: 10})
+					Upload
+				</span>
+			}
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@input.Input(input.Props{
+				Placeholder: "Search images...",
+				Class:       "max-w-md",
+			})
+		</div>
+		<div class="p-4 flex flex-col gap-4 w-full h-full">
 			<div class="flex flex-col">
-				<h1 class="text-4xl tracking-widest font-unison">Dashboard</h1>
-				<p class="text-muted-foreground">
+				<h1 class="text-3xl tracking-wider font-unison">Dashboard</h1>
+				<p class="text-muted-foreground text-sm">
 					A central location for all our assets.
 				</p>
 			</div>
-			@separator.Separator(separator.Props{
-				Class: "my-4",
-			})
 			<form
 				id="file-upload-form"
 				hx-post="/upload"
 				hx-encoding="multipart/form-data"
 				hx-trigger="submit"
 				hx-target="#upload-toast"
-				class="flex mb-3 p-8 flex-col items-center justify-center border border-dashed rounded-lg h-fit cursor-pointer transition-all duration-100"
+				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
 			>
 				<input
 					type="file"
@@ -32,36 +55,51 @@ templ Dashboard(user *database.User) {
 					id="file-upload-input"
 					class="hidden"
 				/>
-				@icon.Upload(icon.Props{Size: 42, Class: "mb-6"})
-				<span>Drag and drop file to upload</span>
-				@separator.Separator(separator.Props{
-					Class: "my-2 max-w-sm",
-				}) {
-					or
-				}
-				<span>Click to browse</span>
-			</form>
-			<div
-				id="upload-progress-container"
-				class="hidden w-1/2 transition-all duration-300"
-			>
-				<span class="flex items-center gap-2">
-					@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin"})
-					<span class="text-sm w-30">
-						Uploading file
-					</span>
-					@progress.Progress(progress.Props{
-						ID: "upload-progress-bar",
-					})
+				<span class="flex w-full py-3 items-center justify-center">
+					@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
+					<span class="text-sm">Drop files or click to upload</span>
 				</span>
+			</form>
+			<div class="flex items-center gap-2">
+				<span class="font-light text-muted-foreground text-sm">7 IMAGES</span>
+				<div
+					id="upload-progress-container"
+					class="hidden min-w-xl transition-all duration-300"
+				>
+					<span class="flex items-center">
+						@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						<span class="text-sm min-w-24">
+							Uploading file
+						</span>
+						@progress.Progress(progress.Props{
+							ID:    "upload-progress-bar",
+							Class: "ml-1",
+						})
+					</span>
+				</div>
 			</div>
-			<div id="upload-toast"></div>
+			<div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+				@components.PlaceholderImage()
+			</div>
 		</div>
+		<div id="upload-toast"></div>
 		<script>
             (function () {
                 const form = document.getElementById("file-upload-form");
                 const input = document.getElementById("file-upload-input");
-                const browseBtn = document.getElementById("browse-btn");
+                const uploadBtn = document.getElementById("upload-button-topbar");
+
+                uploadBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    input.click();
+                });
 
                 // click anywhere in form
                 form.addEventListener("click", (e) => {

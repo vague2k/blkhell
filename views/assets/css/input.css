@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import "./font-geist.css";
 @import "./font-unison.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
-  --font-inter: "Inter", sans-serif;
+  --font-geist: "Geist", sans-serif;
   --font-unison: "Unison Pro", sans-serif;
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
@@ -113,6 +113,6 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply bg-background text-foreground font-geist;
   }
 }

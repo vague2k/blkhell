@@ -10,9 +10,7 @@ import "golang.org/x/text/language"
 templ Sidebar(user *database.User) {
 	{{ username := cases.Title(language.English).String(user.Username) }}
 	@sidebar.Layout() {
-		@sidebar.Sidebar(sidebar.Props{
-			Variant: sidebar.VariantFloating,
-		}) {
+		@sidebar.Sidebar() {
 			@sidebar.Header() {
 				<div class="flex flex-col p-2">
 					<span class="font-unison tracking-widest">Blkhell.</span>

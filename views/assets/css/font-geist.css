@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* Geist – Light (300) */
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist/Geist-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist – Regular (400) */
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist/Geist-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist – Medium (500) */
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist/Geist-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist – SemiBold (600) */
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist/Geist-SemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist – Bold (700) */
+@font-face {
+  font-family: "Geist";
+  src: url("/assets/fonts/geist/Geist-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
