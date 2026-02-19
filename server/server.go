@@ -2,6 +2,7 @@ package server
 
 import (
 	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -57,17 +58,18 @@ func (s *Server) SetupAssetsRoutes() {
 }
 
 func (s *Server) SetupUploadRoutes() {
-	isDevelopment := os.Getenv("GO_ENV") != "production"
 	uploadDir := os.Getenv("UPLOADS_DIR")
 	if uploadDir == "" {
 		panic("UPLOADS_DIR env var is not set")
 	}
+	fs := http.FileServer(http.Dir(uploadDir))
 
 	uploadsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isDevelopment {
+		if os.Getenv("GO_ENV") != "production" {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		http.FileServer(http.Dir(uploadDir)).ServeHTTP(w, r)
+		r.URL.Path, _ = url.PathUnescape(r.URL.Path)
+		fs.ServeHTTP(w, r)
 	})
 
 	s.router.Handle("GET /uploads/*", http.StripPrefix("/uploads/", uploadsHandler))
