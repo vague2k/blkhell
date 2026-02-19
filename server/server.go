@@ -68,7 +68,8 @@ func (s *Server) SetupUploadRoutes() {
 		if os.Getenv("GO_ENV") != "production" {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		decodedPath, err := url.PathUnescape(r.URL.Path)
+		filepath := r.URL.Path
+		decodedPath, err := url.PathUnescape(filepath)
 		if err != nil {
 			http.Error(w, "Invalid path", http.StatusBadRequest)
 			return
