@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/vague2k/blkhell/internal/server/database"
+	"github.com/vague2k/blkhell/server/database"
 )
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {

@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/vague2k/blkhell/internal/server/auth"
-	"github.com/vague2k/blkhell/internal/server/database"
+	"github.com/vague2k/blkhell/server/auth"
+	"github.com/vague2k/blkhell/server/database"
 )
 
 type Handler struct {

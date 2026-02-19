@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/vague2k/blkhell/internal/server/handlers"
+	"github.com/vague2k/blkhell/server/handlers"
 )
 
 func (s *Server) RegisterRoutes(h *handlers.Handler) {

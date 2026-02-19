@@ -2,8 +2,8 @@ package cli
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/vague2k/blkhell/internal/server/auth"
-	"github.com/vague2k/blkhell/internal/server/database"
+	"github.com/vague2k/blkhell/server/auth"
+	"github.com/vague2k/blkhell/server/database"
 )
 
 type App struct {

@@ -5,10 +5,10 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/vague2k/blkhell/internal/server"
-	"github.com/vague2k/blkhell/internal/server/auth"
-	"github.com/vague2k/blkhell/internal/server/database"
-	"github.com/vague2k/blkhell/internal/server/handlers"
+	"github.com/vague2k/blkhell/server"
+	"github.com/vague2k/blkhell/server/auth"
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/server/handlers"
 )
 
 func main() {

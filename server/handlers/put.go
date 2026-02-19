@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/vague2k/blkhell/internal/server/database"
+	"github.com/vague2k/blkhell/server/database"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -68,10 +68,9 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 			toastError(w, r, "The user you're trying to update doesn't exist.")
 			return
 		}
-		if err != nil {
-			toastError(w, r, "500 Internal error: Could not update user.")
-			return
-		}
+
+		toastError(w, r, "500 Internal error: Could not update user.")
+		return
 	}
 
 	// destroy session if password changed
