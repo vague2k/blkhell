@@ -68,7 +68,7 @@ func (s *Server) SetupUploadRoutes() {
 		if os.Getenv("GO_ENV") != "production" {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		r.URL.Path, _ = url.PathUnescape(r.URL.Path)
+		r.URL.Path = url.QueryEscape(r.URL.Path)
 		fs.ServeHTTP(w, r)
 	})
 
