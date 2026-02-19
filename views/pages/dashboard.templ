@@ -37,8 +37,14 @@ templ Dashboard(user *database.User) {
 				Orientation: separator.OrientationVertical,
 			})
 			@input.Input(input.Props{
+				Name:        "q", // use as query param
 				Placeholder: "Search images...",
 				Class:       "max-w-md",
+				Attributes: templ.Attributes{
+					"hx-get":     "/hx/search-image",
+					"hx-trigger": "keyup changed delay:300ms",
+					"hx-target":  "#dashboard-image-gallery",
+				},
 			})
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">

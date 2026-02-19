@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
@@ -41,6 +42,26 @@ func (h *Handler) HXUploadedImages(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Couldn't get user from request", http.StatusInternalServerError)
 		return
 	}
+	components.ImageGallery(images).Render(r.Context(), w)
+	// render image count (hx-oob-swap)
+	fmt.Fprintf(
+		w,
+		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d IMAGES</span>`,
+		len(images),
+	)
+}
+
+func (h *Handler) HXSearchImages(w http.ResponseWriter, r *http.Request) {
+	input := r.URL.Query().Get("q")
+	images, err := h.DB.GetImagesByPartialName(r.Context(), database.GetImagesByPartialNameParams{
+		Filename: "%" + input + "%",
+		Ext:      "%" + input + "%",
+	})
+	if err != nil {
+		http.Error(w, "search failed", http.StatusInternalServerError)
+		return
+	}
+
 	components.ImageGallery(images).Render(r.Context(), w)
 	// render image count (hx-oob-swap)
 	fmt.Fprintf(

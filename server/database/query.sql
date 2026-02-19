@@ -51,6 +51,12 @@ WHERE id = ? ;
 SELECT * FROM images
 ORDER BY filename ;
 
+-- name: GetImagesByPartialName :many
+SELECT *
+FROM images
+WHERE filename LIKE ?
+OR ext like ? ;
+
 -- name: DeleteImage :exec
 DELETE FROM images
 WHERE id = ? ;
