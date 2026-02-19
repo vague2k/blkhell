@@ -1,6 +1,7 @@
 .env
 views/assets/css/output.css
 *_templ.go
+/dist
 
 # local dev
 /data

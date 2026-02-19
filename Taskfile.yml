@@ -22,3 +22,17 @@ tasks:
       - tailwind-clean
     cmds:
       - task --parallel tailwind-watch templ
+
+  build:
+    desc: build the server and CLI
+    cmds:
+      - templ generate
+      - go build -o dist/server ./cmd/server
+      - go install ./cmd/blkhell
+
+  server:
+    desc: Run the server
+    deps:
+      - build
+    cmds:
+      - ./dist/server

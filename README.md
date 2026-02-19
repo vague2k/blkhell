@@ -16,7 +16,7 @@ Right now the scope of the project only handles images (label logos and other su
 │   └── server/         # HTTP server binary
 │
 ├── internal/           # Private packages
-│   └── cli/            # CLI implementation details
+│   └── blkhell/        # blkhell CLI implementation details
 │
 ├── server/             # Server application code
 │   ├── auth/           # Authentication, sessions, user identity

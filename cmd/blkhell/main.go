@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/joho/godotenv"
-	"github.com/vague2k/blkhell/internal/cli"
+	"github.com/vague2k/blkhell/internal/blkhell"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("Error loading env: %v", err)
 	}
 
-	if err := cli.NewRootCmd().Execute(); err != nil {
+	if err := blkhell.NewRootCmd().Execute(); err != nil {
 		log.Fatal(err)
 	}
 }

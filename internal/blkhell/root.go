@@ -1,4 +1,4 @@
-package cli
+package blkhell
 
 import (
 	"github.com/spf13/cobra"
