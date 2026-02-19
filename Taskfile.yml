@@ -26,7 +26,8 @@ tasks:
   build:
     desc: build the server and CLI
     cmds:
-      - templ generate
+      - go tool templ generate
+      - tailwindcss -i ./views/assets/css/input.css -o ./views/assets/css/output.css --minify
       - go build -o dist/server ./cmd/server
       - go install ./cmd/blkhell
 
