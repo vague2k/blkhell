@@ -6,6 +6,8 @@ import "github.com/vague2k/blkhell/views/templui/dropdown"
 import "github.com/vague2k/blkhell/server/database"
 import "golang.org/x/text/cases"
 import "golang.org/x/text/language"
+import "github.com/vague2k/blkhell/views/templui/badge"
+import "os"
 
 templ Sidebar(user *database.User) {
 	{{ username := cases.Title(language.English).String(user.Username) }}
@@ -17,6 +19,17 @@ templ Sidebar(user *database.User) {
 				<div class="flex flex-col p-2">
 					<span class="font-unison tracking-widest">Blkhell.</span>
 					<span class="text-muted-foreground font-normal text-xs">A blackheaven solution.</span>
+					@badge.Badge(badge.Props{
+						Variant: badge.VariantOutline,
+						Class:   "mt-1 -translate-x-0.5 text-muted-foreground",
+					}) {
+						{{ ver := os.Getenv("VERSION") }}
+						if ver == "" {
+							Version
+						} else {
+							{ ver }
+						}
+					}
 				</div>
 			}
 			@sidebar.Content(sidebar.ContentProps{
@@ -33,6 +46,17 @@ templ Sidebar(user *database.User) {
 							}) {
 								@icon.LayoutDashboard(icon.Props{Class: "size-4"})
 								<span>Dashboard</span>
+							}
+						}
+						@sidebar.MenuItem(sidebar.MenuItemProps{
+							Class: "hover:bg-muted rounded-lg transition-all duration-200",
+						}) {
+							@sidebar.MenuButton(sidebar.MenuButtonProps{
+								Href:    "/settings",
+								Tooltip: "Settings",
+							}) {
+								@icon.Settings(icon.Props{Class: "size-4"})
+								<span>Account Settings</span>
 							}
 						}
 					}
