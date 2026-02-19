@@ -6,9 +6,21 @@ import "github.com/vague2k/blkhell/views/templui/separator"
 import "github.com/vague2k/blkhell/views/templui/input"
 import "github.com/vague2k/blkhell/views/templui/button"
 import "github.com/vague2k/blkhell/views/templui/form"
+import "github.com/vague2k/blkhell/views/templui/sidebar"
+import "github.com/vague2k/blkhell/views/components"
 
 templ Settings(user *database.User) {
 	@layouts.BaseSidebarLayout(user) {
+		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@components.ThemeSwitcher()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+		</div>
 		<div class="p-4 w-full h-full">
 			<div class="flex flex-col">
 				<h1 class="text-4xl tracking-widest font-unison">Settings</h1>
@@ -22,7 +34,7 @@ templ Settings(user *database.User) {
 			<form
 				hx-put="/edit"
 				hx-target="#settings-toast"
-				class="flex flex-col gap-3 w-1/3"
+				class="flex flex-col gap-3 md:w-2/3 xl:w-1/3"
 			>
 				@form.Item() {
 					@form.Label() {

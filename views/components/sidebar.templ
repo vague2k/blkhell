@@ -11,13 +11,17 @@ templ Sidebar(user *database.User) {
 	{{ username := cases.Title(language.English).String(user.Username) }}
 	@sidebar.Layout() {
 		@sidebar.Sidebar() {
-			@sidebar.Header() {
+			@sidebar.Header(sidebar.HeaderProps{
+				Class: "bg-background",
+			}) {
 				<div class="flex flex-col p-2">
 					<span class="font-unison tracking-widest">Blkhell.</span>
 					<span class="text-muted-foreground font-normal text-xs">A blackheaven solution.</span>
 				</div>
 			}
-			@sidebar.Content() {
+			@sidebar.Content(sidebar.ContentProps{
+				Class: "bg-background",
+			}) {
 				@sidebar.Group() {
 					@sidebar.Menu() {
 						@sidebar.MenuItem(sidebar.MenuItemProps{
@@ -44,7 +48,7 @@ templ Sidebar(user *database.User) {
 								@sidebar.MenuButton(sidebar.MenuButtonProps{
 									Size: sidebar.MenuButtonSizeLg,
 								}) {
-									<span class="flex justify-center items-center h-8 w-8 bg-primary rounded-full">
+									<span class="flex justify-center items-center h-8 w-8 bg-muted text-foreground rounded-full">
 										{ string(username[0]) }
 									</span>
 									<div class="grid flex-1 text-left text-sm leading-tight">
@@ -60,7 +64,7 @@ templ Sidebar(user *database.User) {
 							}) {
 								@dropdown.Label() {
 									<div class="flex gap-2">
-										<span class="flex justify-center items-center h-8 w-8 bg-primary rounded-full">
+										<span class="flex justify-center items-center h-8 w-8 bg-muted text-foreground rounded-full">
 											{ string(username[0]) }
 										</span>
 										<div class="grid flex-1 text-left text-sm leading-tight">
