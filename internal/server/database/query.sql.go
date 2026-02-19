@@ -125,15 +125,27 @@ func (q *Queries) DeleteExpiredSessions(ctx context.Context) error {
 	return err
 }
 
+const deleteImage = `-- name: DeleteImage :exec
+;
+
+DELETE FROM images
+WHERE id = ?
+`
+
+func (q *Queries) DeleteImage(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, deleteImage, id)
+	return err
+}
+
 const deleteSession = `-- name: DeleteSession :exec
 ;
 
 DELETE FROM sessions
-WHERE id = ?
+WHERE token = ?
 `
 
-func (q *Queries) DeleteSession(ctx context.Context, id string) error {
-	_, err := q.db.ExecContext(ctx, deleteSession, id)
+func (q *Queries) DeleteSession(ctx context.Context, token string) error {
+	_, err := q.db.ExecContext(ctx, deleteSession, token)
 	return err
 }
 
@@ -146,6 +158,28 @@ DELETE FROM users WHERE username = ?
 func (q *Queries) DeleteUserByUsername(ctx context.Context, username string) error {
 	_, err := q.db.ExecContext(ctx, deleteUserByUsername, username)
 	return err
+}
+
+const getImageByID = `-- name: GetImageByID :one
+;
+
+SELECT id, user_id, path, filename, ext, size, created_at FROM images
+WHERE id = ?
+`
+
+func (q *Queries) GetImageByID(ctx context.Context, id string) (Image, error) {
+	row := q.db.QueryRowContext(ctx, getImageByID, id)
+	var i Image
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Path,
+		&i.Filename,
+		&i.Ext,
+		&i.Size,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getImages = `-- name: GetImages :many

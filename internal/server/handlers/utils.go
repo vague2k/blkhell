@@ -27,3 +27,14 @@ func toastSuccess(w http.ResponseWriter, r *http.Request, desc string) error {
 		Dismissible: true,
 	}).Render(r.Context(), w)
 }
+
+func toastWarning(w http.ResponseWriter, r *http.Request, desc string) error {
+	return toast.Toast(toast.Props{
+		Icon:        true,
+		Title:       "Warning",
+		Description: desc,
+		Variant:     toast.VariantWarning,
+		Position:    toast.PositionTopRight,
+		Dismissible: true,
+	}).Render(r.Context(), w)
+}

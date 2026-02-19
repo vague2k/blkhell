@@ -29,7 +29,7 @@ RETURNING * ;
 
 -- name: DeleteSession :exec
 DELETE FROM sessions
-WHERE id = ? ;
+WHERE token = ? ;
 
 -- name: DeleteExpiredSessions :exec
 DELETE FROM sessions
@@ -43,6 +43,14 @@ INSERT INTO images (id, user_id, path, filename, ext, size)
 VALUES (?, ?, ?, ?, ?, ?)
 RETURNING * ;
 
+-- name: GetImageByID :one
+SELECT * FROM images
+WHERE id = ? ;
+
 -- name: GetImages :many
 SELECT * FROM images
 ORDER BY filename ;
+
+-- name: DeleteImage :exec
+DELETE FROM images
+WHERE id = ? ;

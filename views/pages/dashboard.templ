@@ -53,7 +53,7 @@ templ Dashboard(user *database.User) {
 				hx-post="/upload"
 				hx-encoding="multipart/form-data"
 				hx-trigger="submit"
-				hx-target="#upload-toast"
+				hx-target="#dashboard-toast"
 				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
 			>
 				<input
@@ -94,7 +94,7 @@ templ Dashboard(user *database.User) {
 				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
 			></div>
 		</div>
-		<div id="upload-toast"></div>
+		<div id="dashboard-toast"></div>
 		<script src={ utils.ScriptURL("assets/js/pages/dashboard.js") }></script>
 	}
 }
