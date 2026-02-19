@@ -74,4 +74,10 @@
       imageGallery.dispatchEvent(new Event("refreshGallery"));
     }
   });
+    // refresh gallery when image deleted
+    htmx.on("htmx:afterRequest", function (evt) {
+    if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
+        imageGallery.dispatchEvent(new Event("refreshGallery"));
+    }
+    });
 })();

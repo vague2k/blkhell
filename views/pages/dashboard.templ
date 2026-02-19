@@ -68,7 +68,12 @@ templ Dashboard(user *database.User) {
 				</span>
 			</form>
 			<div class="flex items-center gap-2">
-				<span class="font-light text-muted-foreground text-sm">7 IMAGES</span>
+				<span
+					id="dashboard-image-count"
+					class="font-light text-muted-foreground text-sm"
+				>
+					0 IMAGES
+				</span>
 				<div
 					id="upload-progress-container"
 					class="hidden min-w-xl transition-all duration-200"

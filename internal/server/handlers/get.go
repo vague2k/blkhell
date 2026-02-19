@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/vague2k/blkhell/views/components"
@@ -41,4 +42,10 @@ func (h *Handler) HXUploadedImages(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
+	// render image count (hx-oob-swap)
+	fmt.Fprintf(
+		w,
+		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d IMAGES</span>`,
+		len(images),
+	)
 }
