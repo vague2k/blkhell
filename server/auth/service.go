@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"net/http"
@@ -17,6 +18,9 @@ type contextKey string
 
 const userKey contextKey = "user"
 
+var ErrDb = errors.New("Database error, try again. Contact admin if issue occurs")
+var ErrNoSession = errors.New("Session does not exist")
+
 type Service struct {
 	db *database.Queries
 }
@@ -27,8 +31,8 @@ func New(db *database.Queries) *Service {
 
 func (s *Service) CreateNewUser(ctx context.Context, username, password, role string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
+	if err != nil && errors.Is(err, bcrypt.ErrPasswordTooLong) {
+		return errors.New("Password is too long") // err's if pass is longer than 72 bytes
 	}
 
 	_, err = s.db.CreateUser(ctx, database.CreateUserParams{
@@ -37,14 +41,20 @@ func (s *Service) CreateNewUser(ctx context.Context, username, password, role st
 		PasswordHash: string(hash),
 		Role:         role,
 	})
+	if err != nil {
+		return ErrDb
+	}
 
-	return err
+	return nil
 }
 
 func (s *Service) Authenticate(ctx context.Context, username, password string) (*database.User, error) {
 	user, err := s.db.GetUserByUsername(ctx, username)
 	if err != nil {
-		return nil, errors.New("invalid username")
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("invalid username")
+		}
+		return nil, ErrDb
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
@@ -56,55 +66,78 @@ func (s *Service) Authenticate(ctx context.Context, username, password string) (
 
 func (s *Service) CreateSession(ctx context.Context, userID string) (string, time.Time, error) {
 	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", time.Time{}, err
-	}
+	rand.Read(b) // should never error, as it only returns error to fufill signature from io.Reader.Read()
 	sessionToken := hex.EncodeToString(b)
 
 	// 1 week before the session id expires
 	expires := time.Now().Add(7 * (24 * time.Hour))
 
-	_, err = s.db.CreateSession(ctx, database.CreateSessionParams{
+	_, err := s.db.CreateSession(ctx, database.CreateSessionParams{
 		ID:        uuid.NewString(),
 		Token:     sessionToken,
 		UserID:    userID,
 		ExpiresAt: expires,
 	})
+	if err != nil {
+		return "", time.Time{}, errors.New("Database error, contact admin if issue occurs.")
+	}
 
 	return sessionToken, expires, err
 }
 
-func (s *Service) DestroySession(r *http.Request) error {
+func (s *Service) DestroySession(w http.ResponseWriter, r *http.Request) error {
+	// can ONLY return error if no cookie is found
+	// if no cookie is found on logout, user should already logged out ???
+	// hmm..
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		return err
+		return nil
 	}
 
 	err = s.db.DeleteSession(r.Context(), cookie.Value)
 	if err != nil {
-		return err
+		return ErrDb
 	}
 
-	cookie.Expires = time.Now()
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_token",
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
+		Expires:  time.Now().Add(-time.Hour),
+		MaxAge:   -1, // MaxAge<0 means delete cookie now
+	})
 
 	return nil
+}
+
+func (s *Service) UserFromContext(ctx context.Context) (*database.User, bool) {
+	u, ok := ctx.Value(userKey).(*database.User)
+	return u, ok
 }
 
 func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		return nil, err
+		return nil, ErrNoSession
 	}
 
 	session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNoSession
+		}
+		return nil, ErrDb
 	}
 
 	user, err := s.db.GetUserByID(r.Context(), session.UserID)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, errors.New("Couldn't find user tied to session")
+		}
+		return nil, ErrDb
 	}
 
 	return &user, nil
@@ -130,7 +163,7 @@ func (s *Service) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userKey, user)
+		ctx := context.WithValue(r.Context(), userKey, &user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

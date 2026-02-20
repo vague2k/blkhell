@@ -6,12 +6,9 @@ import (
 )
 
 func (s *Server) RegisterRoutes(h *handlers.Handler) {
-	// pages
-	s.router.Get("/login", h.LoginPage)
-
-	// all pages that require auth to access
 	s.router.Group(func(r chi.Router) {
 		r.Use(h.Auth.RequireAuth)
+		r.Get("/login", h.LoginPage)
 		r.Get("/", h.DashboardPage)
 		r.Get("/dashboard", h.DashboardPage)
 		r.Get("/settings", h.SettingsPage)

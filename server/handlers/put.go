@@ -75,7 +75,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 
 	// destroy session if password changed
 	if newPassword != "" {
-		if err := h.Auth.DestroySession(r); err != nil {
+		if err := h.Auth.DestroySession(w, r); err != nil {
 			toastError(w, r, "500 Internal error: Could not destroy session.")
 			return
 		}
