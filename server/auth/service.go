@@ -143,6 +143,24 @@ func (s *Service) GetUserFromRequest(r *http.Request) (*database.User, error) {
 	return &user, nil
 }
 
+func (s *Service) RedirectIfAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("session_token")
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
+		if err != nil || time.Now().After(session.ExpiresAt) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	})
+}
+
 func (s *Service) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
