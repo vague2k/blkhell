@@ -2,7 +2,6 @@ package server
 
 import (
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/go-chi/chi/v5"
@@ -68,14 +67,6 @@ func (s *Server) SetupUploadRoutes() {
 		if os.Getenv("GO_ENV") != "production" {
 			w.Header().Set("Cache-Control", "no-store")
 		}
-		filepath := r.URL.Path
-		decodedPath, err := url.PathUnescape(filepath)
-		if err != nil {
-			http.Error(w, "Invalid path", http.StatusBadRequest)
-			return
-		}
-		r.URL.Path = decodedPath
-
 		fs.ServeHTTP(w, r)
 	})
 

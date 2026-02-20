@@ -88,7 +88,7 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	filePath := fmt.Sprintf(
 		"%s/%s-%d%s",
 		dir,
-		fileName,
+		strings.ReplaceAll(fileName, " ", "-"), // replaces spaces with dashes due to browser nonsense
 		time.Now().UnixNano(),
 		fileExt,
 	)
