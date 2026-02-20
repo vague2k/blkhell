@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"os"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
@@ -69,4 +72,23 @@ func (h *Handler) HXSearchImages(w http.ResponseWriter, r *http.Request) {
 		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d IMAGES</span>`,
 		len(images),
 	)
+}
+
+func (h *Handler) HXDownloadImage(w http.ResponseWriter, r *http.Request) {
+	image, err := h.DB.GetImageByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		http.Error(w, "search failed", http.StatusInternalServerError)
+		return
+	}
+
+	file, err := os.Open(image.Path)
+	if err != nil {
+		toastError(w, r, "Couldn't open file to download")
+		return
+	}
+	defer file.Close()
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.%s"`, image.Filename, image.Ext))
+
+	io.Copy(w, file)
 }

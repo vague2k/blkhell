@@ -25,4 +25,5 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 	s.router.Put("/edit", h.Edit)
 	s.router.Get("/hx/uploaded-images", h.HXUploadedImages)
 	s.router.Get("/hx/search-image", h.HXSearchImages)
+	s.router.Get("/images/download/{id}", h.HXDownloadImage)
 }

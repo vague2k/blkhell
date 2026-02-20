@@ -48,7 +48,9 @@ templ ImageGallery(images []database.Image) {
 									Preview
 								</span>
 							}
-							@dropdown.Item() {
+							@dropdown.Item(dropdown.ItemProps{
+								Href: fmt.Sprintf("/images/download/%s", image.ID),
+							}) {
 								<span class="flex items-center text-sm">
 									@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
 									Download
