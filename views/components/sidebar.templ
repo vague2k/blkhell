@@ -109,7 +109,7 @@ templ Sidebar(user *database.User) {
 								@dropdown.Separator()
 								@dropdown.Item(dropdown.ItemProps{
 									Attributes: templ.Attributes{
-										"hx-delete":  "/logout",
+										"hx-delete":  "/actions/users/logout",
 										"hx-trigger": "click",
 									},
 								}) {

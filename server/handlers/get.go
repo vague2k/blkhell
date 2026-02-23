@@ -40,7 +40,7 @@ func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 	pages.Settings(user).Render(r.Context(), w)
 }
 
-func (h *Handler) HXUploadedImages(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HXImageGallery(w http.ResponseWriter, r *http.Request) {
 	images, err := h.DB.GetImages(r.Context())
 	if err != nil {
 		http.Error(w, "Couldn't get user from request", http.StatusInternalServerError)
@@ -55,7 +55,7 @@ func (h *Handler) HXUploadedImages(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *Handler) HXSearchImages(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HXSearchImageGallery(w http.ResponseWriter, r *http.Request) {
 	input := r.URL.Query().Get("q")
 	images, err := h.DB.GetImagesByPartialName(r.Context(), database.GetImagesByPartialNameParams{
 		Filename: "%" + input + "%",
@@ -75,7 +75,7 @@ func (h *Handler) HXSearchImages(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
-func (h *Handler) HXDownloadImage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 	image, err := h.DB.GetImageByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "search failed", http.StatusInternalServerError)

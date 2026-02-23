@@ -60,7 +60,7 @@ templ ImageGallery(images []database.Image) {
 							@dropdown.Item(dropdown.ItemProps{
 								Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
 								Attributes: templ.Attributes{
-									"hx-delete": fmt.Sprintf("/images/%s", image.ID),
+									"hx-delete": "/actions/images/delete/" + image.ID,
 									"hx-target": "#dashboard-toast",
 								},
 							}) {

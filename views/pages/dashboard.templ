@@ -41,7 +41,7 @@ templ Dashboard(user *database.User) {
 				Placeholder: "Search images...",
 				Class:       "max-w-md",
 				Attributes: templ.Attributes{
-					"hx-get":     "/hx/search-image",
+					"hx-get":     "/hx/dashboard/search-image-gallery",
 					"hx-trigger": "keyup changed delay:300ms",
 					"hx-target":  "#dashboard-image-gallery",
 				},
@@ -56,7 +56,7 @@ templ Dashboard(user *database.User) {
 			</div>
 			<form
 				id="file-upload-form"
-				hx-post="/upload"
+				hx-post="/actions/images/upload"
 				hx-encoding="multipart/form-data"
 				hx-trigger="submit"
 				hx-target="#dashboard-toast"
@@ -98,7 +98,7 @@ templ Dashboard(user *database.User) {
 			</div>
 			<div
 				id="dashboard-image-gallery"
-				hx-get="/hx/uploaded-images"
+				hx-get="/hx/dashboard/image-gallery"
 				hx-trigger="load, refreshGallery"
 				hx-target="this"
 				hx-swap="innerHTML"
