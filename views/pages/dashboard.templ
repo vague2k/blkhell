@@ -1,13 +1,17 @@
 package pages
 
 import (
+	"fmt"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/input"
 	"github.com/vague2k/blkhell/views/templui/progress"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/separator"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 	"github.com/vague2k/blkhell/views/templui/utils"
@@ -32,6 +36,17 @@ templ Dashboard(user *database.User) {
 					@icon.Upload(icon.Props{Size: 10})
 					Upload
 				</span>
+			}
+			@addBandDialog() {
+				@button.Button(button.Props{
+					ID:      "add-band-button-topbar",
+					Variant: button.VariantOutline,
+				}) {
+					<span class="flex items-center gap-1">
+						@icon.Plus(icon.Props{Size: 10})
+						Add a band
+					</span>
+				}
 			}
 			@separator.Separator(separator.Props{
 				Orientation: separator.OrientationVertical,
@@ -73,6 +88,13 @@ templ Dashboard(user *database.User) {
 					<span class="text-sm">Drop files or click to upload</span>
 				</span>
 			</form>
+			<div class="flex items-center gap-2 w-full">
+				<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+					@components.DashboardCard("Bands", "Bands signed under us", "8")
+					@components.DashboardCard("Releases", "A total of all releases by our bands", "17")
+					@components.DashboardCard("Projects", "All projects we've ever worked on", "39")
+				</div>
+			</div>
 			<div class="flex items-center gap-2">
 				<span
 					id="dashboard-image-count"
@@ -107,5 +129,175 @@ templ Dashboard(user *database.User) {
 		</div>
 		<div id="dashboard-toast"></div>
 		<script src={ utils.ScriptURL("assets/js/pages/dashboard.js") }></script>
+	}
+}
+
+templ addBandDialog() {
+	@dialog.Dialog(dialog.Props{
+		ID: "add-band-dialog",
+	}) {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Add a new band
+				}
+				@dialog.Description() {
+					Add a new band to our catalog, including a their release and the first project tied to it.
+				}
+			}
+			<form id="add-band-form" class="flex flex-col gap-3 w-full">
+				<div class="flex flex-row items-center w-full gap-2">
+					<div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full md:w-2/3"}) {
+							@form.Label() {
+								Band Name
+							}
+							@input.Input(input.Props{
+								ID:          "band-name-input",
+								Form:        "add-band-form",
+								Type:        input.TypeText,
+								Name:        "band-name",
+								Placeholder: "Ties by Miles",
+							})
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Release Name
+							}
+							@input.Input(input.Props{
+								ID:          "release-name-input",
+								Type:        input.TypeText,
+								Name:        "release-name",
+								Placeholder: "Falling Blossom Emotion",
+							})
+						}
+						@form.Item(form.ItemProps{Class: "w-full sm:w-28"}) {
+							@form.Label() {
+								Type
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-type-selector",
+									Form: "add-band-form",
+									Name: "release-type",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "album"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									@selectbox.Item(selectbox.ItemProps{Value: "album"}) {
+										Album
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "ep"}) {
+										EP
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "single"}) {
+										Single
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "compilation"}) {
+										Comp
+									}
+								}
+							}
+						}
+						@form.Item(form.ItemProps{Class: "w-full sm:w-28"}) {
+							@form.Label() {
+								No.
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-number-selector",
+									Form: "add-band-form",
+									Name: "release-number",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "000"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									for i := 1; i <= 100; i++ {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: fmt.Sprintf("%d", i),
+										}) {
+											{ fmt.Sprintf("%d", i) }
+										}
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				<div class="flex flex-row items-center w-full gap-2">
+					@form.Item(form.ItemProps{Class: "w-full"}) {
+						@form.Label() {
+							Project Name
+						}
+						@input.Input(input.Props{
+							ID:          "project-name-input",
+							Form:        "add-band-form",
+							Type:        input.TypeText,
+							Name:        "project-name",
+							Placeholder: "CDs for fest",
+						})
+					}
+					@form.Item() {
+						@form.Label() {
+							Type
+						}
+						@selectbox.SelectBox() {
+							@selectbox.Trigger(selectbox.TriggerProps{
+								ID:   "project-type-selector",
+								Form: "add-band-form",
+								Name: "project-type",
+							}) {
+								@selectbox.Value(selectbox.ValueProps{
+									Placeholder: "CDs",
+								})
+							}
+							@selectbox.Content(selectbox.ContentProps{
+								NoSearch: true,
+							}) {
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "CD",
+								}) {
+									CDs
+								}
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "tapes",
+								}) {
+									Tapes
+								}
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "vinyl",
+								}) {
+									Vinyl
+								}
+								@selectbox.Item(selectbox.ItemProps{
+									Value: "merch",
+								}) {
+									Merch
+								}
+							}
+						}
+					}
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-2"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Add Band
+					}
+				}
+			</form>
+		}
 	}
 }

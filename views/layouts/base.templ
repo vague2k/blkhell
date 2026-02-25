@@ -8,6 +8,7 @@ import "github.com/vague2k/blkhell/views/templui/popover"
 import "github.com/vague2k/blkhell/views/templui/collapsible"
 import "github.com/vague2k/blkhell/views/templui/dropdown"
 import "github.com/vague2k/blkhell/views/templui/progress"
+import "github.com/vague2k/blkhell/views/templui/selectbox"
 
 templ BaseLayout() {
 	<!DOCTYPE html>
@@ -22,6 +23,7 @@ templ BaseLayout() {
 			@toast.Script()
 			@sidebar.Script()
 			@dialog.Script()
+			@selectbox.Script()
 			@popover.Script()
 			@collapsible.Script()
 			@dropdown.Script()
