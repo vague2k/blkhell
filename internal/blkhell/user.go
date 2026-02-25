@@ -33,8 +33,8 @@ func newCreateUserCmd(app *App) *cobra.Command {
 
 			// check for valid role
 			validRoles := map[string]bool{
-				"user":  true,
-				"admin": true,
+				"member": true,
+				"admin":  true,
 			}
 			if !validRoles[role] {
 				return fmt.Errorf("invalid role: %s", role)
@@ -62,7 +62,7 @@ func newCreateUserCmd(app *App) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&role, "role", "r", "user", "Role for the new user.")
+	cmd.Flags().StringVarP(&role, "role", "r", "member", "Role for the new user.")
 	return cmd
 }
 

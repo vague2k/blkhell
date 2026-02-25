@@ -19,21 +19,14 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteImage(w http.ResponseWriter, r *http.Request) {
-	image, err := h.DB.GetImageByID(r.Context(), chi.URLParam(r, "id"))
+	image, err := h.DB.DeleteFile(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not delete image.")
 		return
 	}
-
 	err = os.Remove(image.Path)
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not remove image from disk.")
-		return
-	}
-
-	err = h.DB.DeleteImage(r.Context(), chi.URLParam(r, "id"))
-	if err != nil {
-		toastError(w, r, "500 Internal error: Could not delete image.")
 		return
 	}
 

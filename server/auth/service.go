@@ -18,8 +18,10 @@ type contextKey string
 
 const userKey contextKey = "user"
 
-var ErrDb = errors.New("Database error, try again. Contact admin if issue occurs")
-var ErrNoSession = errors.New("Session does not exist")
+var (
+	ErrDb        = errors.New("Database error, try again. Contact admin if issue occurs")
+	ErrNoSession = errors.New("Session does not exist")
+)
 
 type Service struct {
 	db *database.Queries

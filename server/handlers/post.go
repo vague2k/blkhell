@@ -13,6 +13,11 @@ import (
 	"github.com/vague2k/blkhell/server/database"
 )
 
+var (
+	MimeJpeg = "image/jpeg"
+	MimePng  = "image/png"
+)
+
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -43,6 +48,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.Auth.UserFromContext(r.Context())
+	if !ok {
+		toastError(w, r, "Could not get user.")
+		return
+	}
 	// max file size: 100MB
 	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
 	if err := r.ParseMultipartForm(100 << 20); err != nil {
@@ -64,22 +74,17 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// create the uploads dir if not exist
 	filetype := http.DetectContentType(buf)
-	if filetype != "image/jpeg" && filetype != "image/png" {
-		toastError(w, r, "The provided file format is not supported yet. Please upload a JPG or PNG image.")
+	dir, err := createUploadDirectories(filetype)
+	if err != nil {
+		toastError(w, r, err.Error())
 		return
 	}
 
 	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// create the uploads dir if not exist
-	dir, err := createUploadDirectories()
-	if err != nil {
-		toastError(w, r, "500 Internal error: "+err.Error())
 		return
 	}
 
@@ -105,16 +110,16 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Auth.GetUserFromRequest(r)
-	if err != nil {
-		toastError(w, r, "Could not get user.")
+	_, parentDir, ok := strings.Cut(filePath, "uploads")
+	if !ok {
+		toastError(w, r, "500 internal error: what the fuck?")
+		fmt.Println(parentDir)
 		return
 	}
-
-	image, err := h.DB.CreateImage(r.Context(), database.CreateImageParams{
+	image, err := h.DB.CreateFile(r.Context(), database.CreateFileParams{
 		ID:       uuid.NewString(),
 		UserID:   user.ID,
-		Path:     filePath,
+		Path:     parentDir,
 		Filename: fileName,
 		Ext:      strings.TrimPrefix(fileExt, "."),
 		Size:     size,
@@ -128,14 +133,26 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: move this method somewhere else
-func createUploadDirectories() (string, error) {
-	uploadsDir := getDirectoryPathFromEnv("UPLOADS_DIR")
+func createUploadDirectories(mimetype string) (string, error) {
+	// TODO: move to main func somehow
+	uploadsDir := os.Getenv("UPLOADS_DIR")
+	if uploadsDir == "" {
+		panic("UPLOADS_DIR env var is not set")
+	}
+	var uploadsWithSubDir string
 
-	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
+	switch mimetype {
+	case MimeJpeg, MimePng:
+		uploadsWithSubDir = filepath.Join(uploadsDir, "images")
+	default:
+		return "", fmt.Errorf("The provided file format is not supported yet.")
+	}
+
+	if err := os.MkdirAll(uploadsWithSubDir, 0o755); err != nil {
 		return "", fmt.Errorf("could not create uploads dir: %w", err)
 	}
 
-	return uploadsDir, nil
+	return uploadsWithSubDir, nil
 }
 
 func getDirectoryPathFromEnv(key string) string {
