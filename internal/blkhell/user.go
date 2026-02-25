@@ -47,7 +47,7 @@ func newCreateUserCmd(app *App) *cobra.Command {
 			}
 			fmt.Println()
 
-			err = app.Auth.CreateNewUser(
+			err = app.AuthService.CreateNewUser(
 				ctx,
 				username,
 				string(passwordBytes),

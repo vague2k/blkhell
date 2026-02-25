@@ -9,7 +9,7 @@ import (
 )
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	err := h.Auth.DestroySession(w, r)
+	err := h.AuthService.DestroySession(w, r)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

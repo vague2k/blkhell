@@ -13,7 +13,7 @@ import (
 )
 
 func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.Auth.UserFromContext(r.Context())
+	user, ok := h.AuthService.UserFromContext(r.Context())
 	// redirects user if non expired session is already found for user from request
 	if ok && user != nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -23,7 +23,7 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DashboardPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.Auth.UserFromContext(r.Context())
+	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
 		http.Error(w, "missing user in context", http.StatusInternalServerError)
 		return
@@ -32,7 +32,7 @@ func (h *Handler) DashboardPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.Auth.UserFromContext(r.Context())
+	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
 		http.Error(w, "missing user in context", http.StatusInternalServerError)
 		return

@@ -1,18 +1,18 @@
 package handlers
 
 import (
-	"github.com/vague2k/blkhell/server/auth"
 	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/server/services"
 )
 
 type Handler struct {
-	Auth *auth.Service
-	DB   *database.Queries
+	AuthService *services.AuthService
+	DB          *database.Queries
 }
 
-func NewHandler(authService *auth.Service, db *database.Queries) *Handler {
+func NewHandler(authService *services.AuthService, db *database.Queries) *Handler {
 	return &Handler{
-		Auth: authService,
-		DB:   db,
+		AuthService: authService,
+		DB:          db,
 	}
 }

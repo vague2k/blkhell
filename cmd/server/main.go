@@ -6,9 +6,9 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/vague2k/blkhell/server"
-	"github.com/vague2k/blkhell/server/auth"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/server/handlers"
+	"github.com/vague2k/blkhell/server/services"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("database init failed: %v", err)
 	}
 
-	authService := auth.New(queries)
+	authService := services.NewAuthService(queries)
 
 	handler := handlers.NewHandler(authService, queries)
 

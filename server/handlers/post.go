@@ -22,13 +22,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	user, err := h.Auth.Authenticate(r.Context(), username, password)
+	user, err := h.AuthService.Authenticate(r.Context(), username, password)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
 
-	sessionToken, expires, err := h.Auth.CreateSession(r.Context(), user.ID)
+	sessionToken, expires, err := h.AuthService.CreateSession(r.Context(), user.ID)
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not create session.")
 		return
@@ -48,7 +48,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.Auth.UserFromContext(r.Context())
+	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user.")
 		return
