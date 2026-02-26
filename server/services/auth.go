@@ -120,31 +120,6 @@ func (s *AuthService) UserFromContext(ctx context.Context) (*database.User, bool
 	return u, ok
 }
 
-func (s *AuthService) GetUserFromRequest(r *http.Request) (*database.User, error) {
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		return nil, ErrNoSession
-	}
-
-	session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ErrNoSession
-		}
-		return nil, ErrDb
-	}
-
-	user, err := s.db.GetUserByID(r.Context(), session.UserID)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, errors.New("Couldn't find user tied to session")
-		}
-		return nil, ErrDb
-	}
-
-	return &user, nil
-}
-
 func (s *AuthService) RedirectIfAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")

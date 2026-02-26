@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	oldPassword := r.FormValue("old-password")
 	newPassword := r.FormValue("new-password")
@@ -19,8 +19,8 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.AuthService.GetUserFromRequest(r)
-	if err != nil {
+	user, ok := h.AuthService.UserFromContext(r.Context())
+	if !ok {
 		toastError(w, r, "500 Internal error: Could not get current user.")
 		return
 	}
@@ -62,7 +62,7 @@ func (h *Handler) Edit(w http.ResponseWriter, r *http.Request) {
 		params.PasswordHash = user.PasswordHash
 	}
 
-	_, err = h.DB.UpdateUser(r.Context(), params)
+	_, err := h.DB.UpdateUser(r.Context(), params)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			toastError(w, r, "The user you're trying to update doesn't exist.")

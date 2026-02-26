@@ -24,7 +24,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 			// ---------- user actions ----------
 			r.Route("/users", func(r chi.Router) {
 				r.Delete("/logout", h.Logout)
-				r.Put("/edit", h.Edit)
+				r.Put("/edit", h.EditUser)
 			})
 
 			// ---------- image actions ----------
