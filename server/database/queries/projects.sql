@@ -1,10 +1,11 @@
 -- name: CreateProject :one
 INSERT INTO projects (
     id,
+    band_id,
     release_id,
     name,
     type
-) VALUES (?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?)
 RETURNING * ;
 
 -- name: GetProjectByID :one

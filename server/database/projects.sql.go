@@ -12,15 +12,17 @@ import (
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (
     id,
+    band_id,
     release_id,
     name,
     type
-) VALUES (?, ?, ?, ?)
-RETURNING id, release_id, name, type, created_at, updated_at
+) VALUES (?, ?, ?, ?, ?)
+RETURNING id, band_id, release_id, name, type, created_at, updated_at
 `
 
 type CreateProjectParams struct {
 	ID        string
+	BandID    string
 	ReleaseID string
 	Name      string
 	Type      string
@@ -29,6 +31,7 @@ type CreateProjectParams struct {
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
 	row := q.db.QueryRowContext(ctx, createProject,
 		arg.ID,
+		arg.BandID,
 		arg.ReleaseID,
 		arg.Name,
 		arg.Type,
@@ -36,6 +39,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 	var i Project
 	err := row.Scan(
 		&i.ID,
+		&i.BandID,
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,
@@ -60,7 +64,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id string) error {
 const getProjectByID = `-- name: GetProjectByID :one
 ;
 
-SELECT id, release_id, name, type, created_at, updated_at
+SELECT id, band_id, release_id, name, type, created_at, updated_at
 FROM projects
 WHERE id = ?
 `
@@ -70,6 +74,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, id string) (Project, error
 	var i Project
 	err := row.Scan(
 		&i.ID,
+		&i.BandID,
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,
@@ -82,7 +87,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, id string) (Project, error
 const getProjectsByRelease = `-- name: GetProjectsByRelease :many
 ;
 
-SELECT id, release_id, name, type, created_at, updated_at
+SELECT id, band_id, release_id, name, type, created_at, updated_at
 FROM projects
 WHERE release_id = ?
 ORDER BY created_at DESC
@@ -99,6 +104,7 @@ func (q *Queries) GetProjectsByRelease(ctx context.Context, releaseID string) ([
 		var i Project
 		if err := rows.Scan(
 			&i.ID,
+			&i.BandID,
 			&i.ReleaseID,
 			&i.Name,
 			&i.Type,
@@ -126,7 +132,7 @@ SET name = ?,
 type = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, release_id, name, type, created_at, updated_at
+RETURNING id, band_id, release_id, name, type, created_at, updated_at
 `
 
 type UpdateProjectParams struct {
@@ -140,6 +146,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 	var i Project
 	err := row.Scan(
 		&i.ID,
+		&i.BandID,
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,

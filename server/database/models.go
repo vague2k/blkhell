@@ -32,6 +32,7 @@ type File struct {
 
 type Project struct {
 	ID        string
+	BandID    string
 	ReleaseID string
 	Name      string
 	Type      string
