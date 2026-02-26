@@ -21,6 +21,7 @@ tasks:
     deps:
       - tailwind-clean
     cmds:
+      - rm ./views/assets/css/output.css
       - task --parallel tailwind-watch templ
 
   build:
