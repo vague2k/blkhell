@@ -6,11 +6,11 @@ import (
 )
 
 func (s *Server) RegisterRoutes(h *handlers.Handler) {
-	s.router.With(h.AuthService.RedirectIfAuth).Get("/login", h.LoginPage)
+	s.router.With(h.Middleware.RedirectIfAuth).Get("/login", h.LoginPage)
 	s.router.Post("/login", h.Login)
 
 	s.router.Group(func(r chi.Router) {
-		r.Use(h.AuthService.RequireAuth)
+		r.Use(h.Middleware.RequireAuth)
 
 		// ---------- pages ----------
 		r.Route("/", func(r chi.Router) {

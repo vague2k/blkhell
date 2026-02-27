@@ -8,7 +8,6 @@ import (
 	"github.com/vague2k/blkhell/server"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/server/handlers"
-	"github.com/vague2k/blkhell/server/services"
 )
 
 func main() {
@@ -22,9 +21,7 @@ func main() {
 		log.Fatalf("database init failed: %v", err)
 	}
 
-	authService := services.NewAuthService(queries)
-
-	handler := handlers.NewHandler(authService, queries)
+	handler := handlers.NewHandler(queries)
 
 	port := os.Getenv("PORT")
 	if port == "" {

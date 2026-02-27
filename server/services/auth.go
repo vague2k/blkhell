@@ -14,15 +14,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type authContextKey string
-
-const authUserKey authContextKey = "user"
-
-var (
-	ErrDb        = errors.New("Database error, try again. Contact admin if issue occurs")
-	ErrNoSession = errors.New("Session does not exist")
-)
-
 type AuthService struct {
 	db *database.Queries
 }
@@ -81,7 +72,7 @@ func (s *AuthService) CreateSession(ctx context.Context, userID string) (string,
 		ExpiresAt: expires,
 	})
 	if err != nil {
-		return "", time.Time{}, errors.New("Database error, contact admin if issue occurs.")
+		return "", time.Time{}, ErrDb
 	}
 
 	return sessionToken, expires, err
@@ -118,47 +109,4 @@ func (s *AuthService) DestroySession(w http.ResponseWriter, r *http.Request) err
 func (s *AuthService) UserFromContext(ctx context.Context) (*database.User, bool) {
 	u, ok := ctx.Value(authUserKey).(*database.User)
 	return u, ok
-}
-
-func (s *AuthService) RedirectIfAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_token")
-		if err != nil {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
-		if err != nil || time.Now().After(session.ExpiresAt) {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	})
-}
-
-func (s *AuthService) RequireAuth(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie("session_token")
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
-		if err != nil || time.Now().After(session.ExpiresAt) {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		user, err := s.db.GetUserByID(r.Context(), session.UserID)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		ctx := context.WithValue(r.Context(), authUserKey, &user)
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
