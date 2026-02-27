@@ -6,30 +6,34 @@ import (
 	"github.com/vague2k/blkhell/server/services"
 )
 
-type App struct {
+type Cli struct {
 	DB          *database.Queries
 	AuthService *services.AuthService
+	cmd         *cobra.Command
 }
 
-func NewRootCmd() *cobra.Command {
-	app := &App{}
+func NewCli() *Cli {
 	cmd := &cobra.Command{
 		Use:   "blkhell",
 		Short: "Blkhell CLI",
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			queries, err := database.Init()
-			if err != nil {
-				return err
-			}
-
-			app.DB = queries
-			app.AuthService = services.NewAuthService(queries)
-
-			return nil
-		},
+		Run:   func(cmd *cobra.Command, args []string) {},
 	}
 
-	cmd.AddCommand(newUserCmd(app))
+	return &Cli{
+		cmd: cmd,
+	}
+}
 
-	return cmd
+func (c *Cli) Run() error {
+	queries, err := database.Init()
+	if err != nil {
+		return err
+	}
+	auth := services.NewAuthService(queries)
+
+	c.DB = queries
+	c.AuthService = auth
+
+	c.cmd.AddCommand(c.newUserCmd())
+	return c.cmd.Execute()
 }

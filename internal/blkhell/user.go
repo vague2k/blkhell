@@ -9,19 +9,21 @@ import (
 	"golang.org/x/term"
 )
 
-func newUserCmd(app *App) *cobra.Command {
+func (c *Cli) newUserCmd() *cobra.Command {
 	userCmd := &cobra.Command{
 		Use:   "user",
 		Short: "Manage users",
 	}
 
-	userCmd.AddCommand(newCreateUserCmd(app))
-	userCmd.AddCommand(newRemoveUserCmd(app))
+	userCmd.AddCommand(
+		c.createUserCmd(),
+		c.removeUserCmd(),
+	)
 
 	return userCmd
 }
 
-func newCreateUserCmd(app *App) *cobra.Command {
+func (c *Cli) createUserCmd() *cobra.Command {
 	var role string
 	cmd := &cobra.Command{
 		Use:   "create [username]",
@@ -47,7 +49,7 @@ func newCreateUserCmd(app *App) *cobra.Command {
 			}
 			fmt.Println()
 
-			err = app.AuthService.CreateNewUser(
+			err = c.AuthService.CreateNewUser(
 				ctx,
 				username,
 				string(passwordBytes),
@@ -66,13 +68,13 @@ func newCreateUserCmd(app *App) *cobra.Command {
 	return cmd
 }
 
-func newRemoveUserCmd(app *App) *cobra.Command {
+func (c *Cli) removeUserCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "remove [username]",
 		Short: "Remove a user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := app.DB.DeleteUserByUsername(
+			err := c.DB.DeleteUserByUsername(
 				context.Background(),
 				args[0],
 			)

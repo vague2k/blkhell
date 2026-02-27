@@ -13,7 +13,7 @@ func main() {
 		log.Fatalf("Error loading env: %v", err)
 	}
 
-	if err := blkhell.NewRootCmd().Execute(); err != nil {
+	if err := blkhell.NewCli().Run(); err != nil {
 		log.Fatal(err)
 	}
 }
