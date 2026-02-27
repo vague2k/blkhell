@@ -143,12 +143,18 @@ templ addBandDialog() {
 					Add a new band
 				}
 				@dialog.Description() {
-					Add a new band to our catalog, including a their release and the first project tied to it.
+					Add a new band to our catalog, including a release. Optionally add a project as well.
 				}
 			}
-			<form id="add-band-form" class="flex flex-col gap-3 w-full">
-				<div class="flex flex-row items-center w-full gap-2">
-					<div class="flex flex-col sm:flex-row items-stretch sm:items-center w-full gap-2">
+			<form
+				id="add-band-form"
+				hx-post="/actions/bands/create"
+				hx-target="#dashboard-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full md:w-2/3"}) {
 							@form.Label() {
 								Band Name
@@ -172,9 +178,12 @@ templ addBandDialog() {
 								Placeholder: "Falling Blossom Emotion",
 							})
 						}
-						@form.Item(form.ItemProps{Class: "w-full sm:w-28"}) {
+					</div>
+					<!-- Row 2 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Type
+								Release Type
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{
@@ -200,9 +209,9 @@ templ addBandDialog() {
 								}
 							}
 						}
-						@form.Item(form.ItemProps{Class: "w-full sm:w-28"}) {
+						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								No.
+								Release No.
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{
@@ -217,69 +226,119 @@ templ addBandDialog() {
 										@selectbox.Item(selectbox.ItemProps{
 											Value: fmt.Sprintf("%d", i),
 										}) {
-											{ fmt.Sprintf("%d", i) }
+											{ fmt.Sprintf("BH-%d", i) }
+										}
+									}
+								}
+							}
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Country
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "country-selector",
+									Form: "add-band-form",
+									Name: "band-country",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
+								}
+								@selectbox.Content() {
+									{{
+										countries := []struct {
+											Code string
+											Name string
+										}{
+											{"US", "United States"},
+											{"CA", "Canada"},
+											{"MX", "Mexico"},
+											{"BR", "Brazil"},
+											{"AR", "Argentina"},
+											{"GB", "United Kingdom"},
+											{"DE", "Germany"},
+											{"FR", "France"},
+											{"ES", "Spain"},
+											{"IT", "Italy"},
+											{"NL", "Netherlands"},
+											{"SE", "Sweden"},
+											{"NO", "Norway"},
+											{"FI", "Finland"},
+											{"JP", "Japan"},
+											{"KR", "South Korea"},
+											{"CN", "China"},
+											{"AU", "Australia"},
+											{"NZ", "New Zealand"},
+										}
+									}}
+									for _, c := range countries {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: c.Code,
+										}) {
+											{ fmt.Sprintf("%s - %s", c.Code, c.Name) }
 										}
 									}
 								}
 							}
 						}
 					</div>
-				</div>
-				<div class="flex flex-row items-center w-full gap-2">
-					@form.Item(form.ItemProps{Class: "w-full"}) {
-						@form.Label() {
-							Project Name
-						}
-						@input.Input(input.Props{
-							ID:          "project-name-input",
-							Form:        "add-band-form",
-							Type:        input.TypeText,
-							Name:        "project-name",
-							Placeholder: "CDs for fest",
-						})
-					}
-					@form.Item() {
-						@form.Label() {
-							Type
-						}
-						@selectbox.SelectBox() {
-							@selectbox.Trigger(selectbox.TriggerProps{
-								ID:   "project-type-selector",
-								Form: "add-band-form",
-								Name: "project-type",
-							}) {
-								@selectbox.Value(selectbox.ValueProps{
-									Placeholder: "CDs",
-								})
+					<!-- Row 3 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Project Name
 							}
-							@selectbox.Content(selectbox.ContentProps{
-								NoSearch: true,
-							}) {
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "CD",
+							@input.Input(input.Props{
+								ID:          "project-name-input",
+								Form:        "add-band-form",
+								Type:        input.TypeText,
+								Name:        "project-name",
+								Placeholder: "CDs for fest",
+							})
+						}
+						@form.Item() {
+							@form.Label() {
+								Type
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "project-type-selector",
+									Form: "add-band-form",
+									Name: "project-type",
 								}) {
-									CDs
+									@selectbox.Value(selectbox.ValueProps{
+										Placeholder: "CDs",
+									})
 								}
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "tapes",
+								@selectbox.Content(selectbox.ContentProps{
+									NoSearch: true,
 								}) {
-									Tapes
-								}
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "vinyl",
-								}) {
-									Vinyl
-								}
-								@selectbox.Item(selectbox.ItemProps{
-									Value: "merch",
-								}) {
-									Merch
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "CD",
+									}) {
+										CDs
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "tapes",
+									}) {
+										Tapes
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "vinyl",
+									}) {
+										Vinyl
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "merch",
+									}) {
+										Merch
+									}
 								}
 							}
 						}
-					}
+					</div>
 				</div>
-				@dialog.Footer(dialog.FooterProps{Class: "mt-2"}) {
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
 					@dialog.Close() {
 						@button.Button(button.Props{
 							Variant: button.VariantOutline,

@@ -47,6 +47,74 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Redirect", "/dashboard")
 }
 
+func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
+	bandName := r.FormValue("band-name")
+	bandCountry := r.FormValue("band-country")
+	releaseName := r.FormValue("release-name")
+	releaseType := r.FormValue("release-type")
+	releaseNum := r.FormValue("release-number")
+	projectName := r.FormValue("project-name")
+	projectType := r.FormValue("project-type")
+
+	switch true {
+	case bandName == "":
+		toastError(w, r, "'Band name' is required")
+		return
+	case releaseName == "":
+		toastError(w, r, "'Release Name' is required")
+		return
+	case releaseType == "":
+		toastError(w, r, "'Release Type' is required")
+		return
+	case releaseNum == "":
+		toastError(w, r, "'Release No.' is required")
+		return
+	case bandCountry == "":
+		toastError(w, r, "'Band country' is required")
+		return
+	}
+
+	if (projectName == "" && projectType != "") || (projectName != "" && projectType == "") {
+		toastError(w, r, "'Project Name' and 'Project Type' must both be filled or both left empty")
+		return
+	}
+
+	band, err := h.DB.CreateBand(r.Context(), database.CreateBandParams{
+		ID:      uuid.NewString(),
+		Name:    bandName,
+		Country: bandCountry,
+	})
+	if err != nil {
+		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+	}
+
+	release, err := h.DB.CreateRelease(r.Context(), database.CreateReleaseParams{
+		ID:     uuid.NewString(),
+		BandID: band.ID,
+		Name:   releaseName,
+		Type:   releaseType,
+		Number: releaseNum,
+	})
+	if err != nil {
+		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+	}
+
+	if projectName != "" && projectType != "" {
+		_, err := h.DB.CreateProject(r.Context(), database.CreateProjectParams{
+			ID:        uuid.NewString(),
+			BandID:    band.ID,
+			ReleaseID: release.ID,
+			Name:      projectName,
+			Type:      projectType,
+		})
+		if err != nil {
+			toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		}
+	}
+
+	toastSuccess(w, r, "Endpoint hit check console")
+}
+
 func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {

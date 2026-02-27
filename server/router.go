@@ -27,6 +27,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 				r.Put("/edit", h.EditUser)
 			})
 
+			// ---------- band actions ----------
+			r.Route("/bands", func(r chi.Router) {
+				r.Post("/create", h.CreateBand)
+			})
+
 			// ---------- image actions ----------
 			r.Route("/images", func(r chi.Router) {
 				r.Post("/upload", h.Upload)
