@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/pages"
 )
 
@@ -28,7 +29,7 @@ func (h *Handler) DashboardPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing user in context", http.StatusInternalServerError)
 		return
 	}
-	pages.Dashboard(user).Render(r.Context(), w)
+	layouts.BaseSidebarLayout(user, pages.Dashboard()).Render(r.Context(), w)
 }
 
 func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
@@ -37,7 +38,21 @@ func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing user in context", http.StatusInternalServerError)
 		return
 	}
-	pages.Settings(user).Render(r.Context(), w)
+	layouts.BaseSidebarLayout(user, pages.Settings()).Render(r.Context(), w)
+}
+
+func (h *Handler) BandsPage(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.AuthService.UserFromContext(r.Context())
+	if !ok {
+		http.Error(w, "missing user in context", http.StatusInternalServerError)
+		return
+	}
+	bands, ok := h.BandsService.BandsFromContext(r.Context())
+	if !ok {
+		http.Error(w, "missing bands in context", http.StatusInternalServerError)
+		return
+	}
+	layouts.BaseSidebarLayout(user, pages.BandsPage(bands)).Render(r.Context(), w)
 }
 
 func (h *Handler) HXImageGallery(w http.ResponseWriter, r *http.Request) {
