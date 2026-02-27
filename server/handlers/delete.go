@@ -24,7 +24,10 @@ func (h *Handler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 		toastError(w, r, "500 Internal error: Could not delete image.")
 		return
 	}
-	err = os.Remove(image.Path)
+
+	// TODO: make more robust, perhaps put os call before db call ?
+	uploadsDir := os.Getenv("UPLOADS_DIR")
+	err = os.Remove(uploadsDir + image.Path)
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not remove image from disk.")
 		return

@@ -38,7 +38,7 @@ templ LabelAssets() {
 			Placeholder: "Search images...",
 			Class:       "max-w-md",
 			Attributes: templ.Attributes{
-				"hx-get":     "/hx/dashboard/search-image-gallery",
+				"hx-get":     "/hx/label-assets/search-image-gallery",
 				"hx-trigger": "keyup changed delay:300ms",
 				"hx-target":  "#dashboard-image-gallery",
 			},
@@ -98,7 +98,7 @@ templ LabelAssets() {
 		</div>
 		<div
 			id="dashboard-image-gallery"
-			hx-get="/hx/dashboard/image-gallery"
+			hx-get="/hx/label-assets/image-gallery"
 			hx-trigger="load, refreshGallery"
 			hx-target="this"
 			hx-swap="innerHTML"
