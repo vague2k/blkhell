@@ -83,6 +83,44 @@ func (q *Queries) GetReleaseByID(ctx context.Context, id string) (Release, error
 	return i, err
 }
 
+const getReleases = `-- name: GetReleases :many
+;
+
+SELECT id, band_id, name, type, number, created_at, updated_at FROM releases
+ORDER BY name
+`
+
+func (q *Queries) GetReleases(ctx context.Context) ([]Release, error) {
+	rows, err := q.db.QueryContext(ctx, getReleases)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Release
+	for rows.Next() {
+		var i Release
+		if err := rows.Scan(
+			&i.ID,
+			&i.BandID,
+			&i.Name,
+			&i.Type,
+			&i.Number,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getReleasesByBand = `-- name: GetReleasesByBand :many
 ;
 

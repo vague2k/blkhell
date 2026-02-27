@@ -84,6 +84,44 @@ func (q *Queries) GetProjectByID(ctx context.Context, id string) (Project, error
 	return i, err
 }
 
+const getProjects = `-- name: GetProjects :many
+;
+
+SELECT id, band_id, release_id, name, type, created_at, updated_at FROM projects
+ORDER BY name
+`
+
+func (q *Queries) GetProjects(ctx context.Context) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, getProjects)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ID,
+			&i.BandID,
+			&i.ReleaseID,
+			&i.Name,
+			&i.Type,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getProjectsByRelease = `-- name: GetProjectsByRelease :many
 ;
 

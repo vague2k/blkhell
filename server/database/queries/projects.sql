@@ -8,6 +8,10 @@ INSERT INTO projects (
 ) VALUES (?, ?, ?, ?, ?)
 RETURNING * ;
 
+-- name: GetProjects :many
+SELECT * FROM projects
+ORDER BY name ;
+
 -- name: GetProjectByID :one
 SELECT *
 FROM projects

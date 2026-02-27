@@ -8,6 +8,10 @@ INSERT INTO releases (
 ) VALUES (?, ?, ?, ?, ?)
 RETURNING * ;
 
+-- name: GetReleases :many
+SELECT * FROM releases
+ORDER BY name ;
+
 -- name: GetReleaseByID :one
 SELECT * FROM releases
 WHERE id = ? ;

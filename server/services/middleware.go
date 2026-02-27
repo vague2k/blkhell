@@ -62,3 +62,15 @@ func (s *MiddlewareService) RequireAuth(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
+
+func (s *MiddlewareService) Bands(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bands, err := s.db.GetBands(r.Context())
+		if err != nil {
+			http.Error(w, "could not get bands", http.StatusInternalServerError)
+			return
+		}
+		ctx := context.WithValue(r.Context(), bandsCtxKey, bands)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
