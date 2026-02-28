@@ -34,10 +34,6 @@ func Init() (*Queries, error) {
 
 func createDatabaseDirectory() (string, error) {
 	dbDir := os.Getenv("DB_DIR")
-	if dbDir == "" {
-		panic("DB_DIR env var is not set")
-	}
-
 	if err := os.MkdirAll(dbDir, 0o755); err != nil {
 		return "", fmt.Errorf("could not create database dir: %w", err)
 	}

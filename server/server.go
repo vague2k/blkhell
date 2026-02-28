@@ -58,9 +58,6 @@ func (s *Server) SetupAssetsRoutes() {
 
 func (s *Server) SetupUploadRoutes() {
 	uploadDir := os.Getenv("UPLOADS_DIR")
-	if uploadDir == "" {
-		panic("UPLOADS_DIR env var is not set")
-	}
 	fs := http.FileServer(http.Dir(uploadDir))
 
 	uploadsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

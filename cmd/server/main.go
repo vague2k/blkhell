@@ -2,34 +2,17 @@ package main
 
 import (
 	"log"
-	"os"
 
-	"github.com/joho/godotenv"
+	"github.com/vague2k/blkhell/config"
 	"github.com/vague2k/blkhell/server"
-	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/server/handlers"
 )
 
 func main() {
-	err := godotenv.Load(".env", "version")
-	if err != nil {
-		log.Fatalf("Error loading env: %v", err)
-	}
+	cfg := config.Init()
+	handler := handlers.NewHandler(cfg.Database)
 
-	queries, err := database.Init()
-	if err != nil {
-		log.Fatalf("database init failed: %v", err)
-	}
-
-	handler := handlers.NewHandler(queries)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		panic("PORT env var is not set")
-	}
-
-	s := server.NewServer(port)
-
+	s := server.NewServer(cfg.Port)
 	s.SetupAssetsRoutes()
 	s.SetupUploadRoutes()
 	s.RegisterRoutes(handler)

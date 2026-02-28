@@ -3,17 +3,15 @@ package main
 import (
 	"log"
 
-	"github.com/joho/godotenv"
+	"github.com/vague2k/blkhell/config"
 	"github.com/vague2k/blkhell/internal/blkhell"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading env: %v", err)
-	}
+	cfg := config.Init()
+	cli := blkhell.NewCli(cfg)
 
-	if err := blkhell.NewCli().Run(); err != nil {
+	if err := cli.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

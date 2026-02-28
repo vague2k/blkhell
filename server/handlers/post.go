@@ -204,9 +204,6 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 func createUploadDirectories(mimetype string) (string, error) {
 	// TODO: move to main func somehow
 	uploadsDir := os.Getenv("UPLOADS_DIR")
-	if uploadsDir == "" {
-		panic("UPLOADS_DIR env var is not set")
-	}
 	var uploadsWithSubDir string
 
 	switch mimetype {
