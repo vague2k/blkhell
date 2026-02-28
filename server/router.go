@@ -34,11 +34,13 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 				r.Post("/create", h.CreateBand)
 			})
 
-			// ---------- image actions ----------
-			r.Route("/images", func(r chi.Router) {
-				r.Post("/upload", h.Upload)
-				r.Delete("/delete/{id}", h.DeleteImage)
-				r.Get("/download/{id}", h.Download)
+			// ---------- file actions ----------
+			r.Route("/files", func(r chi.Router) {
+				r.Route("/bh", func(r chi.Router) {
+					r.Post("/upload", h.Upload)
+					r.Delete("/delete/{id}", h.DeleteImage)
+					r.Get("/download/{id}", h.Download)
+				})
 			})
 		})
 

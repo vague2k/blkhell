@@ -143,7 +143,7 @@ func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.Open(image.Path)
+	file, err := os.Open("./data/uploads" + image.Path)
 	if err != nil {
 		toastError(w, r, "Couldn't open file to download")
 		return
