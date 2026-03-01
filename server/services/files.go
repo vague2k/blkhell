@@ -100,6 +100,7 @@ func (s *FilesService) WriteToDb(ctx context.Context, metadata *FileMetadata) (*
 		Path:      metadata.Path,
 		Filename:  metadata.Filename,
 		Ext:       metadata.Ext,
+		Mimetype:  metadata.Mimetype,
 		Size:      metadata.Size,
 		UserID:    metadata.UserID,
 		OwnerType: metadata.OwnerType,
