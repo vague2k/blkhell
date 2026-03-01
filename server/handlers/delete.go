@@ -18,8 +18,8 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Redirect", "/login")
 }
 
-func (h *Handler) DeleteImage(w http.ResponseWriter, r *http.Request) {
-	image, err := h.DB.DeleteFile(r.Context(), chi.URLParam(r, "id"))
+func (h *Handler) DeleteLabelAsset(w http.ResponseWriter, r *http.Request) {
+	asset, err := h.DB.DeleteFile(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not delete image.")
 		return
@@ -27,11 +27,11 @@ func (h *Handler) DeleteImage(w http.ResponseWriter, r *http.Request) {
 
 	// TODO: make more robust, perhaps put os call before db call ?
 	uploadsDir := os.Getenv("UPLOADS_DIR")
-	err = os.Remove(uploadsDir + image.Path)
+	err = os.Remove(uploadsDir + asset.Path)
 	if err != nil {
 		toastError(w, r, "500 Internal error: Could not remove image from disk.")
 		return
 	}
 
-	toastWarning(w, r, fmt.Sprintf("'%s.%s' has been deleted.", image.Filename, image.Ext))
+	toastWarning(w, r, fmt.Sprintf("'%s.%s' has been deleted.", asset.Filename, asset.Ext))
 }

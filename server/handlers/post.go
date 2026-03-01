@@ -110,7 +110,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	toastSuccess(w, r, "Endpoint hit check console")
 }
 
-func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user.")
@@ -140,11 +140,11 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	metadata.OwnerType = "label"
 	metadata.OwnerID = "label"
 
-	image, err := h.FilesService.WriteToDb(r.Context(), metadata)
+	asset, err := h.FilesService.WriteToDb(r.Context(), metadata)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
 
-	toastSuccess(w, r, fmt.Sprintf("'%s.%s' was uploaded successfully!", image.Filename, image.Ext))
+	toastSuccess(w, r, fmt.Sprintf("'%s.%s' was uploaded successfully!", asset.Filename, asset.Ext))
 }

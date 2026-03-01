@@ -136,21 +136,21 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 	}).Render(r.Context(), w)
 }
 
-func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
-	image, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
+func (h *Handler) DownloadLabelAsset(w http.ResponseWriter, r *http.Request) {
+	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		http.Error(w, "search failed", http.StatusInternalServerError)
 		return
 	}
 
-	file, err := os.Open("./data/uploads" + image.Path)
+	file, err := os.Open(os.Getenv("UPLOADS_DIR") + asset.Path)
 	if err != nil {
 		toastError(w, r, "Couldn't open file to download")
 		return
 	}
 	defer file.Close()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.%s"`, image.Filename, image.Ext))
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.%s"`, asset.Filename, asset.Ext))
 
 	io.Copy(w, file)
 }

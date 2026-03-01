@@ -36,10 +36,10 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 
 			// ---------- file actions ----------
 			r.Route("/files", func(r chi.Router) {
-				r.Route("/bh", func(r chi.Router) {
-					r.Post("/upload", h.Upload)
-					r.Delete("/delete/{id}", h.DeleteImage)
-					r.Get("/download/{id}", h.Download)
+				r.Route("/label", func(r chi.Router) {
+					r.Post("/upload", h.UploadLabelAsset)
+					r.Delete("/delete/{id}", h.DeleteLabelAsset)
+					r.Get("/download/{id}", h.DownloadLabelAsset)
 				})
 			})
 		})
