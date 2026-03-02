@@ -1,12 +1,11 @@
 package handlers
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
@@ -103,35 +102,33 @@ func (h *Handler) HXSearchImageGallery(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
-	bands, err := h.DB.GetBands(r.Context())
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		toastError(w, r, "database error")
-		return
-	}
-	releases, err := h.DB.GetReleases(r.Context())
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		toastError(w, r, "database error")
-		return
-	}
-	projects, err := h.DB.GetProjects(r.Context())
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+	stats, err := h.DB.GetDashboardStats(r.Context())
+	if err != nil {
 		toastError(w, r, "database error")
 		return
 	}
 
 	components.DashboardCard(components.DashboardCardProps{
+		Title: "LABEL ASSETS",
+		Count: strconv.FormatInt(stats.LabelAssets, 10),
+		Icon:  icon.FileBox(icon.Props{Size: 20}),
+	}).Render(r.Context(), w)
+
+	components.DashboardCard(components.DashboardCardProps{
 		Title: "SIGNED BANDS",
-		Count: fmt.Sprintf("%d", len(bands)),
+		Count: strconv.FormatInt(stats.Bands, 10),
 		Icon:  icon.Users(icon.Props{Size: 20}),
 	}).Render(r.Context(), w)
+
 	components.DashboardCard(components.DashboardCardProps{
 		Title: "TOTAL RELEASES",
-		Count: fmt.Sprintf("%d", len(releases)),
+		Count: strconv.FormatInt(stats.Releases, 10),
 		Icon:  icon.DiscAlbum(icon.Props{Size: 20}),
 	}).Render(r.Context(), w)
+
 	components.DashboardCard(components.DashboardCardProps{
 		Title: "PROJECTS",
-		Count: fmt.Sprintf("%d", len(projects)),
+		Count: strconv.FormatInt(stats.Projects, 10),
 		Icon:  icon.FolderArchive(icon.Props{Size: 20}),
 	}).Render(r.Context(), w)
 }
