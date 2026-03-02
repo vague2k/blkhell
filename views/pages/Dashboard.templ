@@ -11,6 +11,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/separator"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
+	"github.com/vague2k/blkhell/views/templui/table"
 )
 
 templ Dashboard() {
@@ -53,6 +54,61 @@ templ Dashboard() {
 			hx-target="this"
 			hx-swap="innerHTML"
 		></div>
+		<span
+			class="font-light text-muted-foreground text-sm"
+		>
+			SIGNED ROSTER
+		</span>
+		<div class="w-full overflow-x-auto border rounded-lg">
+			@table.Table(table.Props{
+				Class: "p-4",
+			}) {
+				@table.Header() {
+					@table.Head() {
+						Band Name
+					}
+					@table.Head() {
+						Releases
+					}
+					@table.Head() {
+						Projects
+					}
+					@table.Head() {
+						Country
+					}
+					@table.Head() {
+						Date Added
+					}
+				}
+				@table.Body() {
+					@table.Row() {
+						@table.Cell() {
+							Away With Words
+						}
+						@table.Cell() {
+							2
+						}
+						@table.Cell() {
+							12
+						}
+						@table.Cell() {
+							US - United States
+						}
+						@table.Cell() {
+							2026-12-24
+						}
+						@table.Cell() {
+							@button.Button(button.Props{
+								Size:    button.SizeIcon,
+								Variant: button.VariantGhost,
+							}) {
+								@icon.EllipsisVertical(icon.Props{Size: 16})
+							}
+						}
+					}
+				}
+			}
+		</div>
 	</div>
 	<div id="dashboard-toast"></div>
 }
