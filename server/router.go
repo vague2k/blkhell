@@ -47,6 +47,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 		// ---------- htmx fragments ----------
 		r.Route("/hx", func(r chi.Router) {
 			// ---------- dashboard page fragments ----------
+			r.Route("/sidebar", func(r chi.Router) {
+				r.Get("/user-dropdown", h.HXSidebarUserDropdown)
+				// r.Get("/bands", h.HXSidebarBands)
+			})
+			// ---------- dashboard page fragments ----------
 			r.Route("/dashboard", func(r chi.Router) {
 				r.Get("/cards", h.HXDashboardCards)
 				r.Get("/table", h.HXDashboardTable)

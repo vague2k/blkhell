@@ -1,12 +1,11 @@
 package layouts
 
 import "github.com/vague2k/blkhell/views/components"
-import "github.com/vague2k/blkhell/server/database"
 
-templ BaseSidebarLayout(user *database.User, content templ.Component) {
+templ BaseSidebarLayout() {
 	@BaseLayout() {
-		@components.Sidebar(user) {
-			@content
+		@components.Sidebar() {
+			{ children... }
 		}
 	}
 }

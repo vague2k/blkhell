@@ -10,7 +10,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
-	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/pages"
 	"github.com/vague2k/blkhell/views/templui/icon"
 )
@@ -26,45 +25,16 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DashboardPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
-	if !ok {
-		http.Error(w, "missing user in context", http.StatusInternalServerError)
-		return
-	}
-	layouts.BaseSidebarLayout(user, pages.Dashboard()).Render(r.Context(), w)
+	pages.Dashboard().Render(r.Context(), w)
 }
 
 func (h *Handler) LabelAssetsPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
-	if !ok {
-		http.Error(w, "missing user in context", http.StatusInternalServerError)
-		return
-	}
-	layouts.BaseSidebarLayout(user, pages.LabelAssets()).Render(r.Context(), w)
+	pages.LabelAssets().Render(r.Context(), w)
 }
 
 func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
-	if !ok {
-		http.Error(w, "missing user in context", http.StatusInternalServerError)
-		return
-	}
-	layouts.BaseSidebarLayout(user, pages.Settings()).Render(r.Context(), w)
+	pages.Settings().Render(r.Context(), w)
 }
-
-// func (h *Handler) BandsPage(w http.ResponseWriter, r *http.Request) {
-// 	user, ok := h.AuthService.UserFromContext(r.Context())
-// 	if !ok {
-// 		http.Error(w, "missing user in context", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	bands, ok := h.BandsService.BandsFromContext(r.Context())
-// 	if !ok {
-// 		http.Error(w, "missing bands in context", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	layouts.BaseSidebarLayout(user, pages.BandsPage(bands)).Render(r.Context(), w)
-// }
 
 func (h *Handler) HXImageGallery(w http.ResponseWriter, r *http.Request) {
 	images, err := h.DB.GetFiles(r.Context())
@@ -133,11 +103,19 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 	}).Render(r.Context(), w)
 }
 
+func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.AuthService.UserFromContext(r.Context())
+	if !ok {
+		http.Error(w, "missing user in context", http.StatusInternalServerError)
+		return
+	}
+	components.SidebarUserDropdown(user).Render(r.Context(), w)
+}
+
 func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 	records, err := h.DB.GetDashboardBands(r.Context())
 	if err != nil {
 		toastError(w, r, "database error")
-		fmt.Println(err)
 		return
 	}
 

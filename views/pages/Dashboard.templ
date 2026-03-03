@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/form"
@@ -15,59 +16,61 @@ import (
 )
 
 templ Dashboard() {
-	<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
-		@sidebar.Trigger()
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-		@components.ThemeSwitcher()
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-		@addBandDialog() {
-			@button.Button(button.Props{
-				ID:      "add-band-button-topbar",
-				Variant: button.VariantOutline,
-			}) {
-				<span class="flex items-center gap-1">
-					@icon.Plus(icon.Props{Size: 10})
-					Add a band
-				</span>
+	@layouts.BaseSidebarLayout() {
+		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@components.ThemeSwitcher()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@addBandDialog() {
+				@button.Button(button.Props{
+					ID:      "add-band-button-topbar",
+					Variant: button.VariantOutline,
+				}) {
+					<span class="flex items-center gap-1">
+						@icon.Plus(icon.Props{Size: 10})
+						Add a band
+					</span>
+				}
 			}
-		}
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-	</div>
-	<div class="p-4 flex flex-col border border-transparent border-b-border">
-		<h1 class="text-3xl tracking-wider font-unison">Dashboard</h1>
-		<p class="text-muted-foreground text-sm">
-			Everything we need to know at a glance.
-		</p>
-	</div>
-	<div class="p-4 flex flex-col gap-4 w-full h-full">
-		<div
-			id="dashboard-cards"
-			class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
-			hx-get="/hx/dashboard/cards"
-			hx-trigger="load"
-			hx-target="this"
-			hx-swap="innerHTML"
-		></div>
-		<span
-			class="font-light text-muted-foreground text-sm"
-		>
-			SIGNED ROSTER
-		</span>
-		<div
-			hx-get="/hx/dashboard/table"
-			hx-trigger="load"
-			hx-target="this"
-			hx-swap="innerHTML"
-			class="w-full overflow-x-auto border rounded-lg"
-		></div>
-	</div>
-	<div id="dashboard-toast"></div>
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+		</div>
+		<div class="p-4 flex flex-col border border-transparent border-b-border">
+			<h1 class="text-3xl tracking-wider font-unison">Dashboard</h1>
+			<p class="text-muted-foreground text-sm">
+				Everything we need to know at a glance.
+			</p>
+		</div>
+		<div class="p-4 flex flex-col gap-4 w-full h-full">
+			<div
+				id="dashboard-cards"
+				class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"
+				hx-get="/hx/dashboard/cards"
+				hx-trigger="load"
+				hx-target="this"
+				hx-swap="innerHTML"
+			></div>
+			<span
+				class="font-light text-muted-foreground text-sm"
+			>
+				SIGNED ROSTER
+			</span>
+			<div
+				hx-get="/hx/dashboard/table"
+				hx-trigger="load"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="w-full overflow-x-auto border rounded-lg"
+			></div>
+		</div>
+		<div id="dashboard-toast"></div>
+	}
 }
 
 templ addBandDialog() {

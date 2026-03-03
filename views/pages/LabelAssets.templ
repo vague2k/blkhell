@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/input"
@@ -12,99 +13,101 @@ import (
 )
 
 templ LabelAssets() {
-	<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
-		@sidebar.Trigger()
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-		@components.ThemeSwitcher()
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-		@button.Button(button.Props{
-			ID:      "upload-button-topbar",
-			Variant: button.VariantOutline,
-		}) {
-			<span class="flex items-center gap-1">
-				@icon.Upload(icon.Props{Size: 10})
-				Upload
-			</span>
-		}
-		@separator.Separator(separator.Props{
-			Orientation: separator.OrientationVertical,
-		})
-		@input.Input(input.Props{
-			Name:        "q", // use as query param
-			Placeholder: "Search images...",
-			Class:       "max-w-md",
-			Attributes: templ.Attributes{
-				"hx-get":     "/hx/label-assets/search-image-gallery",
-				"hx-trigger": "keyup changed delay:300ms",
-				"hx-target":  "#dashboard-image-gallery",
-			},
-		})
-	</div>
-	<div class="p-4 flex flex-col border border-transparent border-b-border">
-		<h1 class="text-3xl tracking-wider font-unison">Blackheaven Assets</h1>
-		<p class="text-muted-foreground text-sm">
-			A central location for all our logos, assets, etc.
-		</p>
-	</div>
-	<div class="p-4 flex flex-col gap-4 w-full h-full">
-		<form
-			id="file-upload-form"
-			hx-post="/actions/files/label/upload"
-			hx-encoding="multipart/form-data"
-			hx-trigger="submit"
-			hx-target="#dashboard-toast"
-			class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
-		>
-			<input
-				type="file"
-				name="file"
-				id="file-upload-input"
-				class="hidden"
-			/>
-			<span class="flex w-full py-3 items-center justify-center">
-				@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
-				<span class="text-sm">Drop files or click to upload</span>
-			</span>
-		</form>
-		<div class="flex items-center gap-2 w-full">
-			<div class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
-		</div>
-		<div class="flex items-center gap-2">
-			<span
-				id="dashboard-image-count"
-				class="font-light text-muted-foreground text-sm"
-			>
-				0 IMAGES
-			</span>
-			<div
-				id="upload-progress-container"
-				class="hidden min-w-xl transition-all duration-200"
-			>
-				<span class="flex items-center">
-					@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin mr-1"})
-					<span class="text-sm min-w-24">
-						Uploading file
-					</span>
-					@progress.Progress(progress.Props{
-						ID:    "upload-progress-bar",
-						Class: "ml-1",
-					})
+	@layouts.BaseSidebarLayout() {
+		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@components.ThemeSwitcher()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@button.Button(button.Props{
+				ID:      "upload-button-topbar",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.Upload(icon.Props{Size: 10})
+					Upload
 				</span>
-			</div>
+			}
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@input.Input(input.Props{
+				Name:        "q", // use as query param
+				Placeholder: "Search images...",
+				Class:       "max-w-md",
+				Attributes: templ.Attributes{
+					"hx-get":     "/hx/label-assets/search-image-gallery",
+					"hx-trigger": "keyup changed delay:300ms",
+					"hx-target":  "#dashboard-image-gallery",
+				},
+			})
 		</div>
-		<div
-			id="dashboard-image-gallery"
-			hx-get="/hx/label-assets/image-gallery"
-			hx-trigger="load, refreshGallery"
-			hx-target="this"
-			hx-swap="innerHTML"
-			class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
-		></div>
-	</div>
-	<div id="dashboard-toast"></div>
-	<script src={ utils.ScriptURL("assets/js/pages/LabelAssets.js") }></script>
+		<div class="p-4 flex flex-col border border-transparent border-b-border">
+			<h1 class="text-3xl tracking-wider font-unison">Blackheaven Assets</h1>
+			<p class="text-muted-foreground text-sm">
+				A central location for all our logos, assets, etc.
+			</p>
+		</div>
+		<div class="p-4 flex flex-col gap-4 w-full h-full">
+			<form
+				id="file-upload-form"
+				hx-post="/actions/files/label/upload"
+				hx-encoding="multipart/form-data"
+				hx-trigger="submit"
+				hx-target="#dashboard-toast"
+				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+			>
+				<input
+					type="file"
+					name="file"
+					id="file-upload-input"
+					class="hidden"
+				/>
+				<span class="flex w-full py-3 items-center justify-center">
+					@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
+					<span class="text-sm">Drop files or click to upload</span>
+				</span>
+			</form>
+			<div class="flex items-center gap-2 w-full">
+				<div class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+			</div>
+			<div class="flex items-center gap-2">
+				<span
+					id="dashboard-image-count"
+					class="font-light text-muted-foreground text-sm"
+				>
+					0 IMAGES
+				</span>
+				<div
+					id="upload-progress-container"
+					class="hidden min-w-xl transition-all duration-200"
+				>
+					<span class="flex items-center">
+						@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						<span class="text-sm min-w-24">
+							Uploading file
+						</span>
+						@progress.Progress(progress.Props{
+							ID:    "upload-progress-bar",
+							Class: "ml-1",
+						})
+					</span>
+				</div>
+			</div>
+			<div
+				id="dashboard-image-gallery"
+				hx-get="/hx/label-assets/image-gallery"
+				hx-trigger="load, refreshGallery"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+			></div>
+		</div>
+		<div id="dashboard-toast"></div>
+		<script src={ utils.ScriptURL("assets/js/pages/LabelAssets.js") }></script>
+	}
 }
