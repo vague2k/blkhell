@@ -36,6 +36,7 @@ type Project struct {
 	ReleaseID string
 	Name      string
 	Type      string
+	Status    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

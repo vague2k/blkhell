@@ -15,9 +15,10 @@ INSERT INTO projects (
     band_id,
     release_id,
     name,
+    status,
     type
-) VALUES (?, ?, ?, ?, ?)
-RETURNING id, band_id, release_id, name, type, created_at, updated_at
+) VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, band_id, release_id, name, type, status, created_at, updated_at
 `
 
 type CreateProjectParams struct {
@@ -25,6 +26,7 @@ type CreateProjectParams struct {
 	BandID    string
 	ReleaseID string
 	Name      string
+	Status    string
 	Type      string
 }
 
@@ -34,6 +36,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		arg.BandID,
 		arg.ReleaseID,
 		arg.Name,
+		arg.Status,
 		arg.Type,
 	)
 	var i Project
@@ -43,6 +46,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -64,7 +68,7 @@ func (q *Queries) DeleteProject(ctx context.Context, id string) error {
 const getProjectByID = `-- name: GetProjectByID :one
 ;
 
-SELECT id, band_id, release_id, name, type, created_at, updated_at
+SELECT id, band_id, release_id, name, type, status, created_at, updated_at
 FROM projects
 WHERE id = ?
 `
@@ -78,6 +82,31 @@ func (q *Queries) GetProjectByID(ctx context.Context, id string) (Project, error
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getProjectByStatus = `-- name: GetProjectByStatus :one
+;
+
+SELECT id, band_id, release_id, name, type, status, created_at, updated_at
+FROM projects
+WHERE status = ?
+`
+
+func (q *Queries) GetProjectByStatus(ctx context.Context, status string) (Project, error) {
+	row := q.db.QueryRowContext(ctx, getProjectByStatus, status)
+	var i Project
+	err := row.Scan(
+		&i.ID,
+		&i.BandID,
+		&i.ReleaseID,
+		&i.Name,
+		&i.Type,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -87,7 +116,7 @@ func (q *Queries) GetProjectByID(ctx context.Context, id string) (Project, error
 const getProjects = `-- name: GetProjects :many
 ;
 
-SELECT id, band_id, release_id, name, type, created_at, updated_at FROM projects
+SELECT id, band_id, release_id, name, type, status, created_at, updated_at FROM projects
 ORDER BY name
 `
 
@@ -106,6 +135,7 @@ func (q *Queries) GetProjects(ctx context.Context) ([]Project, error) {
 			&i.ReleaseID,
 			&i.Name,
 			&i.Type,
+			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -125,7 +155,7 @@ func (q *Queries) GetProjects(ctx context.Context) ([]Project, error) {
 const getProjectsByRelease = `-- name: GetProjectsByRelease :many
 ;
 
-SELECT id, band_id, release_id, name, type, created_at, updated_at
+SELECT id, band_id, release_id, name, type, status, created_at, updated_at
 FROM projects
 WHERE release_id = ?
 ORDER BY created_at DESC
@@ -146,6 +176,7 @@ func (q *Queries) GetProjectsByRelease(ctx context.Context, releaseID string) ([
 			&i.ReleaseID,
 			&i.Name,
 			&i.Type,
+			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -170,7 +201,7 @@ SET name = ?,
 type = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, band_id, release_id, name, type, created_at, updated_at
+RETURNING id, band_id, release_id, name, type, status, created_at, updated_at
 `
 
 type UpdateProjectParams struct {
@@ -188,6 +219,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.ReleaseID,
 		&i.Name,
 		&i.Type,
+		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)

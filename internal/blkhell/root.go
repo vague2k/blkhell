@@ -17,7 +17,9 @@ func NewCli(cfg *config.Config) *Cli {
 	cmd := &cobra.Command{
 		Use:   "blkhell",
 		Short: "Blkhell CLI",
-		Run:   func(cmd *cobra.Command, args []string) {},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
+		},
 	}
 
 	return &Cli{
@@ -30,5 +32,6 @@ func (c *Cli) Run() error {
 	c.AuthService = services.NewAuthService(c.DB)
 
 	c.cmd.AddCommand(c.newUserCmd())
+	c.cmd.AddCommand(c.newGenerateCmd())
 	return c.cmd.Execute()
 }

@@ -4,8 +4,9 @@ INSERT INTO projects (
     band_id,
     release_id,
     name,
+    status,
     type
-) VALUES (?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?)
 RETURNING * ;
 
 -- name: GetProjects :many
@@ -16,6 +17,11 @@ ORDER BY name ;
 SELECT *
 FROM projects
 WHERE id = ? ;
+
+-- name: GetProjectByStatus :one
+SELECT *
+FROM projects
+WHERE status = ? ;
 
 -- name: GetProjectsByRelease :many
 SELECT *
