@@ -133,6 +133,17 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 	}).Render(r.Context(), w)
 }
 
+func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
+	records, err := h.DB.GetDashboardBands(r.Context())
+	if err != nil {
+		toastError(w, r, "database error")
+		fmt.Println(err)
+		return
+	}
+
+	components.DashboardTable(records).Render(r.Context(), w)
+}
+
 func (h *Handler) DownloadLabelAsset(w http.ResponseWriter, r *http.Request) {
 	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {

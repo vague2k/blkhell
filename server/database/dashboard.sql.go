@@ -7,7 +7,65 @@ package database
 
 import (
 	"context"
+	"time"
 )
+
+const getDashboardBands = `-- name: GetDashboardBands :many
+SELECT
+    b.id AS band_id,
+    b.name AS band_name,
+    b.country,
+    b.created_at,
+    COUNT(DISTINCT r.id) AS release_count,
+    COUNT(DISTINCT p.id) AS project_count,
+    COUNT(DISTINCT CASE WHEN p.status = 'done' THEN p.id END) AS projects_done
+FROM bands b
+LEFT JOIN releases r ON b.id = r.band_id
+LEFT JOIN projects p ON b.id = p.band_id
+GROUP BY b.id, b.name, b.country, b.created_at
+ORDER BY b.created_at DESC
+`
+
+type GetDashboardBandsRow struct {
+	BandID       string
+	BandName     string
+	Country      string
+	CreatedAt    time.Time
+	ReleaseCount int64
+	ProjectCount int64
+	ProjectsDone int64
+}
+
+func (q *Queries) GetDashboardBands(ctx context.Context) ([]GetDashboardBandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getDashboardBands)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetDashboardBandsRow
+	for rows.Next() {
+		var i GetDashboardBandsRow
+		if err := rows.Scan(
+			&i.BandID,
+			&i.BandName,
+			&i.Country,
+			&i.CreatedAt,
+			&i.ReleaseCount,
+			&i.ProjectCount,
+			&i.ProjectsDone,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const getDashboardStats = `-- name: GetDashboardStats :one
 SELECT

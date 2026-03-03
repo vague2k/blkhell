@@ -1,0 +1,116 @@
+package components
+
+import "github.com/vague2k/blkhell/views/templui/table"
+import "github.com/vague2k/blkhell/views/templui/button"
+import "github.com/vague2k/blkhell/views/templui/icon"
+import "github.com/vague2k/blkhell/server/database"
+import "fmt"
+import "github.com/vague2k/blkhell/views/templui/dropdown"
+import "github.com/vague2k/blkhell/server/data"
+
+templ DashboardTable(records []database.GetDashboardBandsRow) {
+	@table.Table(table.Props{
+		Class: "p-4",
+	}) {
+		@table.Header() {
+			@table.Head(table.HeadProps{
+				Class: "size-8",
+			})
+			@table.Head(table.HeadProps{
+				Class: "size-8",
+			})
+			@table.Head() {
+				Band
+			}
+			@table.Head() {
+				Releases
+			}
+			@table.Head() {
+				Projects
+			}
+			@table.Head() {
+				Country
+			}
+			@table.Head() {
+				Added
+			}
+		}
+		@table.Body() {
+			for i, record := range records {
+				@table.Row() {
+					@table.Cell() {
+						<span class="text-muted-foreground">
+							{ i+1 }
+						</span>
+					}
+					@table.Cell() {
+						@bandRowDropdown(record)
+					}
+					@table.Cell() {
+						{ record.BandName }
+					}
+					@table.Cell() {
+						{ record.ReleaseCount }
+					}
+					@table.Cell() {
+						{ record.ProjectCount }
+						<span class="ml-1 text-xs text-muted-foreground">
+							{ fmt.Sprintf("(%d/%d) Projects done", record.ProjectsDone, record.ProjectCount) }
+						</span>
+					}
+					@table.Cell() {
+						{ fmt.Sprintf("(%s) %s", record.Country, data.Countries[record.Country]) }
+					}
+					@table.Cell() {
+						{ record.CreatedAt.Format("2006-01-02") }
+					}
+				}
+			}
+		}
+	}
+}
+
+templ bandRowDropdown(record database.GetDashboardBandsRow) {
+	@dropdown.Dropdown() {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				Size:    button.SizeIcon,
+				Variant: button.VariantGhost,
+			}) {
+				@icon.EllipsisVertical(icon.Props{Size: 16})
+			}
+		}
+		@dropdown.Content(dropdown.ContentProps{
+			Placement: dropdown.PlacementRight,
+		}) {
+			@dropdown.Label() {
+				{ record.BandName }
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				//Href: "/settings",
+			}) {
+				<span class="flex items-center">
+					@icon.Users(icon.Props{Size: 16, Class: "mr-2"})
+					View Band
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				//Href: "/settings",
+			}) {
+				<span class="flex items-center">
+					@icon.DiscAlbum(icon.Props{Size: 16, Class: "mr-2"})
+					View Releases
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				//Href: "/settings",
+			}) {
+				<span class="flex items-center">
+					@icon.FolderLock(icon.Props{Size: 16, Class: "mr-2"})
+					View Projects
+				</span>
+			}
+		}
+	}
+}

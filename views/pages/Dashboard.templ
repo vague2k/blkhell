@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dialog"
@@ -11,7 +12,6 @@ import (
 	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/separator"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
-	"github.com/vague2k/blkhell/views/templui/table"
 )
 
 templ Dashboard() {
@@ -59,56 +59,13 @@ templ Dashboard() {
 		>
 			SIGNED ROSTER
 		</span>
-		<div class="w-full overflow-x-auto border rounded-lg">
-			@table.Table(table.Props{
-				Class: "p-4",
-			}) {
-				@table.Header() {
-					@table.Head() {
-						Band Name
-					}
-					@table.Head() {
-						Releases
-					}
-					@table.Head() {
-						Projects
-					}
-					@table.Head() {
-						Country
-					}
-					@table.Head() {
-						Date Added
-					}
-				}
-				@table.Body() {
-					@table.Row() {
-						@table.Cell() {
-							Away With Words
-						}
-						@table.Cell() {
-							2
-						}
-						@table.Cell() {
-							12
-						}
-						@table.Cell() {
-							US - United States
-						}
-						@table.Cell() {
-							2026-12-24
-						}
-						@table.Cell() {
-							@button.Button(button.Props{
-								Size:    button.SizeIcon,
-								Variant: button.VariantGhost,
-							}) {
-								@icon.EllipsisVertical(icon.Props{Size: 16})
-							}
-						}
-					}
-				}
-			}
-		</div>
+		<div
+			hx-get="/hx/dashboard/table"
+			hx-trigger="load"
+			hx-target="this"
+			hx-swap="innerHTML"
+			class="w-full overflow-x-auto border rounded-lg"
+		></div>
 	</div>
 	<div id="dashboard-toast"></div>
 }
@@ -230,37 +187,12 @@ templ addBandDialog() {
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
 								}
 								@selectbox.Content() {
-									{{
-										countries := []struct {
-											Code string
-											Name string
-										}{
-											{"US", "United States"},
-											{"CA", "Canada"},
-											{"MX", "Mexico"},
-											{"BR", "Brazil"},
-											{"AR", "Argentina"},
-											{"GB", "United Kingdom"},
-											{"DE", "Germany"},
-											{"FR", "France"},
-											{"ES", "Spain"},
-											{"IT", "Italy"},
-											{"NL", "Netherlands"},
-											{"SE", "Sweden"},
-											{"NO", "Norway"},
-											{"FI", "Finland"},
-											{"JP", "Japan"},
-											{"KR", "South Korea"},
-											{"CN", "China"},
-											{"AU", "Australia"},
-											{"NZ", "New Zealand"},
-										}
-									}}
-									for _, c := range countries {
+									for _, code := range data.SortCountryMap() {
+										{{ name := data.Countries[code] }}
 										@selectbox.Item(selectbox.ItemProps{
-											Value: c.Code,
+											Value: code,
 										}) {
-											{ fmt.Sprintf("%s - %s", c.Code, c.Name) }
+											{ code + " - " + name }
 										}
 									}
 								}
