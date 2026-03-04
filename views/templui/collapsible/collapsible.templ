@@ -82,5 +82,5 @@ templ Content(props ...ContentProps) {
 }
 
 templ Script() {
-	<script defer nonce={ templ.GetNonce(ctx) } src={ utils.ScriptURL("assets/js/components/collapsible.min.js") }></script>
+	<script defer nonce={ templ.GetNonce(ctx) } src={ utils.ScriptURL("/assets/js/components/collapsible.min.js") }></script>
 }

@@ -18,6 +18,9 @@ templ Sidebar() {
 				Class: "bg-background",
 			}) {
 				@sidebar.Group() {
+					@sidebar.GroupLabel() {
+						Navigation
+					}
 					@sidebar.Menu() {
 						@sidebar.MenuItem(sidebar.MenuItemProps{
 							Class: "hover:bg-muted rounded-lg transition-all duration-200",
@@ -43,15 +46,6 @@ templ Sidebar() {
 						}
 						@sidebar.MenuItem(sidebar.MenuItemProps{
 							Class: "hover:bg-muted rounded-lg transition-all duration-200",
-							Attributes: templ.Attributes{
-								"hx-get":     "/hx/sidebar/bands",
-								"hx-trigger": "load",
-								"hx-target":  "this",
-								"hx-swap":    "innerHTML",
-							},
-						})
-						@sidebar.MenuItem(sidebar.MenuItemProps{
-							Class: "hover:bg-muted rounded-lg transition-all duration-200",
 						}) {
 							@sidebar.MenuButton(sidebar.MenuButtonProps{
 								Href:    "/settings",
@@ -61,6 +55,21 @@ templ Sidebar() {
 								<span>Account Settings</span>
 							}
 						}
+					}
+				}
+				@sidebar.Group() {
+					@sidebar.GroupLabel() {
+						Bands
+					}
+					@sidebar.Menu() {
+						@sidebar.MenuItem(sidebar.MenuItemProps{
+							Attributes: templ.Attributes{
+								"hx-get":     "/hx/sidebar/bands-dropdown",
+								"hx-trigger": "load",
+								"hx-target":  "this",
+								"hx-swap":    "innerHTML",
+							},
+						})
 					}
 				}
 			}

@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+/* JetBrains – Thin (100) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-Thin.ttf") format("ttf");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – ExtraLight (200) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-ExtraLight.ttf") format("ttf");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – Light (300) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-Light.ttf") format("ttf");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – Regular (400) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-Regular.ttf") format("ttf");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – Medium (500) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-Medium.ttf") format("ttf");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – SemiBold (600) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-SemiBold.ttf") format("ttf");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – Bold (700) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-Bold.ttf") format("ttf");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains – Bold (800) */
+@font-face {
+  font-family: "JetBrains";
+  src: url("/assets/fonts/jetbrains/JetBrainsMonoNerdFont-ExtraBold.ttf") format("ttf");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}

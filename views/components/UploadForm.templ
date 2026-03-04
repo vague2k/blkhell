@@ -1,0 +1,37 @@
+package components
+
+import (
+	"fmt"
+	"github.com/vague2k/blkhell/views/templui/icon"
+)
+
+type UploadFormProps struct {
+	ID     string
+	HxPost string
+}
+
+templ UploadForm(props ...UploadFormProps) {
+	{{ var p UploadFormProps }}
+	if len(props) > 0 {
+		{{ p = props[0] }}
+	}
+	<form
+		id={ fmt.Sprintf("%s-form", p.ID) }
+		hx-post={ p.HxPost }
+		hx-encoding="multipart/form-data"
+		hx-trigger="submit"
+		hx-target="#global-toast"
+		class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+	>
+		<input
+			type="file"
+			name="file"
+			id={ fmt.Sprintf("%s-input", p.ID) }
+			class="hidden"
+		/>
+		<span class="flex w-full py-3 items-center justify-center">
+			@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
+			<span class="text-sm">Drop files or click to upload</span>
+		</span>
+	</form>
+}

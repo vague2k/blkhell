@@ -69,7 +69,6 @@ templ Dashboard() {
 				class="w-full overflow-x-auto border rounded-lg"
 			></div>
 		</div>
-		<div id="dashboard-toast"></div>
 	}
 }
 
@@ -94,7 +93,7 @@ templ addBandDialog() {
 			<form
 				id="add-band-form"
 				hx-post="/actions/bands/create"
-				hx-target="#dashboard-toast"
+				hx-target="#global-toast"
 				class="flex flex-col gap-3 w-full"
 			>
 				<div class="flex flex-col items-center w-full gap-2">

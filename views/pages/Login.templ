@@ -19,7 +19,7 @@ templ Login() {
 				</div>
 				<form
 					hx-post="/login"
-					hx-target="#login-toast"
+					hx-target="#global-toast"
 					class="flex flex-col gap-3 w-1/2"
 				>
 					@input.Input(input.Props{
@@ -39,7 +39,6 @@ templ Login() {
 						Login
 					}
 				</form>
-				<div id="login-toast"></div>
 			</div>
 		</div>
 	}

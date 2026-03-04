@@ -59,7 +59,7 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 						</span>
 					}
 					@table.Cell() {
-						{ fmt.Sprintf("(%s) %s", record.Country, data.Countries[record.Country]) }
+						{ fmt.Sprintf("%s - %s", record.Country, data.Countries[record.Country]) }
 					}
 					@table.Cell() {
 						{ record.CreatedAt.Format("2006-01-02") }

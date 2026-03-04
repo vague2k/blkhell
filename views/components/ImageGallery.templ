@@ -1,7 +1,6 @@
 package components
 
 import (
-	"fmt"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dialog"
@@ -23,7 +22,7 @@ templ ImageGallery(images []database.File) {
 						{ image.Filename + "." + image.Ext }
 					</p>
 					<p class="text-[10px] text-muted-foreground">
-						{ formatFileSize(image.Size) }
+						{ image.ReadableSize() }
 					</p>
 				</div>
 				@dropdown.Dropdown() {
@@ -58,7 +57,7 @@ templ ImageGallery(images []database.File) {
 								Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
 								Attributes: templ.Attributes{
 									"hx-delete": "/actions/files/label/delete/" + image.ID,
-									"hx-target": "#dashboard-toast",
+									"hx-target": "#global-toast",
 								},
 							}) {
 								<span class="flex items-center text-sm">
@@ -89,7 +88,7 @@ templ lightbox(image database.File) {
 				<div class="flex bg-background items-center justify-between gap-4 border-t border-border px-5 py-3">
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-foreground">{ image.Filename + image.Ext }</p>
-						<p class="text-xs text-muted-foreground">{ formatFileSize(image.Size) }</p>
+						<p class="text-xs text-muted-foreground">{ image.ReadableSize() }</p>
 					</div>
 					<div class="flex items-center gap-1">
 						@button.Button(button.Props{
@@ -107,7 +106,7 @@ templ lightbox(image database.File) {
 							Class:   "text-destructive",
 							Attributes: templ.Attributes{
 								"hx-delete": "/actions/files/label/delete/" + image.ID,
-								"hx-target": "#dashboard-toast",
+								"hx-target": "#global-toast",
 							},
 						}) {
 							@icon.Trash(icon.Props{Size: 16})
@@ -116,24 +115,5 @@ templ lightbox(image database.File) {
 				</div>
 			</div>
 		}
-	}
-}
-
-func formatFileSize(bytes int64) string {
-	const (
-		KB = 1024
-		MB = KB * 1024
-		GB = MB * 1024
-	)
-
-	switch {
-	case bytes >= GB:
-		return fmt.Sprintf("%.2fGB", float64(bytes)/float64(GB))
-	case bytes >= MB:
-		return fmt.Sprintf("%.2fMB", float64(bytes)/float64(MB))
-	case bytes >= KB:
-		return fmt.Sprintf("%.2fKB", float64(bytes)/float64(KB))
-	default:
-		return fmt.Sprintf("%dB", bytes)
 	}
 }

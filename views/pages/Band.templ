@@ -1,0 +1,76 @@
+package pages
+
+import (
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/separator"
+	"github.com/vague2k/blkhell/views/templui/sidebar"
+)
+
+templ Band(band *database.Band) {
+	@layouts.BaseSidebarLayout() {
+		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@components.ThemeSwitcher()
+			@separator.Separator(separator.Props{
+				Orientation: separator.OrientationVertical,
+			})
+			@button.Button(button.Props{
+				ID:      "upload-button-topbar",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.Upload(icon.Props{Size: 10})
+					Upload Band Asset
+				</span>
+			}
+			@button.Button(button.Props{
+				ID:      "add-release-button-topbar",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.Plus(icon.Props{Size: 10})
+					Create Release
+				</span>
+			}
+		</div>
+		<div class="p-4 flex flex-col border border-transparent border-b-border">
+			<span class="flex items-end gap-2">
+				<h1 class="text-4xl font-inter tracking-tight font-semibold">{ band.Name }</h1>
+				<h1 class="text-xl font-inter text-muted-foreground tracking-tight font-semibold">({ band.FullCountry() })</h1>
+			</span>
+			<span class="flex items-center gap-2 text-muted-foreground text-sm">
+				<span>8 Releases </span>
+				<span>.</span>
+				<span>3 Projects </span>
+			</span>
+		</div>
+		<div class="p-4 flex flex-col gap-4 w-full h-full">
+			<form
+				id="file-upload-form"
+				hx-post="/actions/files/band/upload"
+				hx-encoding="multipart/form-data"
+				hx-trigger="submit"
+				hx-target="#global-toast"
+				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+			>
+				<input
+					type="file"
+					name="file"
+					id="file-upload-input"
+					class="hidden"
+				/>
+				<span class="flex w-full py-3 items-center justify-center">
+					@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
+					<span class="text-sm">Drop files or click to upload</span>
+				</span>
+			</form>
+		</div>
+	}
+}

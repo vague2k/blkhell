@@ -2,12 +2,16 @@
 
 @import "./font-geist.css";
 @import "./font-unison.css";
+@import "./font-jetbrains.css";
+@import "./font-inter.css";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
   --font-geist: "Geist", sans-serif;
   --font-unison: "Unison Pro", sans-serif;
+  --font-jetbrains: "JetBrains", sans-serif;
+  --font-inter: "Inter", sans-serif;
   --breakpoint-3xl: 1600px;
   --breakpoint-4xl: 2000px;
   --radius-sm: calc(var(--radius) - 4px);

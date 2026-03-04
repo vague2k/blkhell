@@ -17,6 +17,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 			r.Use(h.Middleware.Bands)
 			r.Get("/", h.DashboardPage)
 			r.Get("/dashboard", h.DashboardPage)
+			r.Get("/band/{id}", h.BandPage)
 			r.Get("/label-assets", h.LabelAssetsPage)
 			r.Get("/settings", h.SettingsPage)
 		})
@@ -46,10 +47,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 
 		// ---------- htmx fragments ----------
 		r.Route("/hx", func(r chi.Router) {
+			r.Use(h.Middleware.Bands)
 			// ---------- dashboard page fragments ----------
 			r.Route("/sidebar", func(r chi.Router) {
 				r.Get("/user-dropdown", h.HXSidebarUserDropdown)
-				// r.Get("/bands", h.HXSidebarBands)
+				r.Get("/bands-dropdown", h.HXSidebarBandsDropdown)
 			})
 			// ---------- dashboard page fragments ----------
 			r.Route("/dashboard", func(r chi.Router) {

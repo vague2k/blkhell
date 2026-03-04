@@ -29,7 +29,7 @@ templ LabelAssets() {
 			}) {
 				<span class="flex items-center gap-1">
 					@icon.Upload(icon.Props{Size: 10})
-					Upload
+					Upload Label Asset
 				</span>
 			}
 			@separator.Separator(separator.Props{
@@ -58,7 +58,7 @@ templ LabelAssets() {
 				hx-post="/actions/files/label/upload"
 				hx-encoding="multipart/form-data"
 				hx-trigger="submit"
-				hx-target="#dashboard-toast"
+				hx-target="#global-toast"
 				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
 			>
 				<input
@@ -107,7 +107,6 @@ templ LabelAssets() {
 				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
 			></div>
 		</div>
-		<div id="dashboard-toast"></div>
-		<script src={ utils.ScriptURL("assets/js/pages/LabelAssets.js") }></script>
+		<script src={ utils.ScriptURL("/assets/js/pages/LabelAssets.js") }></script>
 	}
 }
