@@ -6,21 +6,14 @@ import (
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/icon"
-	"github.com/vague2k/blkhell/views/templui/separator"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
 templ Band(band *database.Band) {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+		<div class="p-2 flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@separator.Separator(separator.Props{
-				Orientation: separator.OrientationVertical,
-			})
 			@components.ThemeSwitcher()
-			@separator.Separator(separator.Props{
-				Orientation: separator.OrientationVertical,
-			})
 			@button.Button(button.Props{
 				ID:      "upload-button-topbar",
 				Variant: button.VariantOutline,

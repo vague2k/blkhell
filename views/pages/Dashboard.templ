@@ -11,21 +11,14 @@ import (
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/input"
 	"github.com/vague2k/blkhell/views/templui/selectbox"
-	"github.com/vague2k/blkhell/views/templui/separator"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
 templ Dashboard() {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
+		<div class="p-2 flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@separator.Separator(separator.Props{
-				Orientation: separator.OrientationVertical,
-			})
 			@components.ThemeSwitcher()
-			@separator.Separator(separator.Props{
-				Orientation: separator.OrientationVertical,
-			})
 			@addBandDialog() {
 				@button.Button(button.Props{
 					ID:      "add-band-button-topbar",
@@ -37,9 +30,6 @@ templ Dashboard() {
 					</span>
 				}
 			}
-			@separator.Separator(separator.Props{
-				Orientation: separator.OrientationVertical,
-			})
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<h1 class="text-3xl tracking-wider font-unison">Dashboard</h1>

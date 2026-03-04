@@ -321,8 +321,8 @@ templ Trigger(props ...TriggerProps) {
 	}) {
 		@button.Button(button.Props{
 			Size:    button.SizeIcon,
-			Variant: button.VariantGhost,
-			Class:   "size-7",
+			Variant: button.VariantOutline,
+			Class:   "size-8",
 		}) {
 			@icon.PanelLeft(icon.Props{Class: "size-4"})
 			<span class="sr-only">Toggle Sidebar</span>
@@ -332,9 +332,9 @@ templ Trigger(props ...TriggerProps) {
 	<div class="hidden md:block">
 		@button.Button(button.Props{
 			Size:    button.SizeIcon,
-			Variant: button.VariantGhost,
+			Variant: button.VariantOutline,
 			Class: utils.TwMerge(
-				"size-7",
+				"size-8",
 				p.Class,
 			),
 			Attributes: utils.MergeAttributes(
