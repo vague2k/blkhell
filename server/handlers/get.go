@@ -122,9 +122,9 @@ func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request) {
-	bands, ok := h.BandsService.BandsFromContext(r.Context())
-	if !ok {
-		http.Error(w, "missing bands in context", http.StatusInternalServerError)
+	bands, err := h.DB.GetBands(r.Context())
+	if err != nil {
+		toastError(w, r, "database error")
 		return
 	}
 	components.SidebarBandsDropdown(bands).Render(r.Context(), w)

@@ -14,12 +14,15 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 
 		// ---------- pages ----------
 		r.Route("/", func(r chi.Router) {
-			r.Use(h.Middleware.Bands)
 			r.Get("/", h.DashboardPage)
 			r.Get("/dashboard", h.DashboardPage)
-			r.Get("/band/{id}", h.BandPage)
 			r.Get("/label-assets", h.LabelAssetsPage)
 			r.Get("/settings", h.SettingsPage)
+
+			// ---------- band pages ----------
+			r.Route("/band", func(r chi.Router) {
+				r.Get("/{id}", h.BandPage)
+			})
 		})
 
 		// ---------- actions ----------
@@ -47,7 +50,6 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 
 		// ---------- htmx fragments ----------
 		r.Route("/hx", func(r chi.Router) {
-			r.Use(h.Middleware.Bands)
 			// ---------- dashboard page fragments ----------
 			r.Route("/sidebar", func(r chi.Router) {
 				r.Get("/user-dropdown", h.HXSidebarUserDropdown)
