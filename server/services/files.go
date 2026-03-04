@@ -41,6 +41,36 @@ func NewFilesService(db *database.Queries) *FilesService {
 	return &FilesService{db: db}
 }
 
+func (s *FilesService) Upload(r *http.Request, userID, ownerID, ownerType string) (*database.File, error) {
+	// max file size: 100MB
+	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
+	if err := r.ParseMultipartForm(100 << 20); err != nil {
+		return nil, ErrFileTooBig
+	}
+
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		return nil, ErrInternal
+	}
+	defer file.Close()
+
+	metadata, err := s.WriteToDisk(file, fileHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	metadata.UserID = userID
+	metadata.OwnerID = ownerID
+	metadata.OwnerType = ownerType
+
+	asset, err := s.WriteToDb(r.Context(), metadata)
+	if err != nil {
+		return nil, err
+	}
+
+	return asset, nil
+}
+
 func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.FileHeader) (*FileMetadata, error) {
 	buf := make([]byte, 512)
 	_, err := file.Read(buf)

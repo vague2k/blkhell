@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
 )
@@ -116,31 +117,30 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 		toastError(w, r, "Could not get user.")
 		return
 	}
-	// max file size: 100MB
-	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
-	if err := r.ParseMultipartForm(100 << 20); err != nil {
-		toastError(w, r, "The uploaded file is too big. Please choose an file that's less than 100MB in size")
-		return
-	}
 
-	file, fileHeader, err := r.FormFile("file")
-	if err != nil {
-		toastError(w, r, "500 Internal error: Could not return file from form.")
-		return
-	}
-	defer file.Close()
-
-	metadata, err := h.FilesService.WriteToDisk(file, fileHeader)
+	asset, err := h.FilesService.Upload(r, user.ID, "label", "label")
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
 
-	metadata.UserID = user.ID
-	metadata.OwnerType = "label"
-	metadata.OwnerID = "label"
+	toastSuccess(w, r, fmt.Sprintf("'%s.%s' was uploaded successfully!", asset.Filename, asset.Ext))
+}
 
-	asset, err := h.FilesService.WriteToDb(r.Context(), metadata)
+func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
+	user, ok := h.AuthService.UserFromContext(r.Context())
+	if !ok {
+		toastError(w, r, "Could not get user.")
+		return
+	}
+
+	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		toastError(w, r, "database error")
+		return
+	}
+
+	asset, err := h.FilesService.Upload(r, user.ID, band.ID, "band")
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

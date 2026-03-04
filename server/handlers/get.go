@@ -55,7 +55,7 @@ func (h *Handler) HXImageGallery(w http.ResponseWriter, r *http.Request) {
 	// render image count (hx-oob-swap)
 	fmt.Fprintf(
 		w,
-		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d IMAGES</span>`,
+		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
 		len(images),
 	)
 }
@@ -75,7 +75,7 @@ func (h *Handler) HXSearchImageGallery(w http.ResponseWriter, r *http.Request) {
 	// render image count (hx-oob-swap)
 	fmt.Fprintf(
 		w,
-		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d IMAGES</span>`,
+		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
 		len(images),
 	)
 }

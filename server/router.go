@@ -45,6 +45,10 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 					r.Delete("/delete/{id}", h.DeleteLabelAsset)
 					r.Get("/download/{id}", h.DownloadLabelAsset)
 				})
+
+				r.Route("/bands", func(r chi.Router) {
+					r.Post("/{id}/upload", h.UploadBandAsset)
+				})
 			})
 		})
 

@@ -7,9 +7,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/input"
-	"github.com/vague2k/blkhell/views/templui/progress"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
-	"github.com/vague2k/blkhell/views/templui/utils"
 )
 
 templ LabelAssets() {
@@ -22,51 +20,15 @@ templ LabelAssets() {
 			</p>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
-			<form
-				id="file-upload-form"
-				hx-post="/actions/files/label/upload"
-				hx-encoding="multipart/form-data"
-				hx-trigger="submit"
-				hx-target="#global-toast"
-				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+			@components.UploadForm(components.UploadFormProps{
+				HxPost: "/actions/files/label/upload",
+			})
+			<span
+				id="dashboard-image-count"
+				class="font-light text-muted-foreground text-sm"
 			>
-				<input
-					type="file"
-					name="file"
-					id="file-upload-input"
-					class="hidden"
-				/>
-				<span class="flex w-full py-3 items-center justify-center">
-					@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
-					<span class="text-sm">Drop files or click to upload</span>
-				</span>
-			</form>
-			<div class="flex items-center gap-2 w-full">
-				<div class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
-			</div>
-			<div class="flex items-center gap-2">
-				<span
-					id="dashboard-image-count"
-					class="font-light text-muted-foreground text-sm"
-				>
-					0 IMAGES
-				</span>
-				<div
-					id="upload-progress-container"
-					class="hidden min-w-xl transition-all duration-200"
-				>
-					<span class="flex items-center">
-						@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin mr-1"})
-						<span class="text-sm min-w-24">
-							Uploading file
-						</span>
-						@progress.Progress(progress.Props{
-							ID:    "upload-progress-bar",
-							Class: "ml-1",
-						})
-					</span>
-				</div>
-			</div>
+				0 ASSETS
+			</span>
 			<div
 				id="dashboard-image-gallery"
 				hx-get="/hx/label-assets/image-gallery"
@@ -76,7 +38,32 @@ templ LabelAssets() {
 				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
 			></div>
 		</div>
-		<script src={ utils.ScriptURL("/assets/js/pages/LabelAssets.js") }></script>
+		<script>
+            (function () {
+                const form = htmx.find("#file-upload-form");
+                const input = htmx.find("#file-upload-form-input");
+                const uploadBtn = htmx.find("#upload-button-topbar");
+                const imageGallery = htmx.find("#dashboard-image-gallery");
+
+                uploadBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    input.click();
+                });
+
+                // refresh gallery when image is uploaded
+                htmx.on(form, "htmx:afterRequest", function (evt) {
+                    if (evt.target.id === "file-upload-form" && imageGallery) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
+                });
+                // refresh gallery when image deleted
+                htmx.on("htmx:afterRequest", function (evt) {
+                    if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
+                });
+            })();
+        </script>
 	}
 }
 

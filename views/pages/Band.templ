@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"fmt"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
@@ -45,25 +46,15 @@ templ Band(band *database.Band) {
 			</span>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
-			<form
-				id="file-upload-form"
-				hx-post="/actions/files/band/upload"
-				hx-encoding="multipart/form-data"
-				hx-trigger="submit"
-				hx-target="#global-toast"
-				class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+			@components.UploadForm(components.UploadFormProps{
+				HxPost: fmt.Sprintf("/actions/files/bands/%s/upload", band.ID),
+			})
+			<span
+				id="bands-asset-count"
+				class="font-light text-muted-foreground text-sm"
 			>
-				<input
-					type="file"
-					name="file"
-					id="file-upload-input"
-					class="hidden"
-				/>
-				<span class="flex w-full py-3 items-center justify-center">
-					@icon.Upload(icon.Props{Size: 16, Class: "mr-2"})
-					<span class="text-sm">Drop files or click to upload</span>
-				</span>
-			</form>
+				0 ASSETS
+			</span>
 		</div>
 	}
 }
