@@ -1,0 +1,55 @@
+package components
+
+import (
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
+	"github.com/vague2k/blkhell/views/templui/icon"
+)
+
+templ ImageLightbox(image database.File) {
+	@dialog.Dialog() {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "p-0 flex flex-col gap-0",
+		}) {
+			<div class="flex flex-col bg-secondary/30 rounded">
+				<div class="relative flex items-center justify-center p-4">
+					<img class="max-h-[70vh] rounded object-contain" src={ "/uploads" + image.Path }/>
+				</div>
+				<div class="flex bg-background items-center justify-between gap-4 border-t border-border px-5 py-3">
+					<div class="min-w-0 flex-1">
+						<p class="truncate text-sm font-medium text-foreground">{ image.Filename + image.Ext }</p>
+						<p class="text-xs text-muted-foreground">
+							{ image.ReadableSize() } · { image.Mimetype } · { image.DateAdded() }
+						</p>
+					</div>
+					<div class="flex items-center gap-1">
+						@button.Button(button.Props{
+							Href:    "/actions/files/download/" + image.ID,
+							Variant: button.VariantOutline,
+						}) {
+							<span class="flex items-center text-sm">
+								@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
+								Download
+							</span>
+						}
+						@button.Button(button.Props{
+							Size:    button.SizeIcon,
+							Variant: button.VariantGhost,
+							Class:   "text-destructive",
+							Attributes: templ.Attributes{
+								"hx-delete": "/actions/files/delete/" + image.ID,
+								"hx-target": "#global-toast",
+							},
+						}) {
+							@icon.Trash(icon.Props{Size: 16})
+						}
+					</div>
+				</div>
+			</div>
+		}
+	}
+}
