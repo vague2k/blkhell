@@ -124,7 +124,7 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toastSuccess(w, r, fmt.Sprintf("'%s.%s' was uploaded successfully!", asset.Filename, asset.Ext))
+	toastSuccess(w, r, fmt.Sprintf("'%s' was uploaded successfully!", asset.FullFilename()))
 }
 
 func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {

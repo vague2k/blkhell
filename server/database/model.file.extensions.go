@@ -2,12 +2,16 @@ package database
 
 import (
 	"fmt"
-
-	"github.com/vague2k/blkhell/server/data"
+	"time"
 )
 
-func (b Band) FullCountry() string {
-	return data.Countries[b.Country]
+func (f File) FullFilename() string {
+	return f.Filename + f.Ext
+}
+
+func (f File) DateAdded() string {
+	loc, _ := time.LoadLocation("America/New_York")
+	return f.CreatedAt.In(loc).Format("Jan 2, 2006, 3:04 PM")
 }
 
 func (f File) ReadableSize() string {

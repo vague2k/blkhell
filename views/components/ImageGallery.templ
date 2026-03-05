@@ -20,7 +20,7 @@ templ ImageGallery(images []database.File) {
 			<div class="flex items-center gap-2 px-3 py-2">
 				<div class="min-w-0 flex-1">
 					<p class="truncate text-xs font-normal text-foreground">
-						{ image.Filename + "." + image.Ext }
+						{ image.FullFilename() }
 					</p>
 					<p class="text-[10px] text-muted-foreground">
 						{ image.ReadableSize() }
@@ -41,12 +41,12 @@ templ ImageGallery(images []database.File) {
 						@dropdown.Label(dropdown.LabelProps{
 							Class: "truncate",
 						}) {
-							{ image.Filename }
+							{ image.FullFilename() }
 						}
 						@dropdown.Separator()
 						@dropdown.Group() {
 							@dropdown.Item(dropdown.ItemProps{
-								Href: "/actions/files/label/download/" + image.ID,
+								Href: "/actions/files/download/" + image.ID,
 							}) {
 								<span class="flex items-center text-sm">
 									@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
@@ -89,11 +89,13 @@ templ lightbox(image database.File) {
 				<div class="flex bg-background items-center justify-between gap-4 border-t border-border px-5 py-3">
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-foreground">{ image.Filename + image.Ext }</p>
-						<p class="text-xs text-muted-foreground">{ image.ReadableSize() }</p>
+						<p class="text-xs text-muted-foreground">
+							{ image.ReadableSize() } · { image.Mimetype } · { image.DateAdded() }
+						</p>
 					</div>
 					<div class="flex items-center gap-1">
 						@button.Button(button.Props{
-							Href:    "/actions/files/label/download/" + image.ID,
+							Href:    "/actions/files/download/" + image.ID,
 							Variant: button.VariantOutline,
 						}) {
 							<span class="flex items-center text-sm">
@@ -106,7 +108,7 @@ templ lightbox(image database.File) {
 							Variant: button.VariantGhost,
 							Class:   "text-destructive",
 							Attributes: templ.Attributes{
-								"hx-delete": "/actions/files/label/delete/" + image.ID,
+								"hx-delete": "/actions/files/delete/" + image.ID,
 								"hx-target": "#global-toast",
 							},
 						}) {

@@ -140,21 +140,21 @@ func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 	components.DashboardTable(records).Render(r.Context(), w)
 }
 
-func (h *Handler) DownloadLabelAsset(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		http.Error(w, "search failed", http.StatusInternalServerError)
+		http.Error(w, "database error", http.StatusInternalServerError)
 		return
 	}
 
 	file, err := os.Open(os.Getenv("UPLOADS_DIR") + asset.Path)
 	if err != nil {
-		toastError(w, r, "Couldn't open file to download")
+		http.Error(w, "download failed", http.StatusInternalServerError)
 		return
 	}
 	defer file.Close()
 
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.%s"`, asset.Filename, asset.Ext))
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, asset.FullFilename()))
 
 	io.Copy(w, file)
 }
