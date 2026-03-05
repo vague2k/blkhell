@@ -50,11 +50,45 @@ templ Band(band *database.Band) {
 				HxPost: fmt.Sprintf("/actions/files/bands/%s/upload", band.ID),
 			})
 			<span
-				id="bands-asset-count"
+				id="band-assets-image-count"
 				class="font-light text-muted-foreground text-sm"
 			>
 				0 ASSETS
 			</span>
+			<div
+				id="band-assets-image-gallery"
+				hx-get={ fmt.Sprintf("/hx/bands/%s/image-gallery", band.ID) }
+				hx-trigger="load, refreshGallery"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+			></div>
 		</div>
+		<script>
+            (function () {
+                const form = htmx.find("#file-upload-form");
+                const input = htmx.find("#file-upload-form-input");
+                const uploadBtn = htmx.find("#upload-button-topbar");
+                const imageGallery = htmx.find("#band-assets-image-gallery");
+
+                uploadBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    input.click();
+                });
+
+                // refresh gallery when image is uploaded
+                htmx.on(form, "htmx:afterRequest", function (evt) {
+                    if (evt.target.id === "file-upload-form" && imageGallery) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
+                });
+                // refresh gallery when image deleted
+                htmx.on("htmx:afterRequest", function (evt) {
+                    if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
+                });
+            })();
+        </script>
 	}
 }

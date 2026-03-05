@@ -24,13 +24,13 @@ templ LabelAssets() {
 				HxPost: "/actions/files/label/upload",
 			})
 			<span
-				id="dashboard-image-count"
+				id="label-assets-image-count"
 				class="font-light text-muted-foreground text-sm"
 			>
 				0 ASSETS
 			</span>
 			<div
-				id="dashboard-image-gallery"
+				id="label-assets-image-gallery"
 				hx-get="/hx/label-assets/image-gallery"
 				hx-trigger="load, refreshGallery"
 				hx-target="this"
@@ -43,7 +43,7 @@ templ LabelAssets() {
                 const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
                 const uploadBtn = htmx.find("#upload-button-topbar");
-                const imageGallery = htmx.find("#dashboard-image-gallery");
+                const imageGallery = htmx.find("#label-assets-image-gallery");
 
                 uploadBtn.addEventListener("click", (e) => {
                     e.preventDefault();
@@ -125,7 +125,7 @@ templ labelAssetsSearchImageInput() {
 		Attributes: templ.Attributes{
 			"hx-get":     "/hx/label-assets/search-image-gallery",
 			"hx-trigger": "keyup changed delay:300ms",
-			"hx-target":  "#dashboard-image-gallery",
+			"hx-target":  "#label-assets-image-gallery",
 		},
 	})
 }

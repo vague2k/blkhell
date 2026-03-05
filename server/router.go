@@ -70,8 +70,13 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 			})
 			// ---------- label assets page fragments ----------
 			r.Route("/label-assets", func(r chi.Router) {
-				r.Get("/image-gallery", h.HXImageGallery)
-				r.Get("/search-image-gallery", h.HXSearchImageGallery)
+				r.Get("/image-gallery", h.HXLabelAssetsImageGallery)
+				r.Get("/search-image-gallery", h.HXSearchLabelAssetsImageGallery)
+			})
+
+			r.Route("/bands", func(r chi.Router) {
+				r.Get("/{id}/image-gallery", h.HXBandsAssetsImageGallery)
+				// r.Get("/{id}/search-image-gallery", )
 			})
 		})
 	})

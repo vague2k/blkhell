@@ -93,6 +93,51 @@ func (q *Queries) DeleteFile(ctx context.Context, id string) (File, error) {
 	return i, err
 }
 
+const getBandImageFilesByID = `-- name: GetBandImageFilesByID :many
+;
+
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+WHERE owner_type = 'band'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename
+`
+
+func (q *Queries) GetBandImageFilesByID(ctx context.Context, ownerID string) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getBandImageFilesByID, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.Mimetype,
+			&i.OwnerType,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFileByID = `-- name: GetFileByID :one
 ;
 
@@ -177,6 +222,50 @@ ORDER BY filename
 
 func (q *Queries) GetFiles(ctx context.Context) ([]File, error) {
 	rows, err := q.db.QueryContext(ctx, getFiles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.Mimetype,
+			&i.OwnerType,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLabelImageFiles = `-- name: GetLabelImageFiles :many
+;
+
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+WHERE owner_type = 'label'
+AND mimetype LIKE 'image/%'
+ORDER BY filename
+`
+
+func (q *Queries) GetLabelImageFiles(ctx context.Context) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getLabelImageFiles)
 	if err != nil {
 		return nil, err
 	}

@@ -21,6 +21,19 @@ WHERE id = ? ;
 SELECT * FROM files
 ORDER BY filename ;
 
+-- name: GetLabelImageFiles :many
+SELECT * FROM files
+WHERE owner_type = 'label'
+AND mimetype LIKE 'image/%'
+ORDER BY filename ;
+
+-- name: GetBandImageFilesByID :many
+SELECT * FROM files
+WHERE owner_type = 'band'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename ;
+
 -- name: GetFileByPartialName :many
 SELECT *
 FROM files

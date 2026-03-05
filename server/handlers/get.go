@@ -45,22 +45,37 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 	pages.Band(&band).Render(r.Context(), w)
 }
 
-func (h *Handler) HXImageGallery(w http.ResponseWriter, r *http.Request) {
-	images, err := h.DB.GetFiles(r.Context())
+func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
+	images, err := h.DB.GetLabelImageFiles(r.Context())
 	if err != nil {
-		http.Error(w, "Couldn't get user from request", http.StatusInternalServerError)
+		toastError(w, r, "database error")
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
 	// render image count (hx-oob-swap)
 	fmt.Fprintf(
 		w,
-		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+		`<span id="label-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
 		len(images),
 	)
 }
 
-func (h *Handler) HXSearchImageGallery(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
+	images, err := h.DB.GetBandImageFilesByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		toastError(w, r, "database error")
+		return
+	}
+	components.ImageGallery(images).Render(r.Context(), w)
+	// render image count (hx-oob-swap)
+	fmt.Fprintf(
+		w,
+		`<span id="band-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+		len(images),
+	)
+}
+
+func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
 	input := r.URL.Query().Get("q")
 	images, err := h.DB.GetFileByPartialName(r.Context(), database.GetFileByPartialNameParams{
 		Filename: "%" + input + "%",
@@ -75,7 +90,7 @@ func (h *Handler) HXSearchImageGallery(w http.ResponseWriter, r *http.Request) {
 	// render image count (hx-oob-swap)
 	fmt.Fprintf(
 		w,
-		`<span id="dashboard-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+		`<span id="label-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
 		len(images),
 	)
 }
