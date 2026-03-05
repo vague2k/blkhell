@@ -117,7 +117,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-geist;
+    @apply bg-background text-foreground font-inter;
   }
 
   ::-webkit-scrollbar {
