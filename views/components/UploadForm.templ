@@ -2,10 +2,12 @@ package components
 
 import "github.com/vague2k/blkhell/views/templui/icon"
 import "github.com/vague2k/blkhell/views/templui/progress"
+import "github.com/vague2k/blkhell/views/templui/utils"
 
 type UploadFormProps struct {
 	ID     string
 	HxPost string
+	Class  string
 }
 
 templ UploadForm(props ...UploadFormProps) {
@@ -19,7 +21,13 @@ templ UploadForm(props ...UploadFormProps) {
 		hx-encoding="multipart/form-data"
 		hx-trigger="submit"
 		hx-target="#global-toast"
-		class="text-muted-foreground/50 hover:text-foreground border border-dashed rounded-lg cursor-pointer transition-all duration-200 hover:border-muted-foreground/60"
+		class={
+			utils.TwMerge(
+				"text-muted-foreground/50 border border-dashed rounded-lg cursor-pointer",
+				"hover:text-foreground hover:border-muted-foreground/60 transition-all duration-200",
+				p.Class,
+			),
+		}
 	>
 		<input
 			type="file"
