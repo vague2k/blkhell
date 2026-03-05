@@ -155,6 +155,22 @@ func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 	components.DashboardTable(records).Render(r.Context(), w)
 }
 
+func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
+	releases, err := h.DB.GetReleasesByBand(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		toastError(w, r, "database error")
+		return
+	}
+
+	components.BandReleasesTable(releases).Render(r.Context(), w)
+	// render release count (hx-oob-swap)
+	fmt.Fprintf(
+		w,
+		`<span id="band-releases-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d RELEASES</span>`,
+		len(releases),
+	)
+}
+
 func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {

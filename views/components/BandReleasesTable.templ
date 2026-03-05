@@ -4,11 +4,11 @@ import "github.com/vague2k/blkhell/views/templui/table"
 import "github.com/vague2k/blkhell/views/templui/button"
 import "github.com/vague2k/blkhell/views/templui/icon"
 import "github.com/vague2k/blkhell/server/database"
-import "fmt"
-import "github.com/vague2k/blkhell/views/templui/dropdown"
-import "github.com/vague2k/blkhell/server/data"
 
-templ DashboardTable(records []database.GetDashboardBandsRow) {
+import "github.com/vague2k/blkhell/views/templui/dropdown"
+import "github.com/vague2k/blkhell/views/templui/badge"
+
+templ BandReleasesTable(releases []database.Release) {
 	@table.Table(table.Props{
 		Class: "p-4",
 	}) {
@@ -19,24 +19,23 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 			@table.Head(table.HeadProps{
 				Class: "size-8",
 			})
-			@table.Head() {
-				Band
+			@table.Head(table.HeadProps{
+				Class: "size-8",
+			}) {
+				No.
 			}
 			@table.Head() {
-				Releases
+				Name
 			}
 			@table.Head() {
-				Projects
-			}
-			@table.Head() {
-				Country
+				Type
 			}
 			@table.Head() {
 				Added
 			}
 		}
 		@table.Body() {
-			for i, record := range records {
+			for i, release := range releases {
 				@table.Row() {
 					@table.Cell() {
 						<span class="text-muted-foreground">
@@ -44,25 +43,27 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 						</span>
 					}
 					@table.Cell() {
-						@bandRowDropdown(record)
+						@bandReleasesDropdown(release)
 					}
 					@table.Cell() {
-						{ record.BandName }
+						@badge.Badge(badge.Props{
+							Class: "bg-muted",
+						}) {
+							{ release.CatalogNo() }
+						}
 					}
 					@table.Cell() {
-						{ record.ReleaseCount }
+						{ release.Name }
 					}
 					@table.Cell() {
-						{ record.ProjectCount }
-						<span class="ml-1 text-xs text-muted-foreground">
-							{ fmt.Sprintf("(%d/%d) Projects done", record.ProjectsDone, record.ProjectCount) }
-						</span>
+						@badge.Badge(badge.Props{
+							Class: "bg-muted",
+						}) {
+							{ release.Type }
+						}
 					}
 					@table.Cell() {
-						{ fmt.Sprintf("%s - %s", record.Country, data.Countries[record.Country]) }
-					}
-					@table.Cell() {
-						{ record.CreatedAt.Format("2006-01-02") }
+						{ release.CreatedAt.Format("2006-01-02") }
 					}
 				}
 			}
@@ -70,7 +71,7 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 	}
 }
 
-templ bandRowDropdown(record database.GetDashboardBandsRow) {
+templ bandReleasesDropdown(release database.Release) {
 	@dropdown.Dropdown() {
 		@dropdown.Trigger() {
 			@button.Button(button.Props{
@@ -84,23 +85,14 @@ templ bandRowDropdown(record database.GetDashboardBandsRow) {
 			Placement: dropdown.PlacementRight,
 		}) {
 			@dropdown.Label() {
-				{ record.BandName }
-			}
-			@dropdown.Separator()
-			@dropdown.Item(dropdown.ItemProps{
-				Href: fmt.Sprintf("/band/%s", record.BandID),
-			}) {
-				<span class="flex items-center">
-					@icon.Users(icon.Props{Size: 16, Class: "mr-2"})
-					View Band
-				</span>
+				{ release.Name }
 			}
 			@dropdown.Item(dropdown.ItemProps{
 				//Href: "/settings",
 			}) {
 				<span class="flex items-center">
 					@icon.DiscAlbum(icon.Props{Size: 16, Class: "mr-2"})
-					View Releases
+					View Release
 				</span>
 			}
 			@dropdown.Item(dropdown.ItemProps{

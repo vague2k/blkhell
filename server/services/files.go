@@ -110,14 +110,14 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 		return nil, ErrInternal
 	}
 
-	_, parentDir, ok := strings.Cut(filePath, "uploads")
+	_, relativeDir, ok := strings.Cut(filePath, "uploads")
 	if !ok {
 		return nil, fmt.Errorf("500 internal error: what the fuck?")
 	}
 
 	return &FileMetadata{
 		Filename: fileName,
-		Path:     parentDir,
+		Path:     relativeDir,
 		Ext:      fileExt,
 		Mimetype: filetype,
 		Size:     size,

@@ -74,8 +74,9 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 				r.Get("/search-image-gallery", h.HXSearchLabelAssetsImageGallery)
 			})
 
-			r.Route("/bands", func(r chi.Router) {
-				r.Get("/{id}/image-gallery", h.HXBandsAssetsImageGallery)
+			r.Route("/bands/{id}", func(r chi.Router) {
+				r.Get("/image-gallery", h.HXBandsAssetsImageGallery)
+				r.Get("/release-table", h.HXBandsReleaseTable)
 				// r.Get("/{id}/search-image-gallery", )
 			})
 		})

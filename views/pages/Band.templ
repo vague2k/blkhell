@@ -63,6 +63,20 @@ templ Band(band *database.Band) {
 				hx-swap="innerHTML"
 				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
 			></div>
+			<span
+				id="band-releases-count"
+				class="font-light text-muted-foreground text-sm"
+			>
+				0 RELEASES
+			</span>
+			<div
+				id="band-releases-table"
+				hx-get={ fmt.Sprintf("/hx/bands/%s/release-table", band.ID) }
+				hx-trigger="load"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="w-full overflow-x-auto border rounded-lg"
+			></div>
 		</div>
 		<script>
             (function () {
@@ -82,6 +96,7 @@ templ Band(band *database.Band) {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
                     }
                 });
+
                 // refresh gallery when image deleted
                 htmx.on("htmx:afterRequest", function (evt) {
                     if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
