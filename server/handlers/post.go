@@ -82,6 +82,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		return
 	}
 
 	release, err := h.DB.CreateRelease(r.Context(), database.CreateReleaseParams{
@@ -93,6 +94,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		return
 	}
 
 	if projectName != "" && projectType != "" {
@@ -105,6 +107,66 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 			toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+			return
+		}
+	}
+
+	toastSuccess(w, r, fmt.Sprintf("You new band '%s' has been added to the roster! beast.", band.Name))
+}
+
+func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
+	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "band-id"))
+	if err != nil {
+		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		return
+	}
+
+	releaseName := r.FormValue("release-name")
+	releaseType := r.FormValue("release-type")
+	releaseNum := r.FormValue("release-number")
+	projectName := r.FormValue("project-name")
+	projectType := r.FormValue("project-type")
+
+	switch true {
+	case releaseName == "":
+		toastError(w, r, "'Release Name' is required")
+		return
+	case releaseType == "":
+		toastError(w, r, "'Release Type' is required")
+		return
+	case releaseNum == "":
+		toastError(w, r, "'Release No.' is required")
+		return
+	}
+
+	if (projectName == "" && projectType != "") || (projectName != "" && projectType == "") {
+		toastError(w, r, "'Project Name' and 'Project Type' must both be filled or both left empty")
+		return
+	}
+
+	release, err := h.DB.CreateRelease(r.Context(), database.CreateReleaseParams{
+		ID:     uuid.NewString(),
+		BandID: band.ID,
+		Name:   releaseName,
+		Type:   releaseType,
+		Number: releaseNum,
+	})
+	if err != nil {
+		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		return
+	}
+
+	if projectName != "" && projectType != "" {
+		_, err := h.DB.CreateProject(r.Context(), database.CreateProjectParams{
+			ID:        uuid.NewString(),
+			BandID:    band.ID,
+			ReleaseID: release.ID,
+			Name:      projectName,
+			Type:      projectType,
+		})
+		if err != nil {
+			toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+			return
 		}
 	}
 

@@ -23,19 +23,14 @@ templ LabelAssets() {
 			@components.UploadForm(components.UploadFormProps{
 				HxPost: "/actions/files/label/upload",
 			})
-			<span
-				id="label-assets-image-count"
-				class="font-light text-muted-foreground text-sm"
-			>
-				0 ASSETS
-			</span>
+			<span id="label-assets-image-count"></span>
 			<div
 				id="label-assets-image-gallery"
 				hx-get="/hx/label-assets/image-gallery"
 				hx-trigger="load, refreshGallery"
 				hx-target="this"
 				hx-swap="innerHTML"
-				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+				class="h-full grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
 			></div>
 		</div>
 		<script>

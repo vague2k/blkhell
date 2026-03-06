@@ -8,67 +8,77 @@ import (
 )
 
 templ ImageGallery(images []database.File) {
-	// TODO: conditionally render based on owner_type / owner_id
-	for _, image := range images {
-		<div class="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:border-foreground/20">
-			@ImageLightbox(image) {
-				<button id={ image.ID } class="relative aspect-square w-full overflow-hidden bg-secondary/50 cursor-pointer">
-					<img class="size-full object-cover transition-transform duration-200 group-hover:scale-105" src={ "/uploads" + image.Path }/>
-				</button>
-			}
-			<div class="flex items-center gap-2 px-3 py-2">
-				<div class="min-w-0 flex-1">
-					<p class="truncate text-xs font-normal text-foreground">
-						{ image.FullFilename() }
-					</p>
-					<p class="text-[10px] text-muted-foreground">
-						{ image.ReadableSize() }
-					</p>
-				</div>
-				@dropdown.Dropdown() {
-					@dropdown.Trigger() {
-						@button.Button(button.Props{
-							Size:    button.SizeIcon,
-							Variant: button.VariantGhost,
-						}) {
-							@icon.EllipsisVertical()
-						}
-					}
-					@dropdown.Content(dropdown.ContentProps{
-						Class: "w-48",
-					}) {
-						@dropdown.Label(dropdown.LabelProps{
-							Class: "truncate",
-						}) {
-							{ image.FullFilename() }
-						}
-						@dropdown.Separator()
-						@dropdown.Group() {
-							@dropdown.Item(dropdown.ItemProps{
-								Href: "/actions/files/download/" + image.ID,
-							}) {
-								<span class="flex items-center text-sm">
-									@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
-									Download
-								</span>
-							}
-							@dropdown.Separator()
-							@dropdown.Item(dropdown.ItemProps{
-								Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
-								Attributes: templ.Attributes{
-									"hx-delete": "/actions/files/label/delete/" + image.ID,
-									"hx-target": "#global-toast",
-								},
-							}) {
-								<span class="flex items-center text-sm">
-									@icon.Trash(icon.Props{Size: 16, Class: "mr-1.5"})
-									Delete
-								</span>
-							}
-						}
-					}
-				}
-			</div>
+	if len(images) == 0 {
+		<div class="flex col-span-full h-full row-span-full border border-dashed border-border rounded-lg w-full items-center justify-center">
+			<span class="flex flex-col justify-center items-center text-muted-foreground">
+				@icon.FileQuestionMark(icon.Props{Size: 48})
+				Nothing to show yet!
+			</span>
 		</div>
+	} else {
+		for _, image := range images {
+			<div>
+				<div class="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-card transition-all hover:border-foreground/20">
+					@ImageLightbox(image) {
+						<button id={ image.ID } class="relative aspect-square w-full overflow-hidden bg-secondary/50 cursor-pointer">
+							<img class="size-full object-cover transition-transform duration-200 group-hover:scale-105" src={ "/uploads" + image.Path }/>
+						</button>
+					}
+					<div class="flex items-center gap-2 px-3 py-2">
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-xs font-normal text-foreground">
+								{ image.FullFilename() }
+							</p>
+							<p class="text-[10px] text-muted-foreground">
+								{ image.ReadableSize() }
+							</p>
+						</div>
+						@dropdown.Dropdown() {
+							@dropdown.Trigger() {
+								@button.Button(button.Props{
+									Size:    button.SizeIcon,
+									Variant: button.VariantGhost,
+								}) {
+									@icon.EllipsisVertical()
+								}
+							}
+							@dropdown.Content(dropdown.ContentProps{
+								Class: "w-48",
+							}) {
+								@dropdown.Label(dropdown.LabelProps{
+									Class: "truncate",
+								}) {
+									{ image.FullFilename() }
+								}
+								@dropdown.Separator()
+								@dropdown.Group() {
+									@dropdown.Item(dropdown.ItemProps{
+										Href: "/actions/files/download/" + image.ID,
+									}) {
+										<span class="flex items-center text-sm">
+											@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
+											Download
+										</span>
+									}
+									@dropdown.Separator()
+									@dropdown.Item(dropdown.ItemProps{
+										Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
+										Attributes: templ.Attributes{
+											"hx-delete": "/actions/files/label/delete/" + image.ID,
+											"hx-target": "#global-toast",
+										},
+									}) {
+										<span class="flex items-center text-sm">
+											@icon.Trash(icon.Props{Size: 16, Class: "mr-1.5"})
+											Delete
+										</span>
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+			</div>
+		}
 	}
 }

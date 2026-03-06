@@ -11,13 +11,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
 )
 
 var (
-	MimeJpeg = "image/jpeg"
-	MimePng  = "image/png"
+	MimeJpeg      = "image/jpeg"
+	MimePng       = "image/png"
+	MimePhotoshop = "image/vnd.adobe.photoshop"
 )
 
 type FileMetadata struct {
@@ -79,7 +81,8 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 	}
 
 	// create the uploads dir if not exist
-	filetype := http.DetectContentType(buf)
+	filetype := mimetype.Detect(buf).String()
+	fmt.Println(filetype)
 	dir, err := s.createUploadDirectories(filetype)
 	if err != nil {
 		return nil, err
@@ -150,6 +153,8 @@ func (s *FilesService) createUploadDirectories(mimetype string) (string, error) 
 	switch mimetype {
 	case MimeJpeg, MimePng:
 		uploadsWithSubDir = filepath.Join(uploadsDir, "images")
+	case MimePhotoshop:
+		uploadsWithSubDir = filepath.Join(uploadsDir, "photoshop")
 	default:
 		return "", ErrFileNotSupported
 	}

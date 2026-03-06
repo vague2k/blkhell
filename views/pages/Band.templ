@@ -6,13 +6,17 @@ import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
 templ Band(band *database.Band) {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 flex items-center gap-1 border border-transparent border-b-border">
+		<div class="p-2 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@components.ThemeSwitcher()
 			@button.Button(button.Props{
@@ -24,14 +28,16 @@ templ Band(band *database.Band) {
 					Upload Band Asset
 				</span>
 			}
-			@button.Button(button.Props{
-				ID:      "add-release-button-topbar",
-				Variant: button.VariantOutline,
-			}) {
-				<span class="flex items-center gap-1">
-					@icon.Plus(icon.Props{Size: 10})
-					Create Release
-				</span>
+			@addReleaseDialog(band) {
+				@button.Button(button.Props{
+					ID:      "add-release-button-topbar",
+					Variant: button.VariantOutline,
+				}) {
+					<span class="flex items-center gap-1">
+						@icon.Plus(icon.Props{Size: 10})
+						Create Release
+					</span>
+				}
 			}
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
@@ -55,7 +61,7 @@ templ Band(band *database.Band) {
 					<div
 						id="band-releases-table"
 						hx-get={ fmt.Sprintf("/hx/bands/%s/release-table", band.ID) }
-						hx-trigger="load"
+						hx-trigger="load, refreshTable"
 						hx-target="this"
 						hx-swap="innerHTML"
 						class="w-full overflow-auto border rounded-lg"
@@ -74,37 +80,215 @@ templ Band(band *database.Band) {
 						hx-trigger="load, refreshGallery"
 						hx-target="this"
 						hx-swap="innerHTML"
-						class="grid grid-cols-2 gap-3 sm:grid-cols-3"
+						class="h-full grid grid-cols-2 gap-3 sm:grid-cols-3"
 					></div>
 				</div>
 			</div>
 		</div>
 		<script>
             (function () {
-                const form = htmx.find("#file-upload-form");
+                const fileUploadForm = htmx.find("#file-upload-form");
+                const addReleaseForm = htmx.find("#add-release-form");
                 const input = htmx.find("#file-upload-form-input");
                 const uploadBtn = htmx.find("#upload-button-topbar");
                 const imageGallery = htmx.find("#band-assets-image-gallery");
+                const releasesTable = htmx.find("#band-releases-table");
 
                 uploadBtn.addEventListener("click", (e) => {
                     e.preventDefault();
                     input.click();
                 });
 
-                // refresh gallery when image is uploaded
-                htmx.on(form, "htmx:afterRequest", function (evt) {
+                // refresh band asset gallery when image is uploaded
+                htmx.on(fileUploadForm, "htmx:afterRequest", function (evt) {
                     if (evt.target.id === "file-upload-form" && imageGallery) {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
                     }
                 });
 
-                // refresh gallery when image deleted
+                // refresh band asset gallery when image is deleted
                 htmx.on("htmx:afterRequest", function (evt) {
                     if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
                     }
                 });
+
+                // refresh band releases table when release is added
+                htmx.on(addReleaseForm, "htmx:afterRequest", function (evt) {
+                    if (evt.target.id === "add-release-form" && releasesTable) {
+                        releasesTable.dispatchEvent(new Event("refreshTable"));
+                        window.tui.dialog.close("add-release-dialog")
+                    }
+                });
             })();
         </script>
+	}
+}
+
+templ addReleaseDialog(band *database.Band) {
+	@dialog.Dialog(dialog.Props{
+		ID: "add-release-dialog",
+	}) {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					New Release for { band.Name }
+				}
+				@dialog.Description() {
+					Add a new release for { band.Name } . Optionally add a project as well.
+				}
+			}
+			<form
+				id="add-release-form"
+				hx-post={ fmt.Sprintf("/actions/release/create/%s", band.ID) }
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Release Name
+							}
+							@input.Input(input.Props{
+								ID:          "release-name-input",
+								Type:        input.TypeText,
+								Name:        "release-name",
+								Placeholder: "Falling Blossom Emotion",
+							})
+						}
+					</div>
+					<!-- Row 2 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Release Type
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-type-selector",
+									Form: "add-release-form",
+									Name: "release-type",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "album"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									@selectbox.Item(selectbox.ItemProps{Value: "album"}) {
+										Album
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "ep"}) {
+										EP
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "single"}) {
+										Single
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: "compilation"}) {
+										Comp
+									}
+								}
+							}
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Release No.
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-number-selector",
+									Form: "add-release-form",
+									Name: "release-number",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "000"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									for i := 1; i <= 100; i++ {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: fmt.Sprintf("%d", i),
+										}) {
+											{ fmt.Sprintf("BH-%d", i) }
+										}
+									}
+								}
+							}
+						}
+					</div>
+					<!-- Row 3 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Project Name
+							}
+							@input.Input(input.Props{
+								ID:          "project-name-input",
+								Form:        "add-release-form",
+								Type:        input.TypeText,
+								Name:        "project-name",
+								Placeholder: "CDs for fest",
+							})
+						}
+						@form.Item() {
+							@form.Label() {
+								Type
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "project-type-selector",
+									Form: "add-release-form",
+									Name: "project-type",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{
+										Placeholder: "CDs",
+									})
+								}
+								@selectbox.Content(selectbox.ContentProps{
+									NoSearch: true,
+								}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "CD",
+									}) {
+										CDs
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "tapes",
+									}) {
+										Tapes
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "vinyl",
+									}) {
+										Vinyl
+									}
+									@selectbox.Item(selectbox.ItemProps{
+										Value: "merch",
+									}) {
+										Merch
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Add Release
+					}
+				}
+			</form>
+		}
 	}
 }

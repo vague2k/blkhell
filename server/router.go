@@ -38,6 +38,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 				r.Post("/create", h.CreateBand)
 			})
 
+			// ---------- release actions ----------
+			r.Route("/release", func(r chi.Router) {
+				r.Post("/create/{band-id}", h.CreateRelease)
+			})
+
 			// ---------- file actions ----------
 			r.Route("/files", func(r chi.Router) {
 				r.Get("/download/{id}", h.Download)
