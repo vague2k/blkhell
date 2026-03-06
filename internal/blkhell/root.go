@@ -32,7 +32,6 @@ func (c *Cli) Run() error {
 	c.AuthService = services.NewAuthService(c.DB)
 
 	c.cmd.AddCommand(c.newUserCmd())
-	c.cmd.AddCommand(c.newGenerateCmd())
 	c.cmd.AddCommand(c.newDatabaseCmd())
 	return c.cmd.Execute()
 }
