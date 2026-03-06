@@ -18,6 +18,11 @@ SELECT *
 FROM projects
 WHERE id = ? ;
 
+-- name: GetProjectsByBandID :many
+SELECT *
+FROM projects
+WHERE band_id = ? ;
+
 -- name: GetProjectByStatus :one
 SELECT *
 FROM projects

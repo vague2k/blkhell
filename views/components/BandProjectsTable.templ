@@ -1,0 +1,52 @@
+package components
+
+import "github.com/vague2k/blkhell/views/templui/table"
+
+import "github.com/vague2k/blkhell/server/database"
+
+import "github.com/vague2k/blkhell/views/templui/badge"
+
+templ BandProjectsTable(projects []database.Project) {
+	@table.Table(table.Props{
+		Class: "p-4",
+	}) {
+		@table.Header() {
+			@table.Head(table.HeadProps{
+				Class: "size-8",
+			})
+			@table.Head() {
+				Name
+			}
+			@table.Head() {
+				Type
+			}
+			@table.Head() {
+				Added
+			}
+		}
+		@table.Body() {
+			for i, project := range projects {
+				@table.Row() {
+					@table.Cell() {
+						<span class="text-muted-foreground">
+							{ i+1 }
+						</span>
+					}
+					@table.Cell() {
+						{ project.Name }
+					}
+					@table.Cell() {
+						@badge.Badge(badge.Props{
+							Class: "bg-muted",
+						}) {
+							{ project.Type }
+						}
+					}
+					@table.Cell() {
+						{ project.CreatedAt.Format("2006-01-02") }
+					}
+				}
+			}
+		}
+	}
+}

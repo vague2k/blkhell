@@ -12,7 +12,7 @@ import (
 
 templ Band(band *database.Band) {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+		<div class="p-2 bg-background z-50 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@components.ThemeSwitcher()
 			@button.Button(button.Props{
@@ -37,6 +37,19 @@ templ Band(band *database.Band) {
 					</span>
 				}
 			}
+			@components.EditBandDialog(components.EditBandDialogProps{
+				For: band,
+			}) {
+				@button.Button(button.Props{
+					ID:      "edit-band-button-topbar",
+					Variant: button.VariantOutline,
+				}) {
+					<span class="flex items-center gap-1">
+						@icon.Pencil(icon.Props{Size: 10})
+						Edit { band.Name }
+					</span>
+				}
+			}
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<span class="flex items-end gap-2">
@@ -48,8 +61,22 @@ templ Band(band *database.Band) {
 			@components.UploadForm(components.UploadFormProps{
 				HxPost: fmt.Sprintf("/actions/files/bands/%s/upload", band.ID),
 			})
+			<span
+				id="band-assets-image-count"
+				class="hidden font-light text-muted-foreground text-sm"
+			>
+				0 ASSETS
+			</span>
+			<div
+				id="band-assets-image-gallery"
+				hx-get={ fmt.Sprintf("/hx/bands/%s/image-gallery", band.ID) }
+				hx-trigger="load, refreshGallery"
+				hx-target="this"
+				hx-swap="innerHTML"
+				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+			></div>
 			<div class="flex flex-col xl:flex-row gap-4">
-				<div class="flex-3 flex-col gap-2">
+				<div class="flex-1 flex-col gap-2">
 					<span
 						id="band-releases-count"
 						class="font-light text-muted-foreground text-sm"
@@ -65,20 +92,20 @@ templ Band(band *database.Band) {
 						class="w-full overflow-auto border rounded-lg"
 					></div>
 				</div>
-				<div class="flex-2 flex-col gap-2">
+				<div class="flex-1 flex-col gap-2">
 					<span
-						id="band-assets-image-count"
+						id="band-projects-count"
 						class="font-light text-muted-foreground text-sm"
 					>
-						0 ASSETS
+						0 PROJECTS
 					</span>
 					<div
-						id="band-assets-image-gallery"
-						hx-get={ fmt.Sprintf("/hx/bands/%s/image-gallery", band.ID) }
-						hx-trigger="load, refreshGallery"
+						id="band-projects-table"
+						hx-get={ fmt.Sprintf("/hx/bands/%s/projects-table", band.ID) }
+						hx-trigger="load, refreshTable"
 						hx-target="this"
 						hx-swap="innerHTML"
-						class="h-full grid grid-cols-2 gap-3 sm:grid-cols-3"
+						class="w-full overflow-auto border rounded-lg"
 					></div>
 				</div>
 			</div>

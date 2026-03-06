@@ -171,6 +171,24 @@ func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
+	projects, err := h.DB.GetProjectsByBandID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		toastError(w, r, "database error")
+		return
+	}
+
+	components.BandProjectsTable(projects).Render(r.Context(), w)
+	// render release count (hx-oob-swap)
+	if len(projects) > 0 {
+		fmt.Fprintf(
+			w,
+			`<span id="band-projects-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d PROJECTS</span>`,
+			len(projects),
+		)
+	}
+}
+
 func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {

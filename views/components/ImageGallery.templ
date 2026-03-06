@@ -5,16 +5,20 @@ import (
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/separator"
 )
 
 templ ImageGallery(images []database.File) {
 	if len(images) == 0 {
-		<div class="flex col-span-full h-full row-span-full border border-dashed border-border rounded-lg w-full items-center justify-center">
-			<span class="flex flex-col justify-center items-center text-muted-foreground">
-				@icon.FileQuestionMark(icon.Props{Size: 48})
-				Nothing to show yet!
+		@separator.Separator(separator.Props{
+			Decoration: separator.DecorationDashed,
+			Class:      "col-span-full",
+		}) {
+			<span class="flex justify-center items-center gap-1">
+				@icon.FileQuestionMark(icon.Props{Size: 16})
+				No assets to show yet!
 			</span>
-		</div>
+		}
 	} else {
 		for _, image := range images {
 			<div>
