@@ -6,11 +6,7 @@ import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
-	"github.com/vague2k/blkhell/views/templui/dialog"
-	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
-	"github.com/vague2k/blkhell/views/templui/input"
-	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -28,7 +24,9 @@ templ Band(band *database.Band) {
 					Upload Band Asset
 				</span>
 			}
-			@addReleaseDialog(band) {
+			@components.AddReleaseDialog(components.AddReleaseDialogProps{
+				For: band,
+			}) {
 				@button.Button(button.Props{
 					ID:      "add-release-button-topbar",
 					Variant: button.VariantOutline,
@@ -122,173 +120,5 @@ templ Band(band *database.Band) {
                 });
             })();
         </script>
-	}
-}
-
-templ addReleaseDialog(band *database.Band) {
-	@dialog.Dialog(dialog.Props{
-		ID: "add-release-dialog",
-	}) {
-		@dialog.Trigger() {
-			{ children... }
-		}
-		@dialog.Content(dialog.ContentProps{
-			Class: "sm:max-w-2xl",
-		}) {
-			@dialog.Header() {
-				@dialog.Title() {
-					New Release for { band.Name }
-				}
-				@dialog.Description() {
-					Add a new release for { band.Name } . Optionally add a project as well.
-				}
-			}
-			<form
-				id="add-release-form"
-				hx-post={ fmt.Sprintf("/actions/release/create/%s", band.ID) }
-				hx-target="#global-toast"
-				class="flex flex-col gap-3 w-full"
-			>
-				<div class="flex flex-col items-center w-full gap-2">
-					<!-- Row 1 -->
-					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
-						@form.Item(form.ItemProps{Class: "w-full"}) {
-							@form.Label() {
-								Release Name
-							}
-							@input.Input(input.Props{
-								ID:          "release-name-input",
-								Type:        input.TypeText,
-								Name:        "release-name",
-								Placeholder: "Falling Blossom Emotion",
-							})
-						}
-					</div>
-					<!-- Row 2 -->
-					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
-						@form.Item(form.ItemProps{Class: "w-full"}) {
-							@form.Label() {
-								Release Type
-							}
-							@selectbox.SelectBox() {
-								@selectbox.Trigger(selectbox.TriggerProps{
-									ID:   "release-type-selector",
-									Form: "add-release-form",
-									Name: "release-type",
-								}) {
-									@selectbox.Value(selectbox.ValueProps{Placeholder: "album"})
-								}
-								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: "album"}) {
-										Album
-									}
-									@selectbox.Item(selectbox.ItemProps{Value: "ep"}) {
-										EP
-									}
-									@selectbox.Item(selectbox.ItemProps{Value: "single"}) {
-										Single
-									}
-									@selectbox.Item(selectbox.ItemProps{Value: "compilation"}) {
-										Comp
-									}
-								}
-							}
-						}
-						@form.Item(form.ItemProps{Class: "w-full"}) {
-							@form.Label() {
-								Release No.
-							}
-							@selectbox.SelectBox() {
-								@selectbox.Trigger(selectbox.TriggerProps{
-									ID:   "release-number-selector",
-									Form: "add-release-form",
-									Name: "release-number",
-								}) {
-									@selectbox.Value(selectbox.ValueProps{Placeholder: "000"})
-								}
-								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									for i := 1; i <= 100; i++ {
-										@selectbox.Item(selectbox.ItemProps{
-											Value: fmt.Sprintf("%d", i),
-										}) {
-											{ fmt.Sprintf("BH-%d", i) }
-										}
-									}
-								}
-							}
-						}
-					</div>
-					<!-- Row 3 -->
-					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
-						@form.Item(form.ItemProps{Class: "w-full"}) {
-							@form.Label() {
-								Project Name
-							}
-							@input.Input(input.Props{
-								ID:          "project-name-input",
-								Form:        "add-release-form",
-								Type:        input.TypeText,
-								Name:        "project-name",
-								Placeholder: "CDs for fest",
-							})
-						}
-						@form.Item() {
-							@form.Label() {
-								Type
-							}
-							@selectbox.SelectBox() {
-								@selectbox.Trigger(selectbox.TriggerProps{
-									ID:   "project-type-selector",
-									Form: "add-release-form",
-									Name: "project-type",
-								}) {
-									@selectbox.Value(selectbox.ValueProps{
-										Placeholder: "CDs",
-									})
-								}
-								@selectbox.Content(selectbox.ContentProps{
-									NoSearch: true,
-								}) {
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "CD",
-									}) {
-										CDs
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "tapes",
-									}) {
-										Tapes
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "vinyl",
-									}) {
-										Vinyl
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "merch",
-									}) {
-										Merch
-									}
-								}
-							}
-						}
-					</div>
-				</div>
-				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
-					@dialog.Close() {
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-						}) {
-							Cancel
-						}
-					}
-					@button.Button(button.Props{
-						Type: button.TypeSubmit,
-					}) {
-						Add Release
-					}
-				}
-			</form>
-		}
 	}
 }
