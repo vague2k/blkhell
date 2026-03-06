@@ -108,7 +108,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	toastSuccess(w, r, "Endpoint hit check console")
+	toastSuccess(w, r, fmt.Sprintf("You new band '%s' has been added to the roster! beast.", band.Name))
 }
 
 func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {

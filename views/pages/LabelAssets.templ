@@ -42,10 +42,15 @@ templ LabelAssets() {
             (function () {
                 const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
-                const uploadBtn = htmx.find("#upload-button-topbar");
+                const uploadMobileBtn = htmx.find("#upload-button-topbar-mobile");
+                const uploadDesktopBtn = htmx.find("#upload-button-topbar-desktop");
                 const imageGallery = htmx.find("#label-assets-image-gallery");
 
-                uploadBtn.addEventListener("click", (e) => {
+                uploadMobileBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    input.click();
+                });
+                uploadDesktopBtn.addEventListener("click", (e) => {
                     e.preventDefault();
                     input.click();
                 });
@@ -88,7 +93,7 @@ templ LabelAssetsTopbar() {
 					}
 					@dropdown.Item() {
 						<span
-							id="upload-button-topbar"
+							id="upload-button-topbar-mobile"
 							class="flex items-center gap-1"
 						>
 							@icon.Upload(icon.Props{Size: 10})
@@ -104,7 +109,7 @@ templ LabelAssetsTopbar() {
 			@sidebar.Trigger()
 			@components.ThemeSwitcher()
 			@button.Button(button.Props{
-				ID:      "upload-button-topbar",
+				ID:      "upload-button-topbar-desktop",
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">

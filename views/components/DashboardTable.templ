@@ -7,6 +7,7 @@ import "github.com/vague2k/blkhell/server/database"
 import "fmt"
 import "github.com/vague2k/blkhell/views/templui/dropdown"
 import "github.com/vague2k/blkhell/server/data"
+import "github.com/vague2k/blkhell/views/templui/badge"
 
 templ DashboardTable(records []database.GetDashboardBandsRow) {
 	@table.Table(table.Props{
@@ -53,9 +54,15 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 						{ record.ReleaseCount }
 					}
 					@table.Cell() {
-						{ record.ProjectCount }
-						<span class="ml-1 text-xs text-muted-foreground">
-							{ fmt.Sprintf("(%d/%d) Projects done", record.ProjectsDone, record.ProjectCount) }
+						<span class="flex gap-2 items-center">
+							{ record.ProjectCount }
+							if record.ProjectCount == 0 {
+								@projectStatusMessageBadge("No projects")
+							} else if record.ProjectsDone > record.ProjectCount {
+								@projectStatusMessageBadge("All done!")
+							} else {
+								@projectStatusMessageBadge(fmt.Sprintf("(%d/%d) Projects done", record.ProjectsDone, record.ProjectCount))
+							}
 						</span>
 					}
 					@table.Cell() {
@@ -112,5 +119,14 @@ templ bandRowDropdown(record database.GetDashboardBandsRow) {
 				</span>
 			}
 		}
+	}
+}
+
+templ projectStatusMessageBadge(message string) {
+	@badge.Badge(badge.Props{
+		Variant: badge.VariantOutline,
+		Class:   "text-xs text-muted-foreground",
+	}) {
+		{ message }
 	}
 }
