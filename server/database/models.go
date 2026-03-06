@@ -14,6 +14,7 @@ type Band struct {
 	Country   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Removed   int64
 }
 
 type File struct {

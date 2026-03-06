@@ -1,0 +1,1 @@
+ALTER TABLE bands DROP COLUMN removed;

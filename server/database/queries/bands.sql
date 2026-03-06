@@ -2,8 +2,9 @@
 INSERT INTO bands (
     id,
     name,
-    country
-) VALUES (?, ?, ?)
+    country,
+    removed
+) VALUES (?, ?, ?, ?)
 RETURNING * ;
 
 -- name: GetBandByID :one
@@ -18,6 +19,7 @@ ORDER BY name ;
 UPDATE bands
 SET name = ?,
 country = ?,
+removed = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING * ;

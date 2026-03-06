@@ -7,9 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/sqlite"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "modernc.org/sqlite"
 )
 
@@ -40,56 +37,6 @@ func Open() (*sql.DB, error) {
 	}
 
 	return db, nil
-}
-
-// MigrateUp applies all pending up migrations
-func MigrateUp(db *sql.DB) error {
-	m, err := migrator(db)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Running migrations...")
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-
-	fmt.Println("Successfully applied migrations")
-	return nil
-}
-
-// MigrateDown applies one down migration
-func MigrateDown(db *sql.DB) error {
-	m, err := migrator(db)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Rolling back one migration...")
-	if err := m.Steps(-1); err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-
-	fmt.Println("Successfully rolled back migration")
-	return nil
-}
-
-func migrator(db *sql.DB) (*migrate.Migrate, error) {
-	driver, err := sqlite.WithInstance(db, &sqlite.Config{})
-	if err != nil {
-		return nil, err
-	}
-
-	m, err := migrate.NewWithDatabaseInstance(
-		"file://server/database/migrations",
-		"sqlite",
-		driver,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	return m, nil
 }
 
 func createDatabaseDirectory() (string, error) {

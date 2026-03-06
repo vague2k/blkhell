@@ -13,19 +13,26 @@ const createBand = `-- name: CreateBand :one
 INSERT INTO bands (
     id,
     name,
-    country
-) VALUES (?, ?, ?)
-RETURNING id, name, country, created_at, updated_at
+    country,
+    removed
+) VALUES (?, ?, ?, ?)
+RETURNING id, name, country, created_at, updated_at, removed
 `
 
 type CreateBandParams struct {
 	ID      string
 	Name    string
 	Country string
+	Removed int64
 }
 
 func (q *Queries) CreateBand(ctx context.Context, arg CreateBandParams) (Band, error) {
-	row := q.db.QueryRowContext(ctx, createBand, arg.ID, arg.Name, arg.Country)
+	row := q.db.QueryRowContext(ctx, createBand,
+		arg.ID,
+		arg.Name,
+		arg.Country,
+		arg.Removed,
+	)
 	var i Band
 	err := row.Scan(
 		&i.ID,
@@ -33,6 +40,7 @@ func (q *Queries) CreateBand(ctx context.Context, arg CreateBandParams) (Band, e
 		&i.Country,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Removed,
 	)
 	return i, err
 }
@@ -52,7 +60,7 @@ func (q *Queries) DeleteBand(ctx context.Context, id string) error {
 const getBandByID = `-- name: GetBandByID :one
 ;
 
-SELECT id, name, country, created_at, updated_at FROM bands
+SELECT id, name, country, created_at, updated_at, removed FROM bands
 WHERE id = ?
 `
 
@@ -65,6 +73,7 @@ func (q *Queries) GetBandByID(ctx context.Context, id string) (Band, error) {
 		&i.Country,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Removed,
 	)
 	return i, err
 }
@@ -72,7 +81,7 @@ func (q *Queries) GetBandByID(ctx context.Context, id string) (Band, error) {
 const getBands = `-- name: GetBands :many
 ;
 
-SELECT id, name, country, created_at, updated_at FROM bands
+SELECT id, name, country, created_at, updated_at, removed FROM bands
 ORDER BY name
 `
 
@@ -91,6 +100,7 @@ func (q *Queries) GetBands(ctx context.Context) ([]Band, error) {
 			&i.Country,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Removed,
 		); err != nil {
 			return nil, err
 		}
@@ -111,19 +121,26 @@ const updateBand = `-- name: UpdateBand :one
 UPDATE bands
 SET name = ?,
 country = ?,
+removed = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, name, country, created_at, updated_at
+RETURNING id, name, country, created_at, updated_at, removed
 `
 
 type UpdateBandParams struct {
 	Name    string
 	Country string
+	Removed int64
 	ID      string
 }
 
 func (q *Queries) UpdateBand(ctx context.Context, arg UpdateBandParams) (Band, error) {
-	row := q.db.QueryRowContext(ctx, updateBand, arg.Name, arg.Country, arg.ID)
+	row := q.db.QueryRowContext(ctx, updateBand,
+		arg.Name,
+		arg.Country,
+		arg.Removed,
+		arg.ID,
+	)
 	var i Band
 	err := row.Scan(
 		&i.ID,
@@ -131,6 +148,7 @@ func (q *Queries) UpdateBand(ctx context.Context, arg UpdateBandParams) (Band, e
 		&i.Country,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Removed,
 	)
 	return i, err
 }
