@@ -34,6 +34,9 @@ FROM projects
 WHERE release_id = ?
 ORDER BY created_at DESC ;
 
+-- name: GetProjectsFromPreviousYear :many
+SELECT * FROM projects WHERE created_at >= DATE('now', '-1 year');
+
 -- name: UpdateProject :one
 UPDATE projects
 SET name = ?,

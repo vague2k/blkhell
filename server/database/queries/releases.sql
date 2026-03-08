@@ -21,6 +21,9 @@ SELECT * FROM releases
 WHERE band_id = ?
 ORDER BY name DESC ;
 
+-- name: GetReleasesFromPreviousYear :many
+SELECT * FROM releases WHERE created_at >= DATE('now', '-1 year');
+
 -- name: UpdateRelease :one
 UPDATE releases
 SET name = ?,

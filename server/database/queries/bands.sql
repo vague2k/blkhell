@@ -24,6 +24,9 @@ updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING * ;
 
+-- name: GetBandsFromPreviousYear :many
+SELECT * FROM bands WHERE created_at >= DATE('now', '-1 year');
+
 -- name: DeleteBand :exec
 DELETE FROM bands
 WHERE id = ?

@@ -233,9 +233,45 @@ func (q *Queries) GetProjectsByRelease(ctx context.Context, releaseID string) ([
 	return items, nil
 }
 
-const updateProject = `-- name: UpdateProject :one
+const getProjectsFromPreviousYear = `-- name: GetProjectsFromPreviousYear :many
 ;
 
+SELECT id, band_id, release_id, name, type, status, created_at, updated_at FROM projects WHERE created_at >= DATE('now', '-1 year')
+`
+
+func (q *Queries) GetProjectsFromPreviousYear(ctx context.Context) ([]Project, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectsFromPreviousYear)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Project
+	for rows.Next() {
+		var i Project
+		if err := rows.Scan(
+			&i.ID,
+			&i.BandID,
+			&i.ReleaseID,
+			&i.Name,
+			&i.Type,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateProject = `-- name: UpdateProject :one
 UPDATE projects
 SET name = ?,
 type = ?,

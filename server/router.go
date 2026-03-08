@@ -72,6 +72,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 			r.Route("/dashboard", func(r chi.Router) {
 				r.Get("/cards", h.HXDashboardCards)
 				r.Get("/table", h.HXDashboardTable)
+				r.Get("/chart", h.HXDashboardChart)
 			})
 			// ---------- label assets page fragments ----------
 			r.Route("/label-assets", func(r chi.Router) {

@@ -11,6 +11,7 @@ import (
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
+	"github.com/vague2k/blkhell/views/templui/chart"
 )
 
 func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
@@ -106,7 +107,7 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 		Count: strconv.FormatInt(stats.BandsCount, 10),
 		Href:  fmt.Sprintf("/band/%s", stats.LatestBandID),
 		Desc:  "View latest band",
-		Name:  stats.LatestBandName,
+		Name:  stats.LatestBandName.(string),
 	}).Render(r.Context(), w)
 
 	components.DashboardCard(components.DashboardCardProps{
@@ -114,7 +115,7 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 		Count: strconv.FormatInt(stats.ReleasesCount, 10),
 		Href:  fmt.Sprintf("/release/%s", stats.LatestReleaseID),
 		Desc:  "View latest release",
-		Name:  stats.LatestReleaseTitle,
+		Name:  stats.LatestReleaseTitle.(string),
 	}).Render(r.Context(), w)
 
 	components.DashboardCard(components.DashboardCardProps{
@@ -130,7 +131,45 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 		Count: strconv.FormatInt(stats.ProjectsCount, 10),
 		Href:  fmt.Sprintf("/project/%s", stats.LatestProjectID),
 		Desc:  "Go to latest project",
-		Name:  stats.LatestProjectName,
+		Name:  stats.LatestProjectName.(string),
+	}).Render(r.Context(), w)
+}
+
+func (h *Handler) HXDashboardChart(w http.ResponseWriter, r *http.Request) {
+	bandsDataSet, err := h.DashboardService.GetBandsFromPreviousYear(r.Context())
+	if err != nil {
+		toastError(w, r, err.Error())
+		return
+	}
+	releasesDataSet, err := h.DashboardService.GetReleasesFromPreviousYear(r.Context())
+	if err != nil {
+		toastError(w, r, err.Error())
+		return
+	}
+	projectsDataSet, err := h.DashboardService.GetProjectsFromPreviousYear(r.Context())
+	if err != nil {
+		toastError(w, r, err.Error())
+		return
+	}
+	fmt.Println(bandsDataSet)
+	fmt.Println(releasesDataSet)
+	fmt.Println(projectsDataSet)
+
+	chart.Chart(chart.Props{
+		Class:       "h-full",
+		Variant:     chart.VariantLine,
+		ShowYGrid:   true,
+		ShowYLabels: true,
+		ShowXLabels: true,
+		ShowLegend:  true,
+		Data: chart.Data{
+			Labels: []string{"Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Oct", "Sep", "Nov", "Dec"},
+			Datasets: []chart.Dataset{
+				*bandsDataSet,
+				*releasesDataSet,
+				*projectsDataSet,
+			},
+		},
 	}).Render(r.Context(), w)
 }
 

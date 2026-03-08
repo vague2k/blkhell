@@ -46,8 +46,6 @@ func (q *Queries) CreateBand(ctx context.Context, arg CreateBandParams) (Band, e
 }
 
 const deleteBand = `-- name: DeleteBand :exec
-;
-
 DELETE FROM bands
 WHERE id = ?
 `
@@ -87,6 +85,42 @@ ORDER BY name
 
 func (q *Queries) GetBands(ctx context.Context) ([]Band, error) {
 	rows, err := q.db.QueryContext(ctx, getBands)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Band
+	for rows.Next() {
+		var i Band
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Country,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Removed,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBandsFromPreviousYear = `-- name: GetBandsFromPreviousYear :many
+;
+
+SELECT id, name, country, created_at, updated_at, removed FROM bands WHERE created_at >= DATE('now', '-1 year')
+`
+
+func (q *Queries) GetBandsFromPreviousYear(ctx context.Context) ([]Band, error) {
+	rows, err := q.db.QueryContext(ctx, getBandsFromPreviousYear)
 	if err != nil {
 		return nil, err
 	}

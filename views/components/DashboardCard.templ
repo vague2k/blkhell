@@ -15,7 +15,7 @@ templ DashboardCard(props ...DashboardCardProps) {
 	if len(props) > 0 {
 		{{ p = props[0] }}
 	}
-	<div class="flex flex-col justify-between gap-6 rounded-lg border p-4 shadow-sm border-border bg-card">
+	<div class="flex flex-col justify-between gap-1 rounded-lg border p-4 shadow-sm border-border bg-card">
 		<span class="text-sm font-medium text-muted-foreground">
 			{ p.Title }
 		</span>
@@ -23,13 +23,25 @@ templ DashboardCard(props ...DashboardCardProps) {
 			{ p.Count }
 		</span>
 		<span class="flex w-full items-center text-xs gap-2">
-			<span class="flex flex-col w-full items-start text-xs text-muted-foreground">
-				{ p.Desc }
-				<a href={ p.Href } class="flex w-full items-center gap-1 text-lg text-foreground hover:underline">
-					@icon.ExternalLink(icon.Props{Size: 15})
-					<p class="truncate">{ p.Name }</p>
-				</a>
-			</span>
+			if p.Name == "" {
+				<span class="flex flex-col w-full items-start text-xs text-muted-foreground">
+					Nothing to see yet
+				</span>
+			} else {
+				<span class="flex flex-col w-full items-start text-xs text-muted-foreground">
+					{ p.Desc }
+					<a href={ p.Href } class="flex w-full items-center gap-1 text-lg text-foreground underline hover:text-primary">
+						@icon.ExternalLink(icon.Props{Size: 15})
+						<p class="truncate">
+							if p.Name != "" {
+								{ p.Name }
+							} else {
+								Nothing yet
+							}
+						</p>
+					</a>
+				</span>
+			}
 		</span>
 	</div>
 }

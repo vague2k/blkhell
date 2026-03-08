@@ -160,9 +160,44 @@ func (q *Queries) GetReleasesByBand(ctx context.Context, bandID string) ([]Relea
 	return items, nil
 }
 
-const updateRelease = `-- name: UpdateRelease :one
+const getReleasesFromPreviousYear = `-- name: GetReleasesFromPreviousYear :many
 ;
 
+SELECT id, band_id, name, type, number, created_at, updated_at FROM releases WHERE created_at >= DATE('now', '-1 year')
+`
+
+func (q *Queries) GetReleasesFromPreviousYear(ctx context.Context) ([]Release, error) {
+	rows, err := q.db.QueryContext(ctx, getReleasesFromPreviousYear)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Release
+	for rows.Next() {
+		var i Release
+		if err := rows.Scan(
+			&i.ID,
+			&i.BandID,
+			&i.Name,
+			&i.Type,
+			&i.Number,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateRelease = `-- name: UpdateRelease :one
 UPDATE releases
 SET name = ?,
 type = ?,

@@ -75,18 +75,22 @@ SELECT
     (SELECT COUNT(*) FROM releases) AS releases_count,
     (SELECT COUNT(*) FROM projects) AS projects_count,
 
-    (SELECT id FROM bands ORDER BY created_at DESC LIMIT 1) AS latest_band_id,
-    (SELECT name FROM bands ORDER BY created_at DESC LIMIT 1
-    ) AS latest_band_name,
+    -- these values could null (no records are in these tables),
+    -- so non-null values must be used as a fallback
+    COALESCE((SELECT id FROM bands ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_band_id,
+    COALESCE((SELECT name FROM bands ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_band_name,
 
-    (SELECT id FROM releases ORDER BY created_at DESC LIMIT 1
-    ) AS latest_release_id,
-    (SELECT name FROM releases ORDER BY created_at DESC LIMIT 1
-    ) AS latest_release_title,
+    COALESCE((SELECT id FROM releases ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_release_id,
+    COALESCE((SELECT name FROM releases ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_release_title,
 
-    (SELECT id FROM projects ORDER BY created_at DESC LIMIT 1
-    ) AS latest_project_id,
-    (SELECT name FROM projects ORDER BY created_at DESC LIMIT 1) AS latest_project_name
+    COALESCE((SELECT id FROM projects ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_project_id,
+    COALESCE((SELECT name FROM projects ORDER BY created_at DESC LIMIT 1), '')
+        AS latest_project_name
 `
 
 type GetDashboardStatsRow struct {
@@ -94,12 +98,12 @@ type GetDashboardStatsRow struct {
 	BandsCount         int64
 	ReleasesCount      int64
 	ProjectsCount      int64
-	LatestBandID       string
-	LatestBandName     string
-	LatestReleaseID    string
-	LatestReleaseTitle string
-	LatestProjectID    string
-	LatestProjectName  string
+	LatestBandID       interface{}
+	LatestBandName     interface{}
+	LatestReleaseID    interface{}
+	LatestReleaseTitle interface{}
+	LatestProjectID    interface{}
+	LatestProjectName  interface{}
 }
 
 func (q *Queries) GetDashboardStats(ctx context.Context) (GetDashboardStatsRow, error) {

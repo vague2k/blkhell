@@ -4,7 +4,6 @@ import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
-	"github.com/vague2k/blkhell/views/templui/chart"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
@@ -33,7 +32,7 @@ templ Dashboard() {
 			</p>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
-			<div class="grid grid-cols-1 2xl:grid-cols-6 gap-2">
+			<div class="grid grid-cols-1 xl:grid-cols-6 gap-2">
 				<div
 					id="dashboard-cards"
 					class="grid col-span-2 grid-cols-1 md:grid-cols-2 gap-2"
@@ -42,36 +41,14 @@ templ Dashboard() {
 					hx-target="this"
 					hx-swap="innerHTML"
 				></div>
-				<div id="dashboard-chart" class="col-span-1 2xl:col-span-4 border border-border rounded-lg p-4">
-					@chart.Chart(chart.Props{
-						Class:       "h-full",
-						Variant:     chart.VariantLine,
-						ShowYGrid:   true,
-						ShowYLabels: true,
-						ShowXLabels: true,
-						ShowLegend:  true,
-						Data: chart.Data{
-							Labels: []string{"Jan", "Feb", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"},
-							Datasets: []chart.Dataset{
-								{
-									Label:   "Bands",
-									Data:    []float64{12, 3, 9, 3, 12, 7, 10, 14, 12, 21, 2, 9},
-									Tension: 0.4,
-								},
-								{
-									Label:   "Releases",
-									Data:    []float64{7, 14, 12, 21, 2, 9, 15, 2, 4, 12, 7, 10},
-									Tension: 0.4,
-								},
-								{
-									Label:   "Projects",
-									Data:    []float64{14, 9, 3, 7, 9, 21, 12, 21, 2, 9, 15, 2},
-									Tension: 0.4,
-								},
-							},
-						},
-					})
-				</div>
+				<div
+					id="dashboard-chart"
+					hx-get="/hx/dashboard/chart"
+					hx-trigger="load, refreshChart"
+					hx-target="this"
+					hx-swap="innerHTML"
+					class="col-span-1 xl:col-span-4 border border-border rounded-lg p-4"
+				></div>
 			</div>
 			<span
 				class="font-light text-muted-foreground text-sm"
@@ -92,6 +69,7 @@ templ Dashboard() {
                 const form = htmx.find("#add-band-form");
                 const cards = htmx.find("#dashboard-cards");
                 const table = htmx.find("#dashboard-roster-table");
+                const chart = htmx.find("#dashboard-chart");
 
                 // refresh table when band is added
                 htmx.on(form, "htmx:afterRequest", function (evt) {
@@ -99,6 +77,7 @@ templ Dashboard() {
                     if (evt.target.id === "add-band-form" && table) {
                         table.dispatchEvent(new Event("refreshTable"));
                         cards.dispatchEvent(new Event("refreshCards"));
+                        chart.dispatchEvent(new Event("refreshChart"));
                         window.tui.dialog.close("add-band-dialog")
                     }
                 });

@@ -99,23 +99,7 @@ templ bandRowDropdown(record database.GetDashboardBandsRow) {
 			}) {
 				<span class="flex items-center">
 					@icon.Users(icon.Props{Size: 16, Class: "mr-2"})
-					View Band
-				</span>
-			}
-			@dropdown.Item(dropdown.ItemProps{
-				//Href: "/settings",
-			}) {
-				<span class="flex items-center">
-					@icon.DiscAlbum(icon.Props{Size: 16, Class: "mr-2"})
-					View Releases
-				</span>
-			}
-			@dropdown.Item(dropdown.ItemProps{
-				//Href: "/settings",
-			}) {
-				<span class="flex items-center">
-					@icon.FolderLock(icon.Props{Size: 16, Class: "mr-2"})
-					View Projects
+					View Band and Releases
 				</span>
 			}
 		}
