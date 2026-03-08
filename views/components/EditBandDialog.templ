@@ -1,11 +1,14 @@
 package components
 
 import (
+	"fmt"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 )
 
 type EditBandDialogProps struct {
@@ -34,7 +37,7 @@ templ EditBandDialog(props ...EditBandDialogProps) {
 			}
 			<form
 				id="edit-band-form"
-				hx-post="/actions/bands/edit"
+				hx-put={ fmt.Sprintf("/actions/bands/%s/edit", band.ID) }
 				hx-target="#global-toast"
 				class="flex flex-col gap-3 w-full"
 			>
@@ -53,6 +56,30 @@ templ EditBandDialog(props ...EditBandDialogProps) {
 								Value:       band.Name,
 								Placeholder: "Ties by Miles",
 							})
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Country
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "country-selector",
+									Form: "edit-band-form",
+									Name: "band-country",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
+								}
+								@selectbox.Content() {
+									for _, code := range data.SortCountryMap() {
+										{{ name := data.Countries[code] }}
+										@selectbox.Item(selectbox.ItemProps{
+											Value: code,
+										}) {
+											{ code + " - " + name }
+										}
+									}
+								}
+							}
 						}
 					</div>
 				</div>

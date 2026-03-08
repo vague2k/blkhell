@@ -155,7 +155,6 @@ const updateBand = `-- name: UpdateBand :one
 UPDATE bands
 SET name = ?,
 country = ?,
-removed = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING id, name, country, created_at, updated_at, removed
@@ -164,17 +163,11 @@ RETURNING id, name, country, created_at, updated_at, removed
 type UpdateBandParams struct {
 	Name    string
 	Country string
-	Removed int64
 	ID      string
 }
 
 func (q *Queries) UpdateBand(ctx context.Context, arg UpdateBandParams) (Band, error) {
-	row := q.db.QueryRowContext(ctx, updateBand,
-		arg.Name,
-		arg.Country,
-		arg.Removed,
-		arg.ID,
-	)
+	row := q.db.QueryRowContext(ctx, updateBand, arg.Name, arg.Country, arg.ID)
 	var i Band
 	err := row.Scan(
 		&i.ID,

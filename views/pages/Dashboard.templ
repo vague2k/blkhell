@@ -10,7 +10,7 @@ import (
 
 templ Dashboard() {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 z-50 top-0 bg-background sticky flex items-center gap-1 border border-transparent border-b-border">
+		<div class="p-2 z-10 top-0 bg-background sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@components.ThemeSwitcher()
 			@components.AddBandDialog() {
@@ -35,7 +35,7 @@ templ Dashboard() {
 			<div class="grid grid-cols-1 xl:grid-cols-6 gap-2">
 				<div
 					id="dashboard-cards"
-					class="grid col-span-2 grid-cols-1 md:grid-cols-2 gap-2"
+					class="grid col-span-2 grid-cols-1 sm:grid-cols-2 gap-2"
 					hx-get="/hx/dashboard/cards"
 					hx-trigger="load, refreshCards"
 					hx-target="this"
@@ -71,14 +71,18 @@ templ Dashboard() {
                 const table = htmx.find("#dashboard-roster-table");
                 const chart = htmx.find("#dashboard-chart");
 
-                // refresh table when band is added
+                // refresh table, cards and chart when band is added
                 htmx.on(form, "htmx:afterRequest", function (evt) {
-                    console.log("fired")
                     if (evt.target.id === "add-band-form" && table) {
                         table.dispatchEvent(new Event("refreshTable"));
+                    }
+                    if (evt.target.id === "add-band-form" && cards) {
                         cards.dispatchEvent(new Event("refreshCards"));
+                    }
+                    if (evt.target.id === "add-band-form" && chart) {
                         chart.dispatchEvent(new Event("refreshChart"));
-                        window.tui.dialog.close("add-band-dialog")
+                    }
+                    window.tui.dialog.close("add-band-dialog")
                     }
                 });
             })();

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -27,8 +28,10 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 
 	// these will be left unchanged for now
 	params := database.UpdateUserParams{
-		ID:   user.ID,
-		Role: user.Role,
+		ID:           user.ID,
+		Role:         user.Role,
+		Username:     user.Username,
+		PasswordHash: user.PasswordHash,
 	}
 
 	if username != "" {
@@ -37,8 +40,6 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		params.Username = username
-	} else {
-		params.Username = user.Username
 	}
 
 	if newPassword != "" {
@@ -58,8 +59,6 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		params.PasswordHash = string(newPasswordHash)
-	} else {
-		params.PasswordHash = user.PasswordHash
 	}
 
 	_, err := h.DB.UpdateUser(r.Context(), params)
@@ -86,4 +85,52 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 
 	// username only update toast
 	toastSuccess(w, r, "You changes has been saved!")
+}
+
+func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("band-name")
+	country := r.FormValue("band-country")
+
+	// Make sure at least one field is set
+	if name == "" && country == "" {
+		toastError(w, r, "At least 1 field has to be filled.")
+		return
+	}
+
+	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "This band doesn't exist.")
+			return
+		}
+
+		toastError(w, r, "500 Internal error: Could not find band.")
+		return
+	}
+
+	params := database.UpdateBandParams{
+		ID:      band.ID,
+		Name:    band.Name,
+		Country: band.Country,
+	}
+
+	if name != "" {
+		params.Name = name
+	}
+	if country != "" {
+		params.Country = country
+	}
+
+	_, err = h.DB.UpdateBand(r.Context(), params)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "The band you're trying to update doesn't exist.")
+			return
+		}
+
+		toastError(w, r, "500 Internal error: Could not update band.")
+		return
+	}
+
+	toastSuccess(w, r, "Your changes have been saved!")
 }

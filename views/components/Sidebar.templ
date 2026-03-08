@@ -73,7 +73,9 @@ templ Sidebar() {
 					}
 				}
 			}
-			@sidebar.Footer() {
+			@sidebar.Footer(sidebar.FooterProps{
+				Class: "bg-background",
+			}) {
 				@sidebar.Menu() {
 					@sidebar.MenuItem(sidebar.MenuItemProps{
 						Class: "hover:bg-muted rounded-md transition-all duration-200",

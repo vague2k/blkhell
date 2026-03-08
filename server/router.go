@@ -36,6 +36,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler) {
 			// ---------- band actions ----------
 			r.Route("/bands", func(r chi.Router) {
 				r.Post("/create", h.CreateBand)
+				r.Put("/{id}/edit", h.EditBand)
 			})
 
 			// ---------- release actions ----------

@@ -19,7 +19,6 @@ ORDER BY name ;
 UPDATE bands
 SET name = ?,
 country = ?,
-removed = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING * ;
