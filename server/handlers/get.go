@@ -11,7 +11,6 @@ import (
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
-	"github.com/vague2k/blkhell/views/templui/icon"
 )
 
 func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
@@ -103,27 +102,35 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 	}
 
 	components.DashboardCard(components.DashboardCardProps{
-		Title: "LABEL ASSETS",
-		Count: strconv.FormatInt(stats.LabelAssets, 10),
-		Icon:  icon.FileBox(icon.Props{Size: 20}),
-	}).Render(r.Context(), w)
-
-	components.DashboardCard(components.DashboardCardProps{
-		Title: "SIGNED BANDS",
-		Count: strconv.FormatInt(stats.Bands, 10),
-		Icon:  icon.Users(icon.Props{Size: 20}),
+		Title: "BANDS ON ROSTER",
+		Count: strconv.FormatInt(stats.BandsCount, 10),
+		Href:  fmt.Sprintf("/band/%s", stats.LatestBandID),
+		Desc:  "View latest band",
+		Name:  stats.LatestBandName,
 	}).Render(r.Context(), w)
 
 	components.DashboardCard(components.DashboardCardProps{
 		Title: "TOTAL RELEASES",
-		Count: strconv.FormatInt(stats.Releases, 10),
-		Icon:  icon.DiscAlbum(icon.Props{Size: 20}),
+		Count: strconv.FormatInt(stats.ReleasesCount, 10),
+		Href:  fmt.Sprintf("/release/%s", stats.LatestReleaseID),
+		Desc:  "View latest release",
+		Name:  stats.LatestReleaseTitle,
+	}).Render(r.Context(), w)
+
+	components.DashboardCard(components.DashboardCardProps{
+		Title: "LABEL ASSETS",
+		Count: strconv.FormatInt(stats.LabelAssetsCount, 10),
+		Href:  "/label-assets",
+		Desc:  "Go to Blackheaven assets",
+		Name:  "Assets",
 	}).Render(r.Context(), w)
 
 	components.DashboardCard(components.DashboardCardProps{
 		Title: "PROJECTS",
-		Count: strconv.FormatInt(stats.Projects, 10),
-		Icon:  icon.FolderArchive(icon.Props{Size: 20}),
+		Count: strconv.FormatInt(stats.ProjectsCount, 10),
+		Href:  fmt.Sprintf("/project/%s", stats.LatestProjectID),
+		Desc:  "Go to latest project",
+		Name:  stats.LatestProjectName,
 	}).Render(r.Context(), w)
 }
 

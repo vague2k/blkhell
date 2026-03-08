@@ -69,27 +69,53 @@ func (q *Queries) GetDashboardBands(ctx context.Context) ([]GetDashboardBandsRow
 
 const getDashboardStats = `-- name: GetDashboardStats :one
 SELECT
-    (SELECT COUNT(*) FROM files WHERE owner_type = 'label') AS label_assets,
-    (SELECT COUNT(*) FROM bands) AS bands,
-    (SELECT COUNT(*) FROM releases) AS releases,
-    (SELECT COUNT(*) FROM projects) AS projects
+    (SELECT COUNT(*) FROM files WHERE owner_type = 'label')
+        AS label_assets_count,
+    (SELECT COUNT(*) FROM bands) AS bands_count,
+    (SELECT COUNT(*) FROM releases) AS releases_count,
+    (SELECT COUNT(*) FROM projects) AS projects_count,
+
+    (SELECT id FROM bands ORDER BY created_at DESC LIMIT 1) AS latest_band_id,
+    (SELECT name FROM bands ORDER BY created_at DESC LIMIT 1
+    ) AS latest_band_name,
+
+    (SELECT id FROM releases ORDER BY created_at DESC LIMIT 1
+    ) AS latest_release_id,
+    (SELECT name FROM releases ORDER BY created_at DESC LIMIT 1
+    ) AS latest_release_title,
+
+    (SELECT id FROM projects ORDER BY created_at DESC LIMIT 1
+    ) AS latest_project_id,
+    (SELECT name FROM projects ORDER BY created_at DESC LIMIT 1) AS latest_project_name
 `
 
 type GetDashboardStatsRow struct {
-	LabelAssets int64
-	Bands       int64
-	Releases    int64
-	Projects    int64
+	LabelAssetsCount   int64
+	BandsCount         int64
+	ReleasesCount      int64
+	ProjectsCount      int64
+	LatestBandID       string
+	LatestBandName     string
+	LatestReleaseID    string
+	LatestReleaseTitle string
+	LatestProjectID    string
+	LatestProjectName  string
 }
 
 func (q *Queries) GetDashboardStats(ctx context.Context) (GetDashboardStatsRow, error) {
 	row := q.db.QueryRowContext(ctx, getDashboardStats)
 	var i GetDashboardStatsRow
 	err := row.Scan(
-		&i.LabelAssets,
-		&i.Bands,
-		&i.Releases,
-		&i.Projects,
+		&i.LabelAssetsCount,
+		&i.BandsCount,
+		&i.ReleasesCount,
+		&i.ProjectsCount,
+		&i.LatestBandID,
+		&i.LatestBandName,
+		&i.LatestReleaseID,
+		&i.LatestReleaseTitle,
+		&i.LatestProjectID,
+		&i.LatestProjectName,
 	)
 	return i, err
 }

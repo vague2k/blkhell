@@ -9,6 +9,7 @@ import "github.com/vague2k/blkhell/views/templui/collapsible"
 import "github.com/vague2k/blkhell/views/templui/dropdown"
 import "github.com/vague2k/blkhell/views/templui/progress"
 import "github.com/vague2k/blkhell/views/templui/selectbox"
+import "github.com/vague2k/blkhell/views/templui/chart"
 
 templ BaseLayout() {
 	<!DOCTYPE html>
@@ -29,6 +30,7 @@ templ BaseLayout() {
 			@dropdown.Script()
 			@progress.Script()
 			@dialog.Script()
+			@chart.Script()
 		</head>
 		<body class="h-full">
 			<div class="h-full flex flex-col">
