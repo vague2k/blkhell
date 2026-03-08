@@ -151,9 +151,6 @@ func (h *Handler) HXDashboardChart(w http.ResponseWriter, r *http.Request) {
 		toastError(w, r, err.Error())
 		return
 	}
-	fmt.Println(bandsDataSet)
-	fmt.Println(releasesDataSet)
-	fmt.Println(projectsDataSet)
 
 	chart.Chart(chart.Props{
 		Class:       "h-full",
