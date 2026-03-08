@@ -153,8 +153,8 @@ func (s *FilesService) createUploadDirectories(mimetype string) (string, error) 
 	switch mimetype {
 	case MimeJpeg, MimePng:
 		uploadsWithSubDir = filepath.Join(uploadsDir, "images")
-	case MimePhotoshop:
-		uploadsWithSubDir = filepath.Join(uploadsDir, "photoshop")
+	// case MimePhotoshop:
+	// 	uploadsWithSubDir = filepath.Join(uploadsDir, "photoshop")
 	default:
 		return "", ErrFileNotSupported
 	}
