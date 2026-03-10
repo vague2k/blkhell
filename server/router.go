@@ -3,14 +3,15 @@ package server
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/handlers"
+	"github.com/vague2k/blkhell/server/middleware"
 )
 
-func (s *Server) RegisterRoutes(h *handlers.Handler) {
-	s.router.With(h.Middleware.RedirectIfAuth).Get("/login", h.LoginPage)
+func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Middleware) {
+	s.router.With(middleware.RedirectIfAuth).Get("/login", h.LoginPage)
 	s.router.Post("/login", h.Login)
 
 	s.router.Group(func(r chi.Router) {
-		r.Use(h.Middleware.RequireAuth)
+		r.Use(middleware.RequireAuth)
 
 		// ---------- pages ----------
 		r.Route("/", func(r chi.Router) {

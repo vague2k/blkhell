@@ -49,6 +49,7 @@ THIS RULE IS MANDATORY FOR AGENT WRITTEN CODE.
 │   ├── data/           # misc. structures
 │   ├── database/       # Database layer and persistence logic
 │   ├── handlers/       # HTTP handlers grouped by route/action
+│   ├── middleware/     # HTTP middleware (auth, redirects)
 │   ├── services/       # Application logic used by handlers
 │   ├── router.go       # Route definitions and middleware wiring
 │   └── server.go       # Server bootstrap and configuration

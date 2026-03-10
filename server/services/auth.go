@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/server/middleware"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -107,6 +108,6 @@ func (s *AuthService) DestroySession(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *AuthService) UserFromContext(ctx context.Context) (*database.User, bool) {
-	u, ok := ctx.Value(authUserKey).(*database.User)
+	u, ok := ctx.Value(middleware.AuthUserKey).(*database.User)
 	return u, ok
 }

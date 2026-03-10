@@ -19,9 +19,11 @@ Right now the scope of the project only handles images (label logos and other su
 │   └── blkhell/        # blkhell CLI implementation details
 │
 ├── server/             # Server application code
-│   ├── auth/           # Authentication, sessions, user identity
+│   ├── data/           # misc. structures
 │   ├── database/       # Database layer and persistence logic
 │   ├── handlers/       # HTTP handlers grouped by route/action
+│   ├── middleware/     # HTTP middleware (auth, redirects)
+│   ├── services/       # Application logic used by handlers
 │   ├── router.go       # Route definitions and middleware wiring
 │   └── server.go       # Server bootstrap and configuration
 │

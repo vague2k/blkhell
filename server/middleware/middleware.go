@@ -1,4 +1,4 @@
-package services
+package middleware
 
 import (
 	"context"
@@ -10,17 +10,17 @@ import (
 
 type ctxKey string
 
-const authUserKey ctxKey = "user"
+const AuthUserKey ctxKey = "user"
 
-type MiddlewareService struct {
+type Middleware struct {
 	db *database.Queries
 }
 
-func NewMiddlewareService(db *database.Queries) *MiddlewareService {
-	return &MiddlewareService{db: db}
+func New(db *database.Queries) *Middleware {
+	return &Middleware{db: db}
 }
 
-func (s *MiddlewareService) RedirectIfAuth(next http.Handler) http.Handler {
+func (m *Middleware) RedirectIfAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
@@ -28,7 +28,7 @@ func (s *MiddlewareService) RedirectIfAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
+		session, err := m.db.GetSessionByToken(r.Context(), cookie.Value)
 		if err != nil || time.Now().After(session.ExpiresAt) {
 			next.ServeHTTP(w, r)
 			return
@@ -38,7 +38,7 @@ func (s *MiddlewareService) RedirectIfAuth(next http.Handler) http.Handler {
 	})
 }
 
-func (s *MiddlewareService) RequireAuth(next http.Handler) http.Handler {
+func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
@@ -46,19 +46,19 @@ func (s *MiddlewareService) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		session, err := s.db.GetSessionByToken(r.Context(), cookie.Value)
+		session, err := m.db.GetSessionByToken(r.Context(), cookie.Value)
 		if err != nil || time.Now().After(session.ExpiresAt) {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		user, err := s.db.GetUserByID(r.Context(), session.UserID)
+		user, err := m.db.GetUserByID(r.Context(), session.UserID)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), authUserKey, &user)
+		ctx := context.WithValue(r.Context(), AuthUserKey, &user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
