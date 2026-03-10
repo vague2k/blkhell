@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -47,7 +48,7 @@ func (s *FilesService) Upload(r *http.Request, userID, ownerID, ownerType string
 	// max file size: 100MB
 	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
 	if err := r.ParseMultipartForm(100 << 20); err != nil {
-		return nil, ErrFileTooBig
+		return nil, errors.New("The uploaded file is too big. Please choose an file that's less than 100MB in size")
 	}
 
 	file, fileHeader, err := r.FormFile("file")
@@ -105,7 +106,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 
 	dst, err := os.Create(filePath)
 	if err != nil {
-		return nil, ErrNoPath
+		return nil, errors.New("The path doesn't exist")
 	}
 	defer dst.Close()
 	size, err := io.Copy(dst, file)
@@ -115,7 +116,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 
 	_, relativeDir, ok := strings.Cut(filePath, "uploads")
 	if !ok {
-		return nil, fmt.Errorf("500 internal error: what the fuck?")
+		return nil, errors.New("what the fuck?")
 	}
 
 	return &FileMetadata{
@@ -156,7 +157,7 @@ func (s *FilesService) createUploadDirectories(mimetype string) (string, error) 
 	// case MimePhotoshop:
 	// 	uploadsWithSubDir = filepath.Join(uploadsDir, "photoshop")
 	default:
-		return "", ErrFileNotSupported
+		return "", errors.New("The file format is not supported")
 	}
 
 	if err := os.MkdirAll(uploadsWithSubDir, 0o755); err != nil {

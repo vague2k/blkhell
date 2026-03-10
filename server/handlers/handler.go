@@ -7,7 +7,6 @@ import (
 
 type Handler struct {
 	AuthService      *services.AuthService
-	BandsService     *services.BandsService
 	FilesService     *services.FilesService
 	DashboardService *services.DashboardService
 	Middleware       *services.MiddlewareService
@@ -17,7 +16,6 @@ type Handler struct {
 func NewHandler(db *database.Queries) *Handler {
 	return &Handler{
 		AuthService:      services.NewAuthService(db),
-		BandsService:     services.NewBandsService(db),
 		FilesService:     services.NewFilesService(db),
 		DashboardService: services.NewDashboardService(db),
 		Middleware:       services.NewMiddlewareService(db),
