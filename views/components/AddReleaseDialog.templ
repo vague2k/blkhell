@@ -32,7 +32,7 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 					New Release for { band.Name }
 				}
 				@dialog.Description() {
-					Add a new release for { band.Name } . Optionally add a project as well.
+					Add a new release for { band.Name }. Optionally add a project for this release as well.
 				}
 			}
 			<form
@@ -46,7 +46,10 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Release Name
+								<span class="flex items-center gap-1">
+									Release Name
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@input.Input(input.Props{
 								ID:          "release-name-input",
@@ -60,7 +63,10 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Release Type
+								<span class="flex items-center gap-1">
+									Release Type
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{
@@ -88,7 +94,10 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 						}
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Release No.
+								<span class="flex items-center gap-1">
+									Release No.
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{

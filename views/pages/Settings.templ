@@ -4,14 +4,12 @@ import "github.com/vague2k/blkhell/views/templui/input"
 import "github.com/vague2k/blkhell/views/templui/button"
 import "github.com/vague2k/blkhell/views/templui/form"
 import "github.com/vague2k/blkhell/views/templui/sidebar"
-import "github.com/vague2k/blkhell/views/components"
 import "github.com/vague2k/blkhell/views/layouts"
 
 templ Settings() {
 	@layouts.BaseSidebarLayout() {
 		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@components.ThemeSwitcher()
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<h1 class="text-3xl tracking-wider font-unison">Settings</h1>

@@ -37,7 +37,10 @@ templ AddBandDialog() {
 					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full md:w-2/3"}) {
 							@form.Label() {
-								Band Name
+								<span class="flex items-center gap-1">
+									Band Name
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@input.Input(input.Props{
 								ID:          "band-name-input",
@@ -48,9 +51,10 @@ templ AddBandDialog() {
 							})
 						}
 						@form.Item(form.ItemProps{Class: "w-full"}) {
-							@form.Label() {
+							<span class="flex items-center gap-1">
 								Release Name
-							}
+								<span class="text-sm text-muted-foreground">(required)</span>
+							</span>
 							@input.Input(input.Props{
 								ID:          "release-name-input",
 								Type:        input.TypeText,
@@ -63,7 +67,10 @@ templ AddBandDialog() {
 					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Release Type
+								<span class="flex items-center gap-1">
+									Release Type
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{
@@ -91,7 +98,10 @@ templ AddBandDialog() {
 						}
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Release No.
+								<span class="flex items-center gap-1">
+									Release No.
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{
@@ -114,7 +124,10 @@ templ AddBandDialog() {
 						}
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Country
+								<span class="flex items-center gap-1">
+									Country
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@selectbox.SelectBox() {
 								@selectbox.Trigger(selectbox.TriggerProps{

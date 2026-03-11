@@ -4,6 +4,7 @@ import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
@@ -12,18 +13,7 @@ templ Dashboard() {
 	@layouts.BaseSidebarLayout() {
 		<div class="p-2 z-10 top-0 bg-background sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@components.ThemeSwitcher()
-			@components.AddBandDialog() {
-				@button.Button(button.Props{
-					ID:      "add-band-button-topbar",
-					Variant: button.VariantOutline,
-				}) {
-					<span class="flex items-center gap-1">
-						@icon.Plus(icon.Props{Size: 10})
-						Add a band
-					</span>
-				}
-			}
+			@dashboardActionsDropdown()
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<h1 class="text-3xl tracking-wider font-unison">Dashboard</h1>
@@ -83,9 +73,53 @@ templ Dashboard() {
                         chart.dispatchEvent(new Event("refreshChart"));
                     }
                     window.tui.dialog.close("add-band-dialog")
-                    }
                 });
             })();
         </script>
 	}
+}
+
+templ dashboardActionsDropdown() {
+	@dropdown.Dropdown(dropdown.Props{
+		ID: "dashboard-actions-dropdown",
+	}) {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				ID:      "dashboard-actions-dropdown-button",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.ChevronDown(icon.Props{Size: 10})
+					Actions
+				</span>
+			}
+		}
+		@dropdown.Content() {
+			@dropdown.Label() {
+				Actions
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-add-band-button",
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.Plus(icon.Props{Size: 10})
+					Add a band
+				</span>
+			}
+		}
+	}
+	@components.AddBandDialog()
+	<script>
+        (function () {
+            // opening modals in dropdowns don't work well
+            // by itself, gotta do it via js api
+            const addBandBtn = htmx.find("#dropdown-add-band-button");
+
+            addBandBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("add-band-dialog")
+            });
+        })();
+    </script>
 }

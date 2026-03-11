@@ -12,7 +12,20 @@ import (
 
 templ LabelAssets() {
 	@layouts.BaseSidebarLayout() {
-		@LabelAssetsTopbar()
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@labelActionsDropdown()
+			@input.Input(input.Props{
+				Name:        "q",
+				Placeholder: "Search images...",
+				Class:       "max-w-md",
+				Attributes: templ.Attributes{
+					"hx-get":     "/hx/label-assets/search-image-gallery",
+					"hx-trigger": "keyup changed delay:300ms",
+					"hx-target":  "#label-assets-image-gallery",
+				},
+			})
+		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<h1 class="text-3xl tracking-wider font-unison">Blackheaven Assets</h1>
 			<p class="text-muted-foreground text-sm">
@@ -67,65 +80,36 @@ templ LabelAssets() {
 	}
 }
 
-templ LabelAssetsTopbar() {
-	<div class="p-2 border border-transparent border-b-border">
-		<!-- Mobile Topbar -->
-		<div class="flex gap-1 items-center justify-between md:hidden">
-			@sidebar.Trigger()
-			<!-- Your dropdown trigger button -->
-			@dropdown.Dropdown() {
-				@dropdown.Trigger() {
-					@button.Button(button.Props{
-						Variant: button.VariantOutline,
-						Size:    button.SizeIcon,
-					}) {
-						@icon.ChevronDown(icon.Props{Size: 10})
-					}
-				}
-				@dropdown.Content() {
-					@dropdown.Label() {
-						Actions
-					}
-					@dropdown.Item() {
-						<span
-							id="upload-button-topbar-mobile"
-							class="flex items-center gap-1"
-						>
-							@icon.Upload(icon.Props{Size: 10})
-							Upload Label Asset
-						</span>
-					}
-				}
-			}
-			@labelAssetsSearchImageInput()
-		</div>
-		<!-- Desktop Topbar -->
-		<div class="hidden md:flex items-center gap-1">
-			@sidebar.Trigger()
-			@components.ThemeSwitcher()
+templ labelActionsDropdown() {
+	@dropdown.Dropdown(dropdown.Props{
+		ID: "label-actions-dropdown",
+	}) {
+		@dropdown.Trigger() {
 			@button.Button(button.Props{
-				ID:      "upload-button-topbar-desktop",
+				ID:      "label-actions-dropdown-button",
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.Upload(icon.Props{Size: 10})
+					<span id="band-actions-dropdown-button-icon" class="transition-transform duration-200">
+						@icon.ChevronDown(icon.Props{Size: 10})
+					</span>
+					Actions
+				</span>
+			}
+		}
+		@dropdown.Content() {
+			@dropdown.Label() {
+				Actions
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-upload-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Upload(icon.Props{Size: 14})
 					Upload Label Asset
 				</span>
 			}
-			@labelAssetsSearchImageInput()
-		</div>
-	</div>
-}
-
-templ labelAssetsSearchImageInput() {
-	@input.Input(input.Props{
-		Name:        "q",
-		Placeholder: "Search images...",
-		Class:       "max-w-md",
-		Attributes: templ.Attributes{
-			"hx-get":     "/hx/label-assets/search-image-gallery",
-			"hx-trigger": "keyup changed delay:300ms",
-			"hx-target":  "#label-assets-image-gallery",
-		},
-	})
+		}
+	}
 }

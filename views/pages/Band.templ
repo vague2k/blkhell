@@ -6,50 +6,16 @@ import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
 templ Band(band *database.Band) {
 	@layouts.BaseSidebarLayout() {
-		<div class="p-2 bg-background z-50 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@components.ThemeSwitcher()
-			@button.Button(button.Props{
-				ID:      "upload-button-topbar",
-				Variant: button.VariantOutline,
-			}) {
-				<span class="flex items-center gap-1">
-					@icon.Upload(icon.Props{Size: 10})
-					Upload Band Asset
-				</span>
-			}
-			@components.AddReleaseDialog(components.AddReleaseDialogProps{
-				For: band,
-			}) {
-				@button.Button(button.Props{
-					ID:      "add-release-button-topbar",
-					Variant: button.VariantOutline,
-				}) {
-					<span class="flex items-center gap-1">
-						@icon.Plus(icon.Props{Size: 10})
-						Create Release
-					</span>
-				}
-			}
-			@components.EditBandDialog(components.EditBandDialogProps{
-				For: band,
-			}) {
-				@button.Button(button.Props{
-					ID:      "edit-band-button-topbar",
-					Variant: button.VariantOutline,
-				}) {
-					<span class="flex items-center gap-1">
-						@icon.Pencil(icon.Props{Size: 10})
-						Edit { band.Name }
-					</span>
-				}
-			}
+			@bandActionsDropdown(band)
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
 			<span class="flex items-end gap-2">
@@ -89,7 +55,7 @@ templ Band(band *database.Band) {
 						hx-trigger="load, refreshTable"
 						hx-target="this"
 						hx-swap="innerHTML"
-						class="w-full overflow-auto border rounded-lg"
+						class="mt-2 w-full overflow-auto border rounded-lg"
 					></div>
 				</div>
 				<div class="flex-1 flex-col gap-2">
@@ -105,7 +71,7 @@ templ Band(band *database.Band) {
 						hx-trigger="load, refreshTable"
 						hx-target="this"
 						hx-swap="innerHTML"
-						class="w-full overflow-auto border rounded-lg"
+						class="mt-2 w-full overflow-auto border rounded-lg"
 					></div>
 				</div>
 			</div>
@@ -115,7 +81,7 @@ templ Band(band *database.Band) {
                 const fileUploadForm = htmx.find("#file-upload-form");
                 const addReleaseForm = htmx.find("#add-release-form");
                 const input = htmx.find("#file-upload-form-input");
-                const uploadBtn = htmx.find("#upload-button-topbar");
+                const uploadBtn = htmx.find("#dropdown-upload-button");
                 const imageGallery = htmx.find("#band-assets-image-gallery");
                 const releasesTable = htmx.find("#band-releases-table");
 
@@ -148,4 +114,84 @@ templ Band(band *database.Band) {
             })();
         </script>
 	}
+}
+
+templ bandActionsDropdown(band *database.Band) {
+	@dropdown.Dropdown(dropdown.Props{
+		ID: "band-actions-dropdown",
+	}) {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				ID:      "band-actions-dropdown-button",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.ChevronDown(icon.Props{Size: 10})
+					Actions
+				</span>
+			}
+		}
+		@dropdown.Content() {
+			@dropdown.Label() {
+				Actions
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-add-release-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Plus(icon.Props{Size: 14})
+					Create Release
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-upload-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Upload(icon.Props{Size: 14})
+					Upload Band Asset
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-edit-band-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Pencil(icon.Props{Size: 14})
+					Edit
+				</span>
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-add-release-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.X(icon.Props{Size: 14})
+					Remove
+				</span>
+			}
+		}
+	}
+	@components.AddReleaseDialog(components.AddReleaseDialogProps{
+		For: band,
+	})
+	@components.EditBandDialog(components.EditBandDialogProps{
+		For: band,
+	})
+	<script>
+        (function () {
+            // opening modals in dropdowns don't work well
+            // by itself, gotta do it via js api
+            const addReleaseBtn = htmx.find("#dropdown-add-release-button");
+            const editBandBtn = htmx.find("#dropdown-edit-band-button");
+
+            addReleaseBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("add-release-dialog")
+            });
+            editBandBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("edit-band-dialog")
+            });
+        })();
+    </script>
 }
