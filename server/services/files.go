@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 )
 
 var (
@@ -44,6 +46,41 @@ func NewFilesService(db *database.Queries) *FilesService {
 	return &FilesService{db: db}
 }
 
+func (s *FilesService) DownloadFile(w http.ResponseWriter, ctx context.Context, id string) error {
+	file, err := s.db.GetFileByID(ctx, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return errors.New("Could not get file to prepare download")
+		}
+		return serverErrors.ErrDb
+	}
+
+	osFile, err := os.Open(os.Getenv("UPLOADS_DIR") + file.Path)
+	if err != nil {
+		return serverErrors.ErrInternal
+	}
+	defer osFile.Close()
+
+	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, file.FullFilename()))
+	io.Copy(w, osFile)
+
+	return nil
+}
+
+func (s *FilesService) DeleteFile(ctx context.Context, id string) (*database.File, error) {
+	file, err := s.db.DeleteFile(ctx, id)
+	if err != nil {
+		return nil, serverErrors.ErrDb
+	}
+
+	err = os.Remove(os.Getenv("UPLOADS_DIR") + file.Path)
+	if err != nil {
+		return nil, serverErrors.ErrInternal
+	}
+
+	return &file, nil
+}
+
 func (s *FilesService) Upload(r *http.Request, userID, ownerID, ownerType string) (*database.File, error) {
 	// max file size: 100MB
 	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
@@ -53,7 +90,7 @@ func (s *FilesService) Upload(r *http.Request, userID, ownerID, ownerType string
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
-		return nil, ErrInternal
+		return nil, serverErrors.ErrInternal
 	}
 	defer file.Close()
 
@@ -78,7 +115,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 	buf := make([]byte, 512)
 	_, err := file.Read(buf)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, serverErrors.ErrInternal
 	}
 
 	// create the uploads dir if not exist
@@ -91,7 +128,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 
 	_, err = file.Seek(0, io.SeekStart)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, serverErrors.ErrInternal
 	}
 
 	fileExt := strings.ToLower(filepath.Ext(fileHeader.Filename))
@@ -111,7 +148,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 	defer dst.Close()
 	size, err := io.Copy(dst, file)
 	if err != nil {
-		return nil, ErrInternal
+		return nil, serverErrors.ErrInternal
 	}
 
 	_, relativeDir, ok := strings.Cut(filePath, "uploads")
@@ -141,7 +178,7 @@ func (s *FilesService) WriteToDb(ctx context.Context, metadata *FileMetadata) (*
 		OwnerID:   metadata.OwnerID,
 	})
 	if err != nil {
-		return nil, ErrDb
+		return nil, serverErrors.ErrDb
 	}
 	return &file, nil
 }
@@ -161,7 +198,7 @@ func (s *FilesService) createUploadDirectories(mimetype string) (string, error) 
 	}
 
 	if err := os.MkdirAll(uploadsWithSubDir, 0o755); err != nil {
-		return "", ErrInternal
+		return "", serverErrors.ErrInternal
 	}
 
 	return uploadsWithSubDir, nil

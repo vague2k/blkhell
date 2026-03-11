@@ -1,12 +1,15 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 )
 
 var (
@@ -26,7 +29,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	sessionToken, expires, err := h.AuthService.CreateSession(r.Context(), user.ID)
 	if err != nil {
-		toastError(w, r, "500 Internal error: Could not create session.")
+		toastError(w, r, err.Error())
 		return
 	}
 
@@ -81,7 +84,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		Country: bandCountry,
 	})
 	if err != nil {
-		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -93,7 +96,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		Number: releaseNum,
 	})
 	if err != nil {
-		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -106,7 +109,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 			Type:      projectType,
 		})
 		if err != nil {
-			toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+			toastError(w, r, serverErrors.ErrDb.Error())
 			return
 		}
 	}
@@ -117,7 +120,11 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "band-id"))
 	if err != nil {
-		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get band to create a release for")
+			return
+		}
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -152,7 +159,7 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 		Number: releaseNum,
 	})
 	if err != nil {
-		toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -165,18 +172,18 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 			Type:      projectType,
 		})
 		if err != nil {
-			toastError(w, r, "Database error, try again. Contact admin if issue occurs")
+			toastError(w, r, serverErrors.ErrDb.Error())
 			return
 		}
 	}
 
-	toastSuccess(w, r, fmt.Sprintf("You new band '%s' has been added to the roster! beast.", band.Name))
+	toastSuccess(w, r, fmt.Sprintf("Your new band '%s' has been added to the roster! beast.", band.Name))
 }
 
 func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
-		toastError(w, r, "Could not get user.")
+		toastError(w, r, "Could not get user from context.")
 		return
 	}
 
@@ -192,13 +199,17 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
-		toastError(w, r, "Could not get user.")
+		toastError(w, r, "Could not get user from context.")
 		return
 	}
 
 	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "database error")
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get band to upload an asset for")
+			return
+		}
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 

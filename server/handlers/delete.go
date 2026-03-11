@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -19,17 +18,10 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	asset, err := h.DB.DeleteFile(r.Context(), chi.URLParam(r, "id"))
+	asset, err := h.FilesService.DeleteFile(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "500 Internal error: Could not delete image.")
+		toastError(w, r, err.Error())
 		return
 	}
-
-	err = os.Remove(os.Getenv("UPLOADS_DIR") + asset.Path)
-	if err != nil {
-		toastError(w, r, "500 Internal error: Could not remove image from disk.")
-		return
-	}
-
 	toastWarning(w, r, fmt.Sprintf("'%s' has been deleted.", asset.FullFilename()))
 }

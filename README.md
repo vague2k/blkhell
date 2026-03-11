@@ -21,6 +21,7 @@ Right now the scope of the project only handles images (label logos and other su
 ├── server/             # Server application code
 │   ├── data/           # misc. structures
 │   ├── database/       # Database layer and persistence logic
+│   ├── errors/        # Shared error definitions
 │   ├── handlers/       # HTTP handlers grouped by route/action
 │   ├── middleware/     # HTTP middleware (auth, redirects)
 │   ├── services/       # Application logic used by handlers

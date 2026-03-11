@@ -24,6 +24,19 @@ THIS RULE IS MANDATORY FOR AGENT WRITTEN CODE.
 - Use single word names by default for new locals, params, and helper functions.
 - Multi-word names are allowed only when a single word would be unclear or ambiguous.
 
+## Error handling (Read this)
+
+- All errors should be checked, even when a method says error is always nil.
+- Use `serverErrors.ErrDb` and `serverErrors.ErrInternal` from `server/errors`
+  for DB and internal server errors.
+- Only check for `sql.ErrNoRows` explicitly when a query returns a single items
+  that may not exist (e.g., `SELECT ... WHERE id = ?`). Insert, update, delete,
+  and select queries that return slices don't need this check.
+
+## Instructions
+
+- Any new package added to the project must be documented in both AGENTS.md and README.md.
+
 ## Tech stack
 - `Go`, as the main language
 - `Templ`, for html templating
@@ -48,6 +61,7 @@ THIS RULE IS MANDATORY FOR AGENT WRITTEN CODE.
 ├── server/             # Server application code
 │   ├── data/           # misc. structures
 │   ├── database/       # Database layer and persistence logic
+│   ├── errors/         # Shared error definitions
 │   ├── handlers/       # HTTP handlers grouped by route/action
 │   ├── middleware/     # HTTP middleware (auth, redirects)
 │   ├── services/       # Application logic used by handlers

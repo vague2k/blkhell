@@ -2,9 +2,9 @@ package services
 
 import (
 	"context"
-	"errors"
 
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/templui/chart"
 )
 
@@ -19,7 +19,7 @@ func NewDashboardService(db *database.Queries) *DashboardService {
 func (s *DashboardService) GetBandsFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
 	bands, err := s.db.GetBandsFromPreviousYear(ctx)
 	if err != nil {
-		return nil, errors.New("database error")
+		return nil, serverErrors.ErrDb
 	}
 	bandCounts := make([]float64, 12)
 	for _, band := range bands {
@@ -36,7 +36,7 @@ func (s *DashboardService) GetBandsFromPreviousYear(ctx context.Context) (*chart
 func (s *DashboardService) GetReleasesFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
 	releases, err := s.db.GetReleasesFromPreviousYear(ctx)
 	if err != nil {
-		return nil, errors.New("database error")
+		return nil, serverErrors.ErrDb
 	}
 	releaseCounts := make([]float64, 12)
 	for _, release := range releases {
@@ -53,7 +53,7 @@ func (s *DashboardService) GetReleasesFromPreviousYear(ctx context.Context) (*ch
 func (s *DashboardService) GetProjectsFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
 	projects, err := s.db.GetProjectsFromPreviousYear(ctx)
 	if err != nil {
-		return nil, errors.New("database error")
+		return nil, serverErrors.ErrDb
 	}
 	projectsCount := make([]float64, 12)
 	for _, project := range projects {

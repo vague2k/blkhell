@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,7 +23,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
-		toastError(w, r, "500 Internal error: Could not get current user.")
+		toastError(w, r, "Could not get user from context.")
 		return
 	}
 
@@ -55,7 +56,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 
 		newPasswordHash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 		if err != nil {
-			toastError(w, r, "500 Internal error: Could not hash new password.")
+			toastError(w, r, "Could not create new password.")
 			return
 		}
 		params.PasswordHash = string(newPasswordHash)
@@ -63,19 +64,14 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.DB.UpdateUser(r.Context(), params)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			toastError(w, r, "The user you're trying to update doesn't exist.")
-			return
-		}
-
-		toastError(w, r, "500 Internal error: Could not update user.")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
 	// destroy session if password changed
 	if newPassword != "" {
 		if err := h.AuthService.DestroySession(w, r); err != nil {
-			toastError(w, r, "500 Internal error: Could not destroy session.")
+			toastError(w, r, err.Error())
 			return
 		}
 
@@ -100,11 +96,11 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			toastError(w, r, "This band doesn't exist.")
+			toastError(w, r, "Could not get band to edit.")
 			return
 		}
 
-		toastError(w, r, "500 Internal error: Could not find band.")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -123,12 +119,7 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 
 	_, err = h.DB.UpdateBand(r.Context(), params)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			toastError(w, r, "The band you're trying to update doesn't exist.")
-			return
-		}
-
-		toastError(w, r, "500 Internal error: Could not update band.")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 

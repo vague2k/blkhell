@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/server/middleware"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -36,7 +37,7 @@ func (s *AuthService) CreateNewUser(ctx context.Context, username, password, rol
 		Role:         role,
 	})
 	if err != nil {
-		return ErrDb
+		return serverErrors.ErrDb
 	}
 
 	return nil
@@ -48,7 +49,7 @@ func (s *AuthService) Authenticate(ctx context.Context, username, password strin
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("invalid username")
 		}
-		return nil, ErrDb
+		return nil, serverErrors.ErrDb
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)) != nil {
@@ -73,10 +74,10 @@ func (s *AuthService) CreateSession(ctx context.Context, userID string) (string,
 		ExpiresAt: expires,
 	})
 	if err != nil {
-		return "", time.Time{}, ErrDb
+		return "", time.Time{}, serverErrors.ErrDb
 	}
 
-	return sessionToken, expires, err
+	return sessionToken, expires, nil
 }
 
 func (s *AuthService) DestroySession(w http.ResponseWriter, r *http.Request) error {
@@ -90,7 +91,7 @@ func (s *AuthService) DestroySession(w http.ResponseWriter, r *http.Request) err
 
 	err = s.db.DeleteSession(r.Context(), cookie.Value)
 	if err != nil {
-		return ErrDb
+		return serverErrors.ErrDb
 	}
 
 	http.SetCookie(w, &http.Cookie{

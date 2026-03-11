@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 	"github.com/vague2k/blkhell/views/templui/chart"
@@ -39,7 +40,12 @@ func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "database error")
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get band to display.")
+			return
+		}
+
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 	pages.Band(&band).Render(r.Context(), w)
@@ -48,7 +54,7 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
 	images, err := h.DB.GetLabelImageFiles(r.Context())
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, "Could not get label files.")
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
@@ -63,7 +69,7 @@ func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
 	images, err := h.DB.GetBandImageFilesByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, "Could not get band images to display")
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
@@ -82,7 +88,7 @@ func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http
 		Ext:      "%" + input + "%",
 	})
 	if err != nil {
-		http.Error(w, "search failed", http.StatusInternalServerError)
+		toastError(w, r, "Search for asset image failed")
 		return
 	}
 
@@ -98,7 +104,7 @@ func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http
 func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.DB.GetDashboardStats(r.Context())
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, "Could not get dashboard stats.")
 		return
 	}
 
@@ -173,7 +179,7 @@ func (h *Handler) HXDashboardChart(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
-		http.Error(w, "missing user in context", http.StatusInternalServerError)
+		toastError(w, r, "Could not get user from context.")
 		return
 	}
 	components.SidebarUserDropdown(user).Render(r.Context(), w)
@@ -182,7 +188,7 @@ func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) 
 func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request) {
 	bands, err := h.DB.GetBands(r.Context())
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 	components.SidebarBandsDropdown(bands).Render(r.Context(), w)
@@ -191,7 +197,7 @@ func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request)
 func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 	records, err := h.DB.GetDashboardBands(r.Context())
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -201,7 +207,7 @@ func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 	releases, err := h.DB.GetReleasesByBand(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -217,7 +223,7 @@ func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
 	projects, err := h.DB.GetProjectsByBandID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "database error")
+		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
 
@@ -233,20 +239,9 @@ func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
-	asset, err := h.DB.GetFileByID(r.Context(), chi.URLParam(r, "id"))
+	err := h.FilesService.DownloadFile(w, r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		http.Error(w, "database error", http.StatusInternalServerError)
+		toastError(w, r, err.Error())
 		return
 	}
-
-	file, err := os.Open(os.Getenv("UPLOADS_DIR") + asset.Path)
-	if err != nil {
-		http.Error(w, "download failed", http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, asset.FullFilename()))
-
-	io.Copy(w, file)
 }
