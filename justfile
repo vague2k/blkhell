@@ -25,3 +25,7 @@ build:
 # Run the server
 serve: build
     ./dist/server
+
+# Run tests
+test:
+    go test ./...

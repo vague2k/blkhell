@@ -56,7 +56,7 @@ func (s *FilesService) DownloadFile(w http.ResponseWriter, ctx context.Context, 
 		return serverErrors.ErrDb
 	}
 
-	osFile, err := os.Open(os.Getenv("UPLOADS_DIR") + file.Path)
+	osFile, err := os.Open(s.config.UploadsDir + file.Path)
 	if err != nil {
 		return serverErrors.ErrInternal
 	}
@@ -74,7 +74,7 @@ func (s *FilesService) DeleteFile(ctx context.Context, id string) (*database.Fil
 		return nil, serverErrors.ErrDb
 	}
 
-	err = os.Remove(os.Getenv("UPLOADS_DIR") + file.Path)
+	err = os.Remove(s.config.UploadsDir + file.Path)
 	if err != nil {
 		return nil, serverErrors.ErrInternal
 	}

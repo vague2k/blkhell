@@ -48,8 +48,7 @@ func (c *Cli) newGenerateCmd() *cobra.Command {
 		Long:  "Generate fake data for bands, releases, and projects (development only)",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Check if environment is development
-			env := os.Getenv("GO_ENV")
-			if env != "development" {
+			if c.config.Environment != "development" {
 				return fmt.Errorf("this command can only be run in development environment")
 			}
 

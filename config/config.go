@@ -22,31 +22,31 @@ type Config struct {
 	Environment string
 	Port        string
 	UploadsDir  string
+	DBDir       string
 
 	SqlDB    *sql.DB
 	Database *database.Queries
 }
 
 func Init() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading env: %v\n", err)
+	if err := loadEnvVars(); err != nil {
+		log.Fatalf("Fatal config error: loading env vars: %v", err)
 	}
 
 	c := &Config{
-		Environment: getEnv("GO_ENV"),
-		Port:        getEnv("PORT"),
-		UploadsDir:  getEnv("UPLOADS_DIR"),
+		Environment: runtimeEnv(),
+		Port:        requireEnv("PORT"),
+		UploadsDir:  requireEnv("UPLOADS_DIR"),
+		DBDir:       requireEnv("DB_DIR"),
 	}
 
-	err = c.createUploadRootDir()
-	if err != nil {
-		log.Fatalf("Error: failed to create upload root directory: %v\n", err)
+	if err := os.MkdirAll(c.UploadsDir, 0o755); err != nil {
+		log.Fatalf("Fatal config error: creating uploads dir: %v", err)
 	}
 
 	db, err := c.openDB()
 	if err != nil {
-		log.Fatalf("Error: failed to open database: %v\n", err)
+		log.Fatalf("Fatal config error: opening database: %v", err)
 	}
 
 	c.SqlDB = db
@@ -58,7 +58,7 @@ func Init() *Config {
 func (c *Config) openDB() (*sql.DB, error) {
 	connStr, err := c.dbConnectionString()
 	if err != nil {
-		return nil, fmt.Errorf("could not create db connection string: %w", err)
+		return nil, err
 	}
 
 	db, err := sql.Open("sqlite", connStr)
@@ -76,28 +76,36 @@ func (c *Config) dbConnectionString() (string, error) {
 		return ":memory:", nil
 
 	case EnvDevelopment, EnvProduction:
-		dbDir := getEnv("DB_DIR")
-		if err := os.MkdirAll(dbDir, 0o755); err != nil {
-			return "", fmt.Errorf("could not create database dir: %w", err)
+		if err := os.MkdirAll(c.DBDir, 0o755); err != nil {
+			return "", fmt.Errorf("creating database dir: %w", err)
 		}
-		return filepath.Join(dbDir, "blkhell.db"), nil
+
+		return filepath.Join(c.DBDir, "blkhell.db"), nil
 
 	default:
 		return "", fmt.Errorf("unknown environment: %s", c.Environment)
 	}
 }
 
-func (c *Config) createUploadRootDir() error {
-	if err := os.MkdirAll(c.UploadsDir, 0o755); err != nil {
-		return err
+func loadEnvVars() error {
+	if runtimeEnv() == EnvTesting {
+		return nil
 	}
-	return nil
+	return godotenv.Load()
 }
 
-func getEnv(key string) string {
+func runtimeEnv() string {
+	env := os.Getenv("GO_ENV")
+	if env == "" {
+		return "unknown"
+	}
+	return env
+}
+
+func requireEnv(key string) string {
 	v := os.Getenv(key)
 	if v == "" {
-		log.Fatalf("Error: '%s' env var is not set\n", key)
+		log.Fatalf("environment variable %s is required", key)
 	}
 	return v
 }
