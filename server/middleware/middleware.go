@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/config"
 )
 
 type ctxKey string
@@ -13,11 +13,11 @@ type ctxKey string
 const AuthUserKey ctxKey = "user"
 
 type Middleware struct {
-	db *database.Queries
+	config *config.Config
 }
 
-func New(db *database.Queries) *Middleware {
-	return &Middleware{db: db}
+func New(config *config.Config) *Middleware {
+	return &Middleware{config: config}
 }
 
 func (m *Middleware) RedirectIfAuth(next http.Handler) http.Handler {
@@ -28,7 +28,7 @@ func (m *Middleware) RedirectIfAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		session, err := m.db.GetSessionByToken(r.Context(), cookie.Value)
+		session, err := m.config.Database.GetSessionByToken(r.Context(), cookie.Value)
 		if err != nil || time.Now().After(session.ExpiresAt) {
 			next.ServeHTTP(w, r)
 			return
@@ -46,13 +46,13 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		session, err := m.db.GetSessionByToken(r.Context(), cookie.Value)
+		session, err := m.config.Database.GetSessionByToken(r.Context(), cookie.Value)
 		if err != nil || time.Now().After(session.ExpiresAt) {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 
-		user, err := m.db.GetUserByID(r.Context(), session.UserID)
+		user, err := m.config.Database.GetUserByID(r.Context(), session.UserID)
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return

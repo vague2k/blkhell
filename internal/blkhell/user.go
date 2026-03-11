@@ -74,7 +74,7 @@ func (c *Cli) removeUserCmd() *cobra.Command {
 		Short: "Remove a user",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			err := c.DB.DeleteUserByUsername(
+			err := c.config.Database.DeleteUserByUsername(
 				context.Background(),
 				args[0],
 			)

@@ -62,7 +62,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		params.PasswordHash = string(newPasswordHash)
 	}
 
-	_, err := h.DB.UpdateUser(r.Context(), params)
+	_, err := h.config.Database.UpdateUser(r.Context(), params)
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
@@ -93,7 +93,7 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	band, err := h.config.Database.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			toastError(w, r, "Could not get band to edit.")
@@ -117,7 +117,7 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 		params.Country = country
 	}
 
-	_, err = h.DB.UpdateBand(r.Context(), params)
+	_, err = h.config.Database.UpdateBand(r.Context(), params)
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return

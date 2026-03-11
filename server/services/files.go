@@ -15,6 +15,7 @@ import (
 
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/uuid"
+	"github.com/vague2k/blkhell/config"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 )
@@ -39,15 +40,15 @@ type FileMetadata struct {
 }
 
 type FilesService struct {
-	db *database.Queries
+	config *config.Config
 }
 
-func NewFilesService(db *database.Queries) *FilesService {
-	return &FilesService{db: db}
+func NewFilesService(config *config.Config) *FilesService {
+	return &FilesService{config: config}
 }
 
 func (s *FilesService) DownloadFile(w http.ResponseWriter, ctx context.Context, id string) error {
-	file, err := s.db.GetFileByID(ctx, id)
+	file, err := s.config.Database.GetFileByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return errors.New("Could not get file to prepare download")
@@ -68,7 +69,7 @@ func (s *FilesService) DownloadFile(w http.ResponseWriter, ctx context.Context, 
 }
 
 func (s *FilesService) DeleteFile(ctx context.Context, id string) (*database.File, error) {
-	file, err := s.db.DeleteFile(ctx, id)
+	file, err := s.config.Database.DeleteFile(ctx, id)
 	if err != nil {
 		return nil, serverErrors.ErrDb
 	}
@@ -121,7 +122,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 	// create the uploads dir if not exist
 	filetype := mimetype.Detect(buf).String()
 	fmt.Println(filetype)
-	dir, err := s.createUploadDirectories(filetype)
+	dir, err := s.mimetypeDir(filetype)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +167,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 }
 
 func (s *FilesService) WriteToDb(ctx context.Context, metadata *FileMetadata) (*database.File, error) {
-	file, err := s.db.CreateFile(ctx, database.CreateFileParams{
+	file, err := s.config.Database.CreateFile(ctx, database.CreateFileParams{
 		ID:        uuid.NewString(),
 		Path:      metadata.Path,
 		Filename:  metadata.Filename,
@@ -183,23 +184,22 @@ func (s *FilesService) WriteToDb(ctx context.Context, metadata *FileMetadata) (*
 	return &file, nil
 }
 
-func (s *FilesService) createUploadDirectories(mimetype string) (string, error) {
+func (s *FilesService) mimetypeDir(mimetype string) (string, error) {
 	// TODO: move to main func somehow
-	uploadsDir := os.Getenv("UPLOADS_DIR")
-	var uploadsWithSubDir string
+	var subDir string
 
 	switch mimetype {
 	case MimeJpeg, MimePng:
-		uploadsWithSubDir = filepath.Join(uploadsDir, "images")
+		subDir = filepath.Join(s.config.UploadsDir, "images")
 	// case MimePhotoshop:
-	// 	uploadsWithSubDir = filepath.Join(uploadsDir, "photoshop")
+	// 	subDir = filepath.Join(s.config.UploadsDir, "photoshop")
 	default:
 		return "", errors.New("The file format is not supported")
 	}
 
-	if err := os.MkdirAll(uploadsWithSubDir, 0o755); err != nil {
+	if err := os.MkdirAll(subDir, 0o755); err != nil {
 		return "", serverErrors.ErrInternal
 	}
 
-	return uploadsWithSubDir, nil
+	return subDir, nil
 }

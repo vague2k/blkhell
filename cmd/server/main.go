@@ -11,8 +11,8 @@ import (
 
 func main() {
 	cfg := config.Init()
-	handler := handlers.NewHandler(cfg.Database)
-	middleware := middleware.New(cfg.Database)
+	handler := handlers.NewHandler(cfg)
+	middleware := middleware.New(cfg)
 
 	s := server.NewServer(cfg.Port)
 	s.SetupAssetsRoutes()

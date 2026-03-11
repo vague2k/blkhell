@@ -3,17 +3,16 @@ package blkhell
 import (
 	"github.com/spf13/cobra"
 	"github.com/vague2k/blkhell/config"
-	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/server/services"
 )
 
 type Cli struct {
-	DB          *database.Queries
 	AuthService *services.AuthService
+	config      *config.Config
 	cmd         *cobra.Command
 }
 
-func NewCli(cfg *config.Config) *Cli {
+func NewCli(config *config.Config) *Cli {
 	cmd := &cobra.Command{
 		Use:   "blkhell",
 		Short: "Blkhell CLI",
@@ -23,13 +22,13 @@ func NewCli(cfg *config.Config) *Cli {
 	}
 
 	return &Cli{
-		DB:  cfg.Database,
-		cmd: cmd,
+		config: config,
+		cmd:    cmd,
 	}
 }
 
 func (c *Cli) Run() error {
-	c.AuthService = services.NewAuthService(c.DB)
+	c.AuthService = services.NewAuthService(c.config)
 
 	c.cmd.AddCommand(c.newUserCmd())
 	c.cmd.AddCommand(c.newDatabaseCmd())

@@ -78,7 +78,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	band, err := h.DB.CreateBand(r.Context(), database.CreateBandParams{
+	band, err := h.config.Database.CreateBand(r.Context(), database.CreateBandParams{
 		ID:      uuid.NewString(),
 		Name:    bandName,
 		Country: bandCountry,
@@ -88,7 +88,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	release, err := h.DB.CreateRelease(r.Context(), database.CreateReleaseParams{
+	release, err := h.config.Database.CreateRelease(r.Context(), database.CreateReleaseParams{
 		ID:     uuid.NewString(),
 		BandID: band.ID,
 		Name:   releaseName,
@@ -101,7 +101,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if projectName != "" && projectType != "" {
-		_, err := h.DB.CreateProject(r.Context(), database.CreateProjectParams{
+		_, err := h.config.Database.CreateProject(r.Context(), database.CreateProjectParams{
 			ID:        uuid.NewString(),
 			BandID:    band.ID,
 			ReleaseID: release.ID,
@@ -118,7 +118,7 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
-	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "band-id"))
+	band, err := h.config.Database.GetBandByID(r.Context(), chi.URLParam(r, "band-id"))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			toastError(w, r, "Could not get band to create a release for")
@@ -151,7 +151,7 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	release, err := h.DB.CreateRelease(r.Context(), database.CreateReleaseParams{
+	release, err := h.config.Database.CreateRelease(r.Context(), database.CreateReleaseParams{
 		ID:     uuid.NewString(),
 		BandID: band.ID,
 		Name:   releaseName,
@@ -164,7 +164,7 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if projectName != "" && projectType != "" {
-		_, err := h.DB.CreateProject(r.Context(), database.CreateProjectParams{
+		_, err := h.config.Database.CreateProject(r.Context(), database.CreateProjectParams{
 			ID:        uuid.NewString(),
 			BandID:    band.ID,
 			ReleaseID: release.ID,
@@ -203,7 +203,7 @@ func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	band, err := h.config.Database.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			toastError(w, r, "Could not get band to upload an asset for")

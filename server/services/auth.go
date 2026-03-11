@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/vague2k/blkhell/config"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/server/middleware"
@@ -17,11 +18,11 @@ import (
 )
 
 type AuthService struct {
-	db *database.Queries
+	config *config.Config
 }
 
-func NewAuthService(db *database.Queries) *AuthService {
-	return &AuthService{db: db}
+func NewAuthService(config *config.Config) *AuthService {
+	return &AuthService{config: config}
 }
 
 func (s *AuthService) CreateNewUser(ctx context.Context, username, password, role string) error {
@@ -30,7 +31,7 @@ func (s *AuthService) CreateNewUser(ctx context.Context, username, password, rol
 		return errors.New("Password is too long") // err's if pass is longer than 72 bytes
 	}
 
-	_, err = s.db.CreateUser(ctx, database.CreateUserParams{
+	_, err = s.config.Database.CreateUser(ctx, database.CreateUserParams{
 		ID:           uuid.NewString(),
 		Username:     username,
 		PasswordHash: string(hash),
@@ -44,7 +45,7 @@ func (s *AuthService) CreateNewUser(ctx context.Context, username, password, rol
 }
 
 func (s *AuthService) Authenticate(ctx context.Context, username, password string) (*database.User, error) {
-	user, err := s.db.GetUserByUsername(ctx, username)
+	user, err := s.config.Database.GetUserByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, errors.New("invalid username")
@@ -67,7 +68,7 @@ func (s *AuthService) CreateSession(ctx context.Context, userID string) (string,
 	// 1 week before the session id expires
 	expires := time.Now().Add(7 * (24 * time.Hour))
 
-	_, err := s.db.CreateSession(ctx, database.CreateSessionParams{
+	_, err := s.config.Database.CreateSession(ctx, database.CreateSessionParams{
 		ID:        uuid.NewString(),
 		Token:     sessionToken,
 		UserID:    userID,
@@ -89,7 +90,7 @@ func (s *AuthService) DestroySession(w http.ResponseWriter, r *http.Request) err
 		return nil
 	}
 
-	err = s.db.DeleteSession(r.Context(), cookie.Value)
+	err = s.config.Database.DeleteSession(r.Context(), cookie.Value)
 	if err != nil {
 		return serverErrors.ErrDb
 	}

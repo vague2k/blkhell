@@ -38,7 +38,7 @@ func (h *Handler) SettingsPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
-	band, err := h.DB.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	band, err := h.config.Database.GetBandByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			toastError(w, r, "Could not get band to display.")
@@ -52,7 +52,7 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
-	images, err := h.DB.GetLabelImageFiles(r.Context())
+	images, err := h.config.Database.GetLabelImageFiles(r.Context())
 	if err != nil {
 		toastError(w, r, "Could not get label files.")
 		return
@@ -67,7 +67,7 @@ func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
-	images, err := h.DB.GetBandImageFilesByID(r.Context(), chi.URLParam(r, "id"))
+	images, err := h.config.Database.GetBandImageFilesByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, "Could not get band images to display")
 		return
@@ -83,7 +83,7 @@ func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 
 func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
 	input := r.URL.Query().Get("q")
-	images, err := h.DB.GetFileByPartialName(r.Context(), database.GetFileByPartialNameParams{
+	images, err := h.config.Database.GetFileByPartialName(r.Context(), database.GetFileByPartialNameParams{
 		Filename: "%" + input + "%",
 		Ext:      "%" + input + "%",
 	})
@@ -102,7 +102,7 @@ func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http
 }
 
 func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
-	stats, err := h.DB.GetDashboardStats(r.Context())
+	stats, err := h.config.Database.GetDashboardStats(r.Context())
 	if err != nil {
 		toastError(w, r, "Could not get dashboard stats.")
 		return
@@ -186,7 +186,7 @@ func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request) {
-	bands, err := h.DB.GetBands(r.Context())
+	bands, err := h.config.Database.GetBands(r.Context())
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
@@ -195,7 +195,7 @@ func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request)
 }
 
 func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
-	records, err := h.DB.GetDashboardBands(r.Context())
+	records, err := h.config.Database.GetDashboardBands(r.Context())
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
@@ -205,7 +205,7 @@ func (h *Handler) HXDashboardTable(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
-	releases, err := h.DB.GetReleasesByBand(r.Context(), chi.URLParam(r, "id"))
+	releases, err := h.config.Database.GetReleasesByBand(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
@@ -221,7 +221,7 @@ func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
-	projects, err := h.DB.GetProjectsByBandID(r.Context(), chi.URLParam(r, "id"))
+	projects, err := h.config.Database.GetProjectsByBandID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return

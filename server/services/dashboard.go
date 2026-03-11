@@ -3,21 +3,21 @@ package services
 import (
 	"context"
 
-	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/config"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/templui/chart"
 )
 
 type DashboardService struct {
-	db *database.Queries
+	config *config.Config
 }
 
-func NewDashboardService(db *database.Queries) *DashboardService {
-	return &DashboardService{db: db}
+func NewDashboardService(config *config.Config) *DashboardService {
+	return &DashboardService{config: config}
 }
 
 func (s *DashboardService) GetBandsFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
-	bands, err := s.db.GetBandsFromPreviousYear(ctx)
+	bands, err := s.config.Database.GetBandsFromPreviousYear(ctx)
 	if err != nil {
 		return nil, serverErrors.ErrDb
 	}
@@ -34,7 +34,7 @@ func (s *DashboardService) GetBandsFromPreviousYear(ctx context.Context) (*chart
 }
 
 func (s *DashboardService) GetReleasesFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
-	releases, err := s.db.GetReleasesFromPreviousYear(ctx)
+	releases, err := s.config.Database.GetReleasesFromPreviousYear(ctx)
 	if err != nil {
 		return nil, serverErrors.ErrDb
 	}
@@ -51,7 +51,7 @@ func (s *DashboardService) GetReleasesFromPreviousYear(ctx context.Context) (*ch
 }
 
 func (s *DashboardService) GetProjectsFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {
-	projects, err := s.db.GetProjectsFromPreviousYear(ctx)
+	projects, err := s.config.Database.GetProjectsFromPreviousYear(ctx)
 	if err != nil {
 		return nil, serverErrors.ErrDb
 	}

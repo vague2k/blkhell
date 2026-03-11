@@ -81,7 +81,7 @@ func (c *Cli) newGenerateCmd() *cobra.Command {
 
 			fmt.Println("Generating fake data...")
 			ctx := context.Background()
-			err = c.DB.GenerateFakeData(ctx)
+			err = c.config.Database.GenerateFakeData(ctx)
 			if err != nil {
 				return fmt.Errorf("failed to generate fake data: %w", err)
 			}
@@ -99,12 +99,8 @@ func (c *Cli) migrateUpCmd() *cobra.Command {
 		Use:   "up",
 		Short: "Apply all pending up migrations",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := database.Open()
-			if err != nil {
-				return fmt.Errorf("failed to open database: %w", err)
-			}
+			db := c.config.SqlDB
 			defer db.Close()
-
 			if err := database.MigrateUp(db); err != nil {
 				return fmt.Errorf("migration up failed: %w", err)
 			}
@@ -119,12 +115,8 @@ func (c *Cli) migrateDownCmd() *cobra.Command {
 		Use:   "down",
 		Short: "Roll back one migration",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			db, err := database.Open()
-			if err != nil {
-				return fmt.Errorf("failed to open database: %w", err)
-			}
+			db := c.config.SqlDB
 			defer db.Close()
-
 			if err := database.MigrateDown(db); err != nil {
 				return fmt.Errorf("migration down failed: %w", err)
 			}
@@ -145,12 +137,8 @@ func (c *Cli) migrateForceCmd() *cobra.Command {
 				return fmt.Errorf("invalid version: %w", err)
 			}
 
-			db, err := database.Open()
-			if err != nil {
-				return fmt.Errorf("failed to open database: %w", err)
-			}
+			db := c.config.SqlDB
 			defer db.Close()
-
 			if err := database.MigrateForce(db, version); err != nil {
 				return fmt.Errorf("migration force failed: %w", err)
 			}
