@@ -1,7 +1,15 @@
 package components
 
-import "github.com/vague2k/blkhell/views/templui/sidebar"
-import "github.com/vague2k/blkhell/views/templui/icon"
+import (
+	"fmt"
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/templui/collapsible"
+	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/sidebar"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+)
 
 templ Sidebar() {
 	@sidebar.Layout() {
@@ -67,7 +75,6 @@ templ Sidebar() {
 								"hx-get":     "/hx/sidebar/bands-dropdown",
 								"hx-trigger": "load",
 								"hx-target":  "this",
-								"hx-swap":    "innerHTML",
 							},
 						})
 					}
@@ -83,7 +90,6 @@ templ Sidebar() {
 							"hx-get":     "/hx/sidebar/user-dropdown",
 							"hx-trigger": "load",
 							"hx-target":  "this",
-							"hx-swap":    "innerHTML",
 						},
 					}) {
 					}
@@ -92,6 +98,112 @@ templ Sidebar() {
 		}
 		@sidebar.Inset() {
 			{ children... }
+		}
+	}
+}
+
+templ SidebarUserDropdown(user *database.User) {
+	{{ username := cases.Title(language.English).String(user.Username) }}
+	@dropdown.Dropdown() {
+		@dropdown.Trigger() {
+			@sidebar.MenuButton(sidebar.MenuButtonProps{
+				Size: sidebar.MenuButtonSizeLg,
+			}) {
+				<span class="flex justify-center items-center h-8 w-8 bg-muted text-foreground rounded-full">
+					{ string(username[0]) }
+				</span>
+				<div class="grid flex-1 text-left text-sm leading-tight">
+					<span class="truncate font-medium">{ username }</span>
+					<span class="truncate text-muted-foreground text-xs">blackheaven member</span>
+				</div>
+				@icon.ChevronsUpDown(icon.Props{Class: "ml-auto size-4"})
+			}
+		}
+		@dropdown.Content(dropdown.ContentProps{
+			Class:     "w-56",
+			Placement: dropdown.PlacementTopStart,
+		}) {
+			@dropdown.Label() {
+				<div class="flex gap-2">
+					<span class="flex justify-center items-center h-8 w-8 bg-muted text-foreground rounded-full">
+						{ string(username[0]) }
+					</span>
+					<div class="grid flex-1 text-left text-sm leading-tight">
+						<span class="truncate font-medium">{ username }</span>
+						<span class="truncate text-muted-foreground text-xs">blackheaven member</span>
+					</div>
+				</div>
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				Href: "/settings",
+			}) {
+				<span class="flex items-center">
+					@icon.Settings(icon.Props{Size: 16, Class: "mr-2"})
+					Settings
+				</span>
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				Attributes: templ.Attributes{
+					"hx-delete":  "/actions/users/logout",
+					"hx-trigger": "click",
+				},
+			}) {
+				<span
+					class="flex items-center"
+				>
+					@icon.LogOut(icon.Props{Size: 16, Class: "mr-2"})
+					Log out
+				</span>
+			}
+		}
+	}
+}
+
+templ SidebarBandsDropdown(bands []database.Band) {
+	@collapsible.Collapsible(collapsible.Props{
+		Class: "group/collapsible w-full",
+		Open:  true,
+	}) {
+		@collapsible.Trigger() {
+			@sidebar.MenuButton(sidebar.MenuButtonProps{
+				Tooltip: "Bands",
+				Class:   "hover:bg-muted cursor-pointer rounded-lg transition-all duration-200",
+			}) {
+				@icon.Users(icon.Props{Class: "size-4"})
+				<span>Bands</span>
+				@icon.ChevronRight(icon.Props{
+					Class: "ml-auto size-4 transition-transform group-data-[tui-collapsible-state=open]/collapsible:rotate-90",
+				})
+			}
+		}
+		@collapsible.Content(collapsible.ContentProps{
+			Open: true,
+		}) {
+			@sidebar.MenuSub(sidebar.MenuSubProps{Class: "gap-0"}) {
+				if len(bands) == 0 {
+					@sidebar.MenuSubItem() {
+						@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+							Class: "text-muted-foreground",
+						}) {
+							<span>No bands added yet</span>
+						}
+					}
+				} else {
+					for _, band := range bands {
+						{{ bandHref := fmt.Sprintf("/band/%s", band.ID) }}
+						@sidebar.MenuSubItem() {
+							@sidebar.MenuSubButton(sidebar.MenuSubButtonProps{
+								Href:  bandHref,
+								Class: "hover:bg-muted cursor-pointer rounded-lg transition-all duration-200",
+							}) {
+								<span>{ band.Name }</span>
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 }
