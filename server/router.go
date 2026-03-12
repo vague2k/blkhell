@@ -24,6 +24,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			r.Route("/band", func(r chi.Router) {
 				r.Get("/{id}", h.BandPage)
 			})
+
+			// ---------- release pages ----------
+			r.Route("/release", func(r chi.Router) {
+				r.Get("/{id}", h.ReleasePage)
+			})
 		})
 
 		// ---------- actions ----------

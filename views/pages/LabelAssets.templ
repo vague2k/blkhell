@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
@@ -12,6 +13,25 @@ import (
 
 templ LabelAssets() {
 	@layouts.BaseSidebarLayout() {
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@breadcrumb.Breadcrumb() {
+				@breadcrumb.List() {
+					@breadcrumb.Item() {
+						@breadcrumb.Link(breadcrumb.LinkProps{
+							Href: "/",
+						}) {
+							Home
+						}
+					}
+					@breadcrumb.Separator()
+					@breadcrumb.Item() {
+						@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+							Label Assets
+						}
+					}
+				}
+			}
+		</div>
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@labelActionsDropdown()
@@ -50,15 +70,9 @@ templ LabelAssets() {
             (function () {
                 const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
-                const uploadMobileBtn = htmx.find("#upload-button-topbar-mobile");
-                const uploadDesktopBtn = htmx.find("#upload-button-topbar-desktop");
-                const imageGallery = htmx.find("#label-assets-image-gallery");
+                const uploadBtn = htmx.find("#dropdown-upload-button");
 
-                uploadMobileBtn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    input.click();
-                });
-                uploadDesktopBtn.addEventListener("click", (e) => {
+                uploadBtn.addEventListener("click", (e) => {
                     e.preventDefault();
                     input.click();
                 });

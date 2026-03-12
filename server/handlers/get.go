@@ -51,6 +51,31 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 	pages.Band(&band).Render(r.Context(), w)
 }
 
+func (h *Handler) ReleasePage(w http.ResponseWriter, r *http.Request) {
+	release, err := h.config.Database.GetReleaseByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get release to display.")
+			return
+		}
+
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+	band, err := h.config.Database.GetBandByID(r.Context(), release.BandID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get band from release.")
+			return
+		}
+
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	pages.Release(&band, &release).Render(r.Context(), w)
+}
+
 func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
 	images, err := h.config.Database.GetLabelImageFiles(r.Context())
 	if err != nil {

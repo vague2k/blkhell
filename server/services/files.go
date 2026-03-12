@@ -24,6 +24,9 @@ var (
 	MimeJpeg      = "image/jpeg"
 	MimePng       = "image/png"
 	MimePhotoshop = "image/vnd.adobe.photoshop"
+	MimeMp3       = "audio/mp3"
+	MimeWav       = "audio/wav"
+	MimeFlac      = "audio/flac"
 )
 
 type FileMetadata struct {
@@ -193,6 +196,8 @@ func (s *FilesService) mimetypeDir(mimetype string) (string, error) {
 		subDir = filepath.Join(s.config.UploadsDir, "images")
 	// case MimePhotoshop:
 	// 	subDir = filepath.Join(s.config.UploadsDir, "photoshop")
+	case MimeMp3, MimeFlac, MimeWav:
+		subDir = filepath.Join(s.config.UploadsDir, "audio")
 	default:
 		return "", errors.New("The file format is not supported")
 	}

@@ -1,13 +1,35 @@
 package pages
 
-import "github.com/vague2k/blkhell/views/templui/input"
-import "github.com/vague2k/blkhell/views/templui/button"
-import "github.com/vague2k/blkhell/views/templui/form"
-import "github.com/vague2k/blkhell/views/templui/sidebar"
-import "github.com/vague2k/blkhell/views/layouts"
+import (
+	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/breadcrumb"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/form"
+	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/sidebar"
+)
 
 templ Settings() {
 	@layouts.BaseSidebarLayout() {
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@breadcrumb.Breadcrumb() {
+				@breadcrumb.List() {
+					@breadcrumb.Item() {
+						@breadcrumb.Link(breadcrumb.LinkProps{
+							Href: "/",
+						}) {
+							Home
+						}
+					}
+					@breadcrumb.Separator()
+					@breadcrumb.Item() {
+						@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+							Settings
+						}
+					}
+				}
+			}
+		</div>
 		<div class="p-2 flex items-center gap-2 border border-transparent border-b-border">
 			@sidebar.Trigger()
 		</div>

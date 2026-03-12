@@ -1,0 +1,159 @@
+package pages
+
+import (
+	"fmt"
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/breadcrumb"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/sidebar"
+)
+
+templ Release(band *database.Band, release *database.Release) {
+	@layouts.BaseSidebarLayout() {
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@releaseBreadcrumbs(band, release)
+		</div>
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@sidebar.Trigger()
+			@releaseActionsDropdown(release)
+		</div>
+		<div class="p-4 flex flex-col border border-transparent border-b-border">
+			<h1 class="text-4xl font-inter tracking-tight font-semibold">{ release.Name }</h1>
+			<p class="text-muted-foreground text-sm">
+				by { band.Name }
+			</p>
+		</div>
+		<div class="p-4 flex flex-col gap-4 w-full h-full">
+			@components.UploadForm(components.UploadFormProps{
+				HxPost: fmt.Sprintf("/actions/files/releases/%s/upload", release.ID),
+			})
+		</div>
+	}
+	<script>
+        (function () {
+            const fileUploadForm = htmx.find("#file-upload-form");
+            const uploadAudioBtn = htmx.find("#dropdown-upload-audio-button");
+            const uploadBtn = htmx.find("#dropdown-upload-button");
+
+            uploadAudioBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                input.click();
+            });
+            uploadBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                input.click();
+            });
+        })();
+    </script>
+}
+
+templ releaseActionsDropdown(release *database.Release) {
+	@dropdown.Dropdown(dropdown.Props{
+		ID: "release-actions-dropdown",
+	}) {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				ID:      "release-actions-dropdown-button",
+				Variant: button.VariantOutline,
+			}) {
+				<span class="flex items-center gap-1">
+					@icon.ChevronDown(icon.Props{Size: 10})
+					Actions
+				</span>
+			}
+		}
+		@dropdown.Content() {
+			@dropdown.Label() {
+				Actions
+			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-upload-audio-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Upload(icon.Props{Size: 14})
+					Upload Audio
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-upload-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Upload(icon.Props{Size: 14})
+					Upload Release Asset
+				</span>
+			}
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-edit-release-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.Pencil(icon.Props{Size: 14})
+					Edit Release
+				</span>
+			}
+		}
+	}
+}
+
+templ releaseBreadcrumbs(band *database.Band, release *database.Release) {
+	<!-- Mobile view (simplified with ellipsis) -->
+	<div class="sm:hidden">
+		@breadcrumb.Breadcrumb() {
+			@breadcrumb.List() {
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "/",
+					}) {
+						Home
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "#",
+					}) {
+						...
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+						{ release.Name }
+					}
+				}
+			}
+		}
+	</div>
+	<!-- Desktop view (full breadcrumb) -->
+	<div class="hidden sm:block">
+		@breadcrumb.Breadcrumb() {
+			@breadcrumb.List() {
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "/",
+					}) {
+						Home
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: fmt.Sprintf("/band/%s", band.ID),
+					}) {
+						{ band.Name }
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+						{ release.Name }
+					}
+				}
+			}
+		}
+	</div>
+}

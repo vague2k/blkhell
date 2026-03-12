@@ -1,12 +1,14 @@
 package components
 
-import "github.com/vague2k/blkhell/views/templui/table"
-import "github.com/vague2k/blkhell/views/templui/button"
-import "github.com/vague2k/blkhell/views/templui/icon"
-import "github.com/vague2k/blkhell/server/database"
-
-import "github.com/vague2k/blkhell/views/templui/dropdown"
-import "github.com/vague2k/blkhell/views/templui/badge"
+import (
+	"fmt"
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/templui/badge"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/table"
+)
 
 templ BandReleasesTable(releases []database.Release) {
 	@table.Table(table.Props{
@@ -88,7 +90,7 @@ templ bandReleasesDropdown(release database.Release) {
 				{ release.Name }
 			}
 			@dropdown.Item(dropdown.ItemProps{
-				//Href: "/settings",
+				Href: fmt.Sprintf("/release/%s", release.ID),
 			}) {
 				<span class="flex items-center">
 					@icon.DiscAlbum(icon.Props{Size: 16, Class: "mr-2"})

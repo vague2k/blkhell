@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
@@ -11,6 +12,19 @@ import (
 
 templ Dashboard() {
 	@layouts.BaseSidebarLayout() {
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@breadcrumb.Breadcrumb() {
+				@breadcrumb.List() {
+					@breadcrumb.Item() {
+						@breadcrumb.Link(breadcrumb.LinkProps{
+							Href: "/",
+						}) {
+							Home
+						}
+					}
+				}
+			}
+		</div>
 		<div class="p-2 z-10 top-0 bg-background sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@dashboardActionsDropdown()

@@ -5,6 +5,7 @@ import (
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
+	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
@@ -13,6 +14,25 @@ import (
 
 templ Band(band *database.Band) {
 	@layouts.BaseSidebarLayout() {
+		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
+			@breadcrumb.Breadcrumb() {
+				@breadcrumb.List() {
+					@breadcrumb.Item() {
+						@breadcrumb.Link(breadcrumb.LinkProps{
+							Href: "/",
+						}) {
+							Home
+						}
+					}
+					@breadcrumb.Separator()
+					@breadcrumb.Item() {
+						@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+							{ band.Name }
+						}
+					}
+				}
+			}
+		</div>
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@bandActionsDropdown(band)
@@ -194,4 +214,55 @@ templ bandActionsDropdown(band *database.Band) {
             });
         })();
     </script>
+}
+
+templ labelAssetsBreadcrumbs() {
+	<!-- Mobile view (simplified with ellipsis) -->
+	<div class="md:hidden">
+		@breadcrumb.Breadcrumb() {
+			@breadcrumb.List() {
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "/",
+					}) {
+						Home
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "#",
+					}) {
+						...
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+						Label Assets
+					}
+				}
+			}
+		}
+	</div>
+	<!-- Desktop view (full breadcrumb) -->
+	<div class="hidden md:block">
+		@breadcrumb.Breadcrumb() {
+			@breadcrumb.List() {
+				@breadcrumb.Item() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: "/",
+					}) {
+						Home
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+						Label Assets
+					}
+				}
+			}
+		}
+	</div>
 }
