@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/joho/godotenv"
@@ -29,6 +30,10 @@ type Config struct {
 }
 
 func Init() *Config {
+	if err := requireFFmpeg(); err != nil {
+		log.Fatal("Fatal config error: missing ffprobe (install ffmpeg)")
+	}
+
 	if err := loadEnvVars(); err != nil {
 		log.Fatalf("Fatal config error: loading env vars: %v", err)
 	}
@@ -108,4 +113,10 @@ func requireEnv(key string) string {
 		log.Fatalf("environment variable %s is required", key)
 	}
 	return v
+}
+
+func requireFFmpeg() error {
+	// ffprobe comes with ffmpeg
+	_, err := exec.LookPath("ffprobe")
+	return err
 }

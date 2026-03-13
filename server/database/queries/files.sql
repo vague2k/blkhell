@@ -8,9 +8,10 @@ INSERT INTO files (
     size,
     mimetype,
     owner_type,
-    owner_id
+    owner_id,
+    audio_duration_seconds
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 RETURNING * ;
 
 -- name: GetFileByID :one
@@ -30,6 +31,27 @@ ORDER BY filename ;
 -- name: GetBandImageFilesByID :many
 SELECT * FROM files
 WHERE owner_type = 'band'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename ;
+
+-- name: GetReleaseImageFilesByID :many
+SELECT * FROM files
+WHERE owner_type = 'release'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename ;
+
+-- name: GetReleaseAudioFilesByID :many
+SELECT * FROM files
+WHERE owner_type = 'release'
+AND mimetype LIKE 'audio/%'
+AND owner_id = ?
+ORDER BY filename ;
+
+-- name: GetProjectImageFilesByID :many
+SELECT * FROM files
+WHERE owner_type = 'project'
 AND mimetype LIKE 'image/%'
 AND owner_id = ?
 ORDER BY filename ;

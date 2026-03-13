@@ -1,0 +1,3 @@
+ALTER TABLE files
+ADD COLUMN audio_duration_seconds INTEGER NOT NULL DEFAULT 0;
+

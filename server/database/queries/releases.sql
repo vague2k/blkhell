@@ -4,8 +4,9 @@ INSERT INTO releases (
     band_id,
     name,
     type,
-    number
-) VALUES (?, ?, ?, ?, ?)
+    number,
+    song_count
+) VALUES (?, ?, ?, ?, ?, ?)
 RETURNING * ;
 
 -- name: GetReleases :many
@@ -29,6 +30,7 @@ UPDATE releases
 SET name = ?,
 type = ?,
 number = ?,
+song_count = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING * ;

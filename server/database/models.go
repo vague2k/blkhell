@@ -18,17 +18,18 @@ type Band struct {
 }
 
 type File struct {
-	ID        string
-	UserID    string
-	Path      string
-	Filename  string
-	Ext       string
-	Size      int64
-	Mimetype  string
-	OwnerType string
-	OwnerID   string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID                   string
+	UserID               string
+	Path                 string
+	Filename             string
+	Ext                  string
+	Size                 int64
+	Mimetype             string
+	OwnerType            string
+	OwnerID              string
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	AudioDurationSeconds int64
 }
 
 type Project struct {
@@ -50,6 +51,7 @@ type Release struct {
 	Number    string
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	SongCount int64
 }
 
 type Session struct {

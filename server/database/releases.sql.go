@@ -15,17 +15,19 @@ INSERT INTO releases (
     band_id,
     name,
     type,
-    number
-) VALUES (?, ?, ?, ?, ?)
-RETURNING id, band_id, name, type, number, created_at, updated_at
+    number,
+    song_count
+) VALUES (?, ?, ?, ?, ?, ?)
+RETURNING id, band_id, name, type, number, created_at, updated_at, song_count
 `
 
 type CreateReleaseParams struct {
-	ID     string
-	BandID string
-	Name   string
-	Type   string
-	Number string
+	ID        string
+	BandID    string
+	Name      string
+	Type      string
+	Number    string
+	SongCount int64
 }
 
 func (q *Queries) CreateRelease(ctx context.Context, arg CreateReleaseParams) (Release, error) {
@@ -35,6 +37,7 @@ func (q *Queries) CreateRelease(ctx context.Context, arg CreateReleaseParams) (R
 		arg.Name,
 		arg.Type,
 		arg.Number,
+		arg.SongCount,
 	)
 	var i Release
 	err := row.Scan(
@@ -45,6 +48,7 @@ func (q *Queries) CreateRelease(ctx context.Context, arg CreateReleaseParams) (R
 		&i.Number,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SongCount,
 	)
 	return i, err
 }
@@ -64,7 +68,7 @@ func (q *Queries) DeleteRelease(ctx context.Context, id string) error {
 const getReleaseByID = `-- name: GetReleaseByID :one
 ;
 
-SELECT id, band_id, name, type, number, created_at, updated_at FROM releases
+SELECT id, band_id, name, type, number, created_at, updated_at, song_count FROM releases
 WHERE id = ?
 `
 
@@ -79,6 +83,7 @@ func (q *Queries) GetReleaseByID(ctx context.Context, id string) (Release, error
 		&i.Number,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SongCount,
 	)
 	return i, err
 }
@@ -86,7 +91,7 @@ func (q *Queries) GetReleaseByID(ctx context.Context, id string) (Release, error
 const getReleases = `-- name: GetReleases :many
 ;
 
-SELECT id, band_id, name, type, number, created_at, updated_at FROM releases
+SELECT id, band_id, name, type, number, created_at, updated_at, song_count FROM releases
 ORDER BY name
 `
 
@@ -107,6 +112,7 @@ func (q *Queries) GetReleases(ctx context.Context) ([]Release, error) {
 			&i.Number,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SongCount,
 		); err != nil {
 			return nil, err
 		}
@@ -124,7 +130,7 @@ func (q *Queries) GetReleases(ctx context.Context) ([]Release, error) {
 const getReleasesByBand = `-- name: GetReleasesByBand :many
 ;
 
-SELECT id, band_id, name, type, number, created_at, updated_at FROM releases
+SELECT id, band_id, name, type, number, created_at, updated_at, song_count FROM releases
 WHERE band_id = ?
 ORDER BY name DESC
 `
@@ -146,6 +152,7 @@ func (q *Queries) GetReleasesByBand(ctx context.Context, bandID string) ([]Relea
 			&i.Number,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SongCount,
 		); err != nil {
 			return nil, err
 		}
@@ -163,7 +170,7 @@ func (q *Queries) GetReleasesByBand(ctx context.Context, bandID string) ([]Relea
 const getReleasesFromPreviousYear = `-- name: GetReleasesFromPreviousYear :many
 ;
 
-SELECT id, band_id, name, type, number, created_at, updated_at FROM releases WHERE created_at >= DATE('now', '-1 year')
+SELECT id, band_id, name, type, number, created_at, updated_at, song_count FROM releases WHERE created_at >= DATE('now', '-1 year')
 `
 
 func (q *Queries) GetReleasesFromPreviousYear(ctx context.Context) ([]Release, error) {
@@ -183,6 +190,7 @@ func (q *Queries) GetReleasesFromPreviousYear(ctx context.Context) ([]Release, e
 			&i.Number,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.SongCount,
 		); err != nil {
 			return nil, err
 		}
@@ -202,16 +210,18 @@ UPDATE releases
 SET name = ?,
 type = ?,
 number = ?,
+song_count = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
-RETURNING id, band_id, name, type, number, created_at, updated_at
+RETURNING id, band_id, name, type, number, created_at, updated_at, song_count
 `
 
 type UpdateReleaseParams struct {
-	Name   string
-	Type   string
-	Number string
-	ID     string
+	Name      string
+	Type      string
+	Number    string
+	SongCount int64
+	ID        string
 }
 
 func (q *Queries) UpdateRelease(ctx context.Context, arg UpdateReleaseParams) (Release, error) {
@@ -219,6 +229,7 @@ func (q *Queries) UpdateRelease(ctx context.Context, arg UpdateReleaseParams) (R
 		arg.Name,
 		arg.Type,
 		arg.Number,
+		arg.SongCount,
 		arg.ID,
 	)
 	var i Release
@@ -230,6 +241,7 @@ func (q *Queries) UpdateRelease(ctx context.Context, arg UpdateReleaseParams) (R
 		&i.Number,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SongCount,
 	)
 	return i, err
 }

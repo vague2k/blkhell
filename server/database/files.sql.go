@@ -19,22 +19,24 @@ INSERT INTO files (
     size,
     mimetype,
     owner_type,
-    owner_id
+    owner_id,
+    audio_duration_seconds
 )
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-RETURNING id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+RETURNING id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds
 `
 
 type CreateFileParams struct {
-	ID        string
-	UserID    string
-	Path      string
-	Filename  string
-	Ext       string
-	Size      int64
-	Mimetype  string
-	OwnerType string
-	OwnerID   string
+	ID                   string
+	UserID               string
+	Path                 string
+	Filename             string
+	Ext                  string
+	Size                 int64
+	Mimetype             string
+	OwnerType            string
+	OwnerID              string
+	AudioDurationSeconds int64
 }
 
 func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) (File, error) {
@@ -48,6 +50,7 @@ func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) (File, e
 		arg.Mimetype,
 		arg.OwnerType,
 		arg.OwnerID,
+		arg.AudioDurationSeconds,
 	)
 	var i File
 	err := row.Scan(
@@ -62,6 +65,7 @@ func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) (File, e
 		&i.OwnerID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AudioDurationSeconds,
 	)
 	return i, err
 }
@@ -71,7 +75,7 @@ const deleteFile = `-- name: DeleteFile :one
 
 DELETE FROM files
 WHERE id = ?
-RETURNING id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at
+RETURNING id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds
 `
 
 func (q *Queries) DeleteFile(ctx context.Context, id string) (File, error) {
@@ -89,6 +93,7 @@ func (q *Queries) DeleteFile(ctx context.Context, id string) (File, error) {
 		&i.OwnerID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AudioDurationSeconds,
 	)
 	return i, err
 }
@@ -96,7 +101,7 @@ func (q *Queries) DeleteFile(ctx context.Context, id string) (File, error) {
 const getBandImageFilesByID = `-- name: GetBandImageFilesByID :many
 ;
 
-SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
 WHERE owner_type = 'band'
 AND mimetype LIKE 'image/%'
 AND owner_id = ?
@@ -124,6 +129,7 @@ func (q *Queries) GetBandImageFilesByID(ctx context.Context, ownerID string) ([]
 			&i.OwnerID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
 		); err != nil {
 			return nil, err
 		}
@@ -141,7 +147,7 @@ func (q *Queries) GetBandImageFilesByID(ctx context.Context, ownerID string) ([]
 const getFileByID = `-- name: GetFileByID :one
 ;
 
-SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
 WHERE id = ?
 `
 
@@ -160,6 +166,7 @@ func (q *Queries) GetFileByID(ctx context.Context, id string) (File, error) {
 		&i.OwnerID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AudioDurationSeconds,
 	)
 	return i, err
 }
@@ -167,7 +174,7 @@ func (q *Queries) GetFileByID(ctx context.Context, id string) (File, error) {
 const getFileByPartialName = `-- name: GetFileByPartialName :many
 ;
 
-SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds
 FROM files
 WHERE filename LIKE ?
 OR ext like ?
@@ -199,6 +206,7 @@ func (q *Queries) GetFileByPartialName(ctx context.Context, arg GetFileByPartial
 			&i.OwnerID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
 		); err != nil {
 			return nil, err
 		}
@@ -216,7 +224,7 @@ func (q *Queries) GetFileByPartialName(ctx context.Context, arg GetFileByPartial
 const getFiles = `-- name: GetFiles :many
 ;
 
-SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
 ORDER BY filename
 `
 
@@ -241,6 +249,7 @@ func (q *Queries) GetFiles(ctx context.Context) ([]File, error) {
 			&i.OwnerID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
 		); err != nil {
 			return nil, err
 		}
@@ -258,7 +267,7 @@ func (q *Queries) GetFiles(ctx context.Context) ([]File, error) {
 const getLabelImageFiles = `-- name: GetLabelImageFiles :many
 ;
 
-SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at FROM files
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
 WHERE owner_type = 'label'
 AND mimetype LIKE 'image/%'
 ORDER BY filename
@@ -285,6 +294,145 @@ func (q *Queries) GetLabelImageFiles(ctx context.Context) ([]File, error) {
 			&i.OwnerID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getProjectImageFilesByID = `-- name: GetProjectImageFilesByID :many
+;
+
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
+WHERE owner_type = 'project'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename
+`
+
+func (q *Queries) GetProjectImageFilesByID(ctx context.Context, ownerID string) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getProjectImageFilesByID, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.Mimetype,
+			&i.OwnerType,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReleaseAudioFilesByID = `-- name: GetReleaseAudioFilesByID :many
+;
+
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
+WHERE owner_type = 'release'
+AND mimetype LIKE 'audio/%'
+AND owner_id = ?
+ORDER BY filename
+`
+
+func (q *Queries) GetReleaseAudioFilesByID(ctx context.Context, ownerID string) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getReleaseAudioFilesByID, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.Mimetype,
+			&i.OwnerType,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getReleaseImageFilesByID = `-- name: GetReleaseImageFilesByID :many
+;
+
+SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds FROM files
+WHERE owner_type = 'release'
+AND mimetype LIKE 'image/%'
+AND owner_id = ?
+ORDER BY filename
+`
+
+func (q *Queries) GetReleaseImageFilesByID(ctx context.Context, ownerID string) ([]File, error) {
+	rows, err := q.db.QueryContext(ctx, getReleaseImageFilesByID, ownerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []File
+	for rows.Next() {
+		var i File
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Path,
+			&i.Filename,
+			&i.Ext,
+			&i.Size,
+			&i.Mimetype,
+			&i.OwnerType,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.AudioDurationSeconds,
 		); err != nil {
 			return nil, err
 		}

@@ -1,6 +1,13 @@
 package data
 
 const (
+	FileOwnerTypeLabel   = "label"
+	FileOwnerTypeBand    = "band"
+	FileOwnerTypeRelease = "release"
+	FileOwnerTypeProject = "project"
+)
+
+const (
 	ReleaseTypeAlbum  = "album"
 	ReleaseTypeEP     = "ep"
 	ReleaseTypeSingle = "single"
