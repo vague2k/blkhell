@@ -63,32 +63,13 @@ func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	bandName := r.FormValue("band-name")
 	bandCountry := r.FormValue("band-country")
-	releaseName := r.FormValue("release-name")
-	releaseType := r.FormValue("release-type")
-	releaseNum := r.FormValue("release-number")
-	projectName := r.FormValue("project-name")
-	projectType := r.FormValue("project-type")
 
-	switch true {
-	case bandName == "":
+	if bandName == "" {
 		toastError(w, r, "'Band name' is required")
 		return
-	case releaseName == "":
-		toastError(w, r, "'Release Name' is required")
-		return
-	case releaseType == "":
-		toastError(w, r, "'Release Type' is required")
-		return
-	case releaseNum == "":
-		toastError(w, r, "'Release No.' is required")
-		return
-	case bandCountry == "":
-		toastError(w, r, "'Band country' is required")
-		return
 	}
-
-	if (projectName == "" && projectType != "") || (projectName != "" && projectType == "") {
-		toastError(w, r, "'Project Name' and 'Project Type' must both be filled or both left empty")
+	if bandCountry == "" {
+		toastError(w, r, "'Band country' is required")
 		return
 	}
 
@@ -100,32 +81,6 @@ func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
-	}
-
-	release, err := h.config.Database.CreateRelease(r.Context(), database.CreateReleaseParams{
-		ID:     uuid.NewString(),
-		BandID: band.ID,
-		Name:   releaseName,
-		Type:   releaseType,
-		Number: releaseNum,
-	})
-	if err != nil {
-		toastError(w, r, serverErrors.ErrDb.Error())
-		return
-	}
-
-	if projectName != "" && projectType != "" {
-		_, err := h.config.Database.CreateProject(r.Context(), database.CreateProjectParams{
-			ID:        uuid.NewString(),
-			BandID:    band.ID,
-			ReleaseID: release.ID,
-			Name:      projectName,
-			Type:      projectType,
-		})
-		if err != nil {
-			toastError(w, r, serverErrors.ErrDb.Error())
-			return
-		}
 	}
 
 	toastSuccess(w, r, fmt.Sprintf("You new band '%s' has been added to the roster! beast.", band.Name))

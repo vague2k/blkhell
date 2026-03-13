@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/pages"
@@ -52,8 +54,7 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 	releaseName := r.FormValue("release-name")
 	releaseType := r.FormValue("release-type")
 	releaseNum := r.FormValue("release-number")
-	projectName := r.FormValue("project-name")
-	projectType := r.FormValue("project-type")
+	releaseSongCount := r.FormValue("release-song-count")
 
 	switch true {
 	case releaseName == "":
@@ -65,37 +66,38 @@ func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
 	case releaseNum == "":
 		toastError(w, r, "'Release No.' is required")
 		return
-	}
-
-	if (projectName == "" && projectType != "") || (projectName != "" && projectType == "") {
-		toastError(w, r, "'Project Name' and 'Project Type' must both be filled or both left empty")
+	case releaseSongCount == "":
+		toastError(w, r, "'Amount of Songs' is required")
 		return
 	}
 
-	release, err := h.config.Database.CreateRelease(r.Context(), database.CreateReleaseParams{
+	songCount, err := strconv.ParseInt(releaseSongCount, 0, 64)
+	if err != nil {
+		toastError(w, r, "'Amount of Songs' input is not a valid number")
+		return
+	}
+
+	if songCount <= 0 {
+		toastError(w, r, "A release can't have 0 or negative songs")
+		return
+	}
+
+	if releaseType == data.ReleaseTypeSingle && songCount > 1 {
+		toastError(w, r, "A single can only have 1 song")
+		return
+	}
+
+	_, err = h.config.Database.CreateRelease(r.Context(), database.CreateReleaseParams{
 		ID:     uuid.NewString(),
 		BandID: band.ID,
 		Name:   releaseName,
 		Type:   releaseType,
 		Number: releaseNum,
+		// SongCount: songCount,
 	})
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
-	}
-
-	if projectName != "" && projectType != "" {
-		_, err := h.config.Database.CreateProject(r.Context(), database.CreateProjectParams{
-			ID:        uuid.NewString(),
-			BandID:    band.ID,
-			ReleaseID: release.ID,
-			Name:      projectName,
-			Type:      projectType,
-		})
-		if err != nil {
-			toastError(w, r, serverErrors.ErrDb.Error())
-			return
-		}
 	}
 
 	toastSuccess(w, r, fmt.Sprintf("Your new band '%s' has been added to the roster! beast.", band.Name))

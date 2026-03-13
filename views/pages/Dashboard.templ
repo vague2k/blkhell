@@ -1,12 +1,16 @@
 package pages
 
 import (
-	"github.com/vague2k/blkhell/views/components"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -74,6 +78,14 @@ templ Dashboard() {
                 const cards = htmx.find("#dashboard-cards");
                 const table = htmx.find("#dashboard-roster-table");
                 const chart = htmx.find("#dashboard-chart");
+                const addBandBtn = htmx.find("#dropdown-add-band-button");
+
+                // opening modals in dropdowns don't work well
+                // by itself, gotta do it via js api
+                addBandBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    window.tui.dialog.open("add-band-dialog")
+                });
 
                 // refresh table, cards and chart when band is added
                 htmx.on(form, "htmx:afterRequest", function (evt) {
@@ -118,22 +130,96 @@ templ dashboardActionsDropdown() {
 			}) {
 				<span class="flex items-center gap-1">
 					@icon.Plus(icon.Props{Size: 10})
-					Add a band
+					Create a band
 				</span>
 			}
 		}
 	}
-	@components.AddBandDialog()
-	<script>
-        (function () {
-            // opening modals in dropdowns don't work well
-            // by itself, gotta do it via js api
-            const addBandBtn = htmx.find("#dropdown-add-band-button");
-
-            addBandBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                window.tui.dialog.open("add-band-dialog")
-            });
-        })();
-    </script>
+	@dialog.Dialog(dialog.Props{
+		ID: "add-band-dialog",
+	}) {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Add a new band
+				}
+				@dialog.Description() {
+					Add a new band to our catalog, including a release. Optionally add a project as well.
+				}
+			}
+			<form
+				id="add-band-form"
+				hx-post="/actions/bands/create"
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full md:w-2/3"}) {
+							@form.Label() {
+								<span class="flex items-center gap-1">
+									Band Name
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
+							}
+							@input.Input(input.Props{
+								ID:          "band-name-input",
+								Form:        "add-band-form",
+								Type:        input.TypeText,
+								Name:        "band-name",
+								Placeholder: "Ties by Miles",
+							})
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								<span class="flex items-center gap-1">
+									Country
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "country-selector",
+									Form: "add-band-form",
+									Name: "band-country",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
+								}
+								@selectbox.Content() {
+									for _, code := range data.SortCountryMap() {
+										{{ name := data.Countries[code] }}
+										@selectbox.Item(selectbox.ItemProps{
+											Value: code,
+										}) {
+											{ code + " - " + name }
+										}
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Create Band
+					}
+				}
+			</form>
+		}
+	}
 }

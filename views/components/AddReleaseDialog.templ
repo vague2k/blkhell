@@ -7,6 +7,7 @@ import "github.com/vague2k/blkhell/views/templui/selectbox"
 import "github.com/vague2k/blkhell/views/templui/button"
 import "fmt"
 import "github.com/vague2k/blkhell/server/database"
+import "github.com/vague2k/blkhell/server/data"
 
 type AddReleaseDialogProps struct {
 	For *database.Band
@@ -74,19 +75,19 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 									Form: "add-release-form",
 									Name: "release-type",
 								}) {
-									@selectbox.Value(selectbox.ValueProps{Placeholder: "album"})
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "Album"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: "album"}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeAlbum}) {
 										Album
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: "ep"}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeEP}) {
 										EP
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: "single"}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeSingle}) {
 										Single
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: "compilation"}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeComp}) {
 										Comp
 									}
 								}
@@ -118,60 +119,19 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 								}
 							}
 						}
-					</div>
-					<!-- Row 3 -->
-					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
 						@form.Item(form.ItemProps{Class: "w-full"}) {
 							@form.Label() {
-								Project Name
+								<span class="flex items-center gap-1">
+									Amount of Songs
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
 							}
 							@input.Input(input.Props{
-								ID:          "project-name-input",
-								Form:        "add-release-form",
+								ID:          "release-song-count-input",
 								Type:        input.TypeText,
-								Name:        "project-name",
-								Placeholder: "CDs for fest",
+								Name:        "release-song-count",
+								Placeholder: "5",
 							})
-						}
-						@form.Item() {
-							@form.Label() {
-								Type
-							}
-							@selectbox.SelectBox() {
-								@selectbox.Trigger(selectbox.TriggerProps{
-									ID:   "project-type-selector",
-									Form: "add-release-form",
-									Name: "project-type",
-								}) {
-									@selectbox.Value(selectbox.ValueProps{
-										Placeholder: "CDs",
-									})
-								}
-								@selectbox.Content(selectbox.ContentProps{
-									NoSearch: true,
-								}) {
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "CD",
-									}) {
-										CDs
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "tapes",
-									}) {
-										Tapes
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "vinyl",
-									}) {
-										Vinyl
-									}
-									@selectbox.Item(selectbox.ItemProps{
-										Value: "merch",
-									}) {
-										Merch
-									}
-								}
-							}
 						}
 					</div>
 				</div>
@@ -186,7 +146,7 @@ templ AddReleaseDialog(props ...AddReleaseDialogProps) {
 					@button.Button(button.Props{
 						Type: button.TypeSubmit,
 					}) {
-						Add Release
+						Create Release
 					}
 				}
 			</form>
