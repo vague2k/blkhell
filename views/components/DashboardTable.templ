@@ -5,7 +5,7 @@ import "github.com/vague2k/blkhell/views/templui/button"
 import "github.com/vague2k/blkhell/views/templui/icon"
 import "github.com/vague2k/blkhell/server/database"
 import "fmt"
-import "github.com/vague2k/blkhell/views/templui/dropdown"
+
 import "github.com/vague2k/blkhell/server/data"
 import "github.com/vague2k/blkhell/views/templui/badge"
 
@@ -45,7 +45,13 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 						</span>
 					}
 					@table.Cell() {
-						@bandRowDropdown(record)
+						@button.Button(button.Props{
+							Href:    fmt.Sprintf("/band/%s", record.BandID),
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+						}) {
+							@icon.ExternalLink(icon.Props{Size: 12})
+						}
 					}
 					@table.Cell() {
 						{ record.BandName }
@@ -72,35 +78,6 @@ templ DashboardTable(records []database.GetDashboardBandsRow) {
 						{ record.CreatedAt.Format("2006-01-02") }
 					}
 				}
-			}
-		}
-	}
-}
-
-templ bandRowDropdown(record database.GetDashboardBandsRow) {
-	@dropdown.Dropdown() {
-		@dropdown.Trigger() {
-			@button.Button(button.Props{
-				Size:    button.SizeIcon,
-				Variant: button.VariantGhost,
-			}) {
-				@icon.EllipsisVertical(icon.Props{Size: 16})
-			}
-		}
-		@dropdown.Content(dropdown.ContentProps{
-			Placement: dropdown.PlacementRight,
-		}) {
-			@dropdown.Label() {
-				{ record.BandName }
-			}
-			@dropdown.Separator()
-			@dropdown.Item(dropdown.ItemProps{
-				Href: fmt.Sprintf("/band/%s", record.BandID),
-			}) {
-				<span class="flex items-center">
-					@icon.Users(icon.Props{Size: 16, Class: "mr-2"})
-					View Band and Releases
-				</span>
 			}
 		}
 	}

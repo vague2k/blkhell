@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
@@ -82,6 +83,29 @@ func (h *Handler) HXReleaseAssetsImageGallery(w http.ResponseWriter, r *http.Req
 	}
 }
 
+func (h *Handler) HXProjectsAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
+	images, err := h.config.Database.GetProjectImageFilesByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		toastError(w, r, "Could not get releases images to display")
+		return
+	}
+	components.ImageGallery(images).Render(r.Context(), w)
+
+	count := len(images)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="project-assets-image-count" hx-swap-oob="true"></span>`,
+		)
+	} else {
+		fmt.Fprintf(
+			w,
+			`<span id="project-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+			count,
+		)
+	}
+}
+
 func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 	user, ok := h.AuthService.UserFromContext(r.Context())
 	if !ok {
@@ -89,7 +113,7 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(w, r, user.ID, "label", "label")
+	asset, err := h.FilesService.Upload(w, r, user.ID, "label", data.FileOwnerTypeLabel)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

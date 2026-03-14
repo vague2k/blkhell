@@ -5,7 +5,6 @@ import (
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/templui/badge"
 	"github.com/vague2k/blkhell/views/templui/button"
-	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/table"
 )
@@ -45,7 +44,13 @@ templ ReleasesTable(releases []database.Release) {
 						</span>
 					}
 					@table.Cell() {
-						@bandReleasesDropdown(release)
+						@button.Button(button.Props{
+							Href:    fmt.Sprintf("/release/%s", release.ID),
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+						}) {
+							@icon.ExternalLink(icon.Props{Size: 12})
+						}
 					}
 					@table.Cell() {
 						@badge.Badge(badge.Props{
@@ -68,42 +73,6 @@ templ ReleasesTable(releases []database.Release) {
 						{ release.CreatedAt.Format("2006-01-02") }
 					}
 				}
-			}
-		}
-	}
-}
-
-templ bandReleasesDropdown(release database.Release) {
-	@dropdown.Dropdown() {
-		@dropdown.Trigger() {
-			@button.Button(button.Props{
-				Size:    button.SizeIcon,
-				Variant: button.VariantGhost,
-			}) {
-				@icon.EllipsisVertical(icon.Props{Size: 16})
-			}
-		}
-		@dropdown.Content(dropdown.ContentProps{
-			Placement: dropdown.PlacementRight,
-		}) {
-			@dropdown.Label() {
-				{ release.Name }
-			}
-			@dropdown.Item(dropdown.ItemProps{
-				Href: fmt.Sprintf("/release/%s", release.ID),
-			}) {
-				<span class="flex items-center">
-					@icon.DiscAlbum(icon.Props{Size: 16, Class: "mr-2"})
-					View Release
-				</span>
-			}
-			@dropdown.Item(dropdown.ItemProps{
-				//Href: "/settings",
-			}) {
-				<span class="flex items-center">
-					@icon.FolderLock(icon.Props{Size: 16, Class: "mr-2"})
-					View Projects
-				</span>
 			}
 		}
 	}

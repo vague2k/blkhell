@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
@@ -13,27 +14,28 @@ import (
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
-templ Release(band *database.Band, release *database.Release) {
+templ Project(band *database.Band, release *database.Release, project *database.Project) {
 	@layouts.BaseSidebarLayout() {
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
-			@releaseBreadcrumbs(band, release)
+			@projectBreadcrumbs(band, release, project)
 		</div>
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@releaseActionsDropdown(release)
+			@projectActionsDropdown(project)
+			@projectStatus(project.Status)
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
-			<h1 class="text-4xl tracking-tight font-semibold">{ release.Name }</h1>
+			<h1 class="text-4xl tracking-tight font-semibold">{ project.Name }</h1>
 			<p class="text-muted-foreground text-sm">
-				by { band.Name }. BH-{ release.Number }
+				{ fmt.Sprintf("A %s project for the release '%s' by the band %s", project.Type, release.Name, band.Name) }
 			</p>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
 			@components.UploadForm(components.UploadFormProps{
-				HxPost: fmt.Sprintf("/actions/files/releases/%s/upload", release.ID),
+				HxPost: fmt.Sprintf("/actions/files/projects/%s/upload", project.ID),
 			})
 			<div class="flex items-center gap-2 w-full">
-				<span id="release-assets-image-count"></span>
+				<span id="project-assets-image-count"></span>
 				<div
 					id="upload-progress-container"
 					class="htmx-indicator w-full max-w-lg"
@@ -51,19 +53,11 @@ templ Release(band *database.Band, release *database.Release) {
 				</div>
 			</div>
 			<div
-				id="release-assets-image-gallery"
-				hx-get={ fmt.Sprintf("/hx/releases/%s/image-gallery", release.ID) }
+				id="project-assets-image-gallery"
+				hx-get={ fmt.Sprintf("/hx/projects/%s/image-gallery", project.ID) }
 				hx-trigger="load, refreshGallery"
 				hx-target="this"
 				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
-			></div>
-			<span id="release-projects-count"></span>
-			<div
-				id="dashboard-roster-table"
-				hx-get={ fmt.Sprintf("/hx/releases/%s/projects-table", release.ID) }
-				hx-trigger="load, refreshTable"
-				hx-target="this"
-				class="w-full overflow-y-auto border rounded-lg"
 			></div>
 		</div>
 	}
@@ -71,7 +65,7 @@ templ Release(band *database.Band, release *database.Release) {
         (function () {
             const form = htmx.find("#file-upload-form");
             const uploadBtn = htmx.find("#dropdown-upload-button");
-            const imageGallery = htmx.find("#release-assets-image-gallery");
+            const imageGallery = htmx.find("#project-assets-image-gallery");
 
             uploadBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -106,24 +100,24 @@ templ Release(band *database.Band, release *database.Release) {
     </script>
 }
 
-templ releaseActionsDropdown(release *database.Release) {
+templ projectActionsDropdown(project *database.Project) {
 	@dropdown.Dropdown(dropdown.Props{
-		ID: "release-actions-dropdown",
+		ID: "project-actions-dropdown",
 	}) {
 		@dropdown.Trigger() {
 			@button.Button(button.Props{
-				ID:      "release-actions-dropdown-button",
+				ID:      "project-actions-dropdown-button",
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
 					@icon.ChevronDown(icon.Props{Size: 10})
-					Release Actions
+					Project Actions
 				</span>
 			}
 		}
 		@dropdown.Content() {
 			@dropdown.Label() {
-				Release Actions
+				Project Actions
 			}
 			@dropdown.Separator()
 			@dropdown.Item(dropdown.ItemProps{
@@ -131,22 +125,22 @@ templ releaseActionsDropdown(release *database.Release) {
 			}) {
 				<span class="flex items-center gap-2">
 					@icon.Upload(icon.Props{Size: 14})
-					Upload Release Asset
+					Upload Project Asset
 				</span>
 			}
 			@dropdown.Item(dropdown.ItemProps{
-				ID: "dropdown-edit-release-button",
+				ID: "dropdown-edit-project-button",
 			}) {
 				<span class="flex items-center gap-2">
 					@icon.Pencil(icon.Props{Size: 14})
-					Edit Release
+					Edit Project
 				</span>
 			}
 		}
 	}
 }
 
-templ releaseBreadcrumbs(band *database.Band, release *database.Release) {
+templ projectBreadcrumbs(band *database.Band, release *database.Release, project *database.Project) {
 	<!-- Mobile view (simplified with ellipsis) -->
 	<div class="sm:hidden">
 		@breadcrumb.Breadcrumb() {
@@ -169,7 +163,7 @@ templ releaseBreadcrumbs(band *database.Band, release *database.Release) {
 				@breadcrumb.Separator()
 				@breadcrumb.Item() {
 					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
-						{ release.Name }
+						{ project.Name }
 					}
 				}
 			}
@@ -196,11 +190,35 @@ templ releaseBreadcrumbs(band *database.Band, release *database.Release) {
 				}
 				@breadcrumb.Separator()
 				@breadcrumb.Item() {
-					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+					@breadcrumb.Page() {
 						{ release.Name }
+					}
+				}
+				@breadcrumb.Separator()
+				@breadcrumb.Item() {
+					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
+						{ project.Name }
 					}
 				}
 			}
 		}
 	</div>
+}
+
+templ projectStatus(status string) {
+	if status == data.ProjectStatusDone {
+		<span class="flex items-center bg-green-500 gap-2 rounded-lg px-2.5 h-8 text-sm">
+			Complete
+		</span>
+	}
+	if status == data.ProjectStatusInProgress {
+		<span class="flex items-center bg-primary gap-2 rounded-lg px-2.5 h-8 text-sm">
+			In Progress
+		</span>
+	}
+	if status == data.ProjectStatusPending {
+		<span class="flex items-center bg-yellow-500 gap-2 rounded-lg px-2.5 h-8 text-sm">
+			To Do
+		</span>
+	}
 }

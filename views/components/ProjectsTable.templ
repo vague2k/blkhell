@@ -1,17 +1,23 @@
 package components
 
-import "github.com/vague2k/blkhell/views/templui/table"
-
-import "github.com/vague2k/blkhell/server/database"
-
-import "github.com/vague2k/blkhell/views/templui/badge"
-import "github.com/vague2k/blkhell/server/data"
+import (
+	"fmt"
+	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/templui/badge"
+	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/table"
+)
 
 templ ProjectsTable(projects []database.Project) {
 	@table.Table(table.Props{
 		Class: "p-4",
 	}) {
 		@table.Header() {
+			@table.Head(table.HeadProps{
+				Class: "size-8",
+			})
 			@table.Head(table.HeadProps{
 				Class: "size-8",
 			})
@@ -35,6 +41,15 @@ templ ProjectsTable(projects []database.Project) {
 						<span class="text-muted-foreground">
 							{ i+1 }
 						</span>
+					}
+					@table.Cell() {
+						@button.Button(button.Props{
+							Href:    fmt.Sprintf("/project/%s", project.ID),
+							Variant: button.VariantGhost,
+							Size:    button.SizeIcon,
+						}) {
+							@icon.ExternalLink(icon.Props{Size: 12})
+						}
 					}
 					@table.Cell() {
 						{ project.Name }
@@ -61,23 +76,32 @@ templ ProjectsTable(projects []database.Project) {
 templ projectStatus(status string) {
 	if status == data.ProjectStatusDone {
 		@badge.Badge(badge.Props{
-			Class: "bg-green-500 text-white",
+			Variant: badge.VariantOutline,
 		}) {
-			{ status }
+			<span class="flex items-center gap-2">
+				<span class="p-[3px] bg-green-500 rounded-full"></span>
+				Done
+			</span>
 		}
 	}
 	if status == data.ProjectStatusInProgress {
 		@badge.Badge(badge.Props{
-			Class: "bg-primary text-white",
+			Variant: badge.VariantOutline,
 		}) {
-			{ status }
+			<span class="flex items-center gap-2 text-white">
+				<span class="p-[3px] bg-primary rounded-full"></span>
+				In Progress
+			</span>
 		}
 	}
 	if status == data.ProjectStatusPending {
 		@badge.Badge(badge.Props{
-			Class: "bg-yellow-500 text-white",
+			Variant: badge.VariantOutline,
 		}) {
-			{ status }
+			<span class="flex items-center gap-2 text-white">
+				<span class="p-[3px] bg-yellow-500 rounded-full"></span>
+				To Do
+			</span>
 		}
 	}
 }

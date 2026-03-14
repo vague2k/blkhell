@@ -110,7 +110,7 @@ templ Band(band *database.Band) {
 		</div>
 		<script>
             (function () {
-                const fileUploadForm = htmx.find("#file-upload-form");
+                const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
                 const addReleaseForm = htmx.find("#add-release-form");
                 const uploadBtn = htmx.find("#dropdown-upload-button");
@@ -123,7 +123,7 @@ templ Band(band *database.Band) {
                 });
 
                 // refresh band asset gallery when image is uploaded
-                htmx.on(fileUploadForm, "htmx:afterRequest", function (evt) {
+                htmx.on(form, "htmx:afterRequest", function (evt) {
                     if (evt.target.id === "file-upload-form" && imageGallery) {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
                     }

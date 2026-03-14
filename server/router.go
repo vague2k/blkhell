@@ -29,6 +29,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			r.Route("/release", func(r chi.Router) {
 				r.Get("/{id}", h.ReleasePage)
 			})
+
+			// ---------- project pages ----------
+			r.Route("/project", func(r chi.Router) {
+				r.Get("/{id}", h.ProjectPage)
+			})
 		})
 
 		// ---------- actions ----------
@@ -59,12 +64,21 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 				// ---------- label file actions ----------
 				r.Route("/label", func(r chi.Router) {
 					r.Post("/upload", h.UploadLabelAsset)
-					r.Delete("/delete/{id}", h.Delete)
 				})
 
 				// ---------- band file actions ----------
 				r.Route("/bands", func(r chi.Router) {
 					r.Post("/{id}/upload", h.UploadBandAsset)
+				})
+
+				// ---------- releases file actions ----------
+				r.Route("/releases", func(r chi.Router) {
+					r.Post("/{id}/upload", h.UploadReleaseAsset)
+				})
+
+				// ---------- projects file actions ----------
+				r.Route("/projects", func(r chi.Router) {
+					r.Post("/{id}/upload", h.UploadProjectAsset)
 				})
 			})
 		})
@@ -97,6 +111,10 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			r.Route("/releases/{id}", func(r chi.Router) {
 				r.Get("/image-gallery", h.HXReleaseAssetsImageGallery)
 				r.Get("/projects-table", h.HXReleaseProjectsTable)
+			})
+
+			r.Route("/projects/{id}", func(r chi.Router) {
+				r.Get("/image-gallery", h.HXProjectsAssetsImageGallery)
 			})
 		})
 	})
