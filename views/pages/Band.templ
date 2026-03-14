@@ -113,6 +113,7 @@ templ Band(band *database.Band) {
                 const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
                 const addReleaseForm = htmx.find("#add-release-form");
+                const editBandForm = htmx.find("#edit-band-form");
                 const uploadBtn = htmx.find("#dropdown-upload-button");
                 const imageGallery = htmx.find("#band-assets-image-gallery");
                 const releasesTable = htmx.find("#band-releases-table");
@@ -141,6 +142,21 @@ templ Band(band *database.Band) {
                     if (evt.target.id === "add-release-form" && releasesTable) {
                         releasesTable.dispatchEvent(new Event("refreshTable"));
                         window.tui.dialog.close("add-release-dialog")
+                    }
+                });
+
+                // refresh band releases table when release is added
+                htmx.on(editBandForm, "htmx:afterRequest", function (evt) {
+                    if (evt.target.id === "edit-band-form" && releasesTable) {
+                        window.tui.dialog.close("edit-band-dialog")
+                    }
+                });
+
+                // refresh gallery when image is edited
+                htmx.on("htmx:afterRequest", function (evt) {
+                    if (evt.detail.elt && evt.detail.elt.getAttribute("hx-put")) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                        window.tui.dialog.close("edit-image-dialog")
                     }
                 });
 
@@ -200,7 +216,7 @@ templ bandActionsDropdown(band *database.Band) {
 			}) {
 				<span class="flex items-center gap-2">
 					@icon.Pencil(icon.Props{Size: 14})
-					Edit
+					Edit Band
 				</span>
 			}
 			@dropdown.Separator()

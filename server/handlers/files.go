@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/server/database"
+	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
@@ -137,4 +141,40 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	toastWarning(w, r, fmt.Sprintf("'%s' has been deleted.", asset.FullFilename()))
+}
+
+func (h *Handler) EditFile(w http.ResponseWriter, r *http.Request) {
+	renamed := r.FormValue("filename")
+	if renamed == "" {
+		toastError(w, r, "At least 1 field has to be filled.")
+		return
+	}
+
+	file, err := h.config.Database.GetFileByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get file to edit.")
+			return
+		}
+
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	params := database.UpdateFileParams{
+		ID:       file.ID,
+		Filename: file.Filename,
+	}
+
+	if renamed != "" {
+		params.Filename = renamed
+	}
+
+	_, err = h.config.Database.UpdateFile(r.Context(), params)
+	if err != nil {
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	toastSuccess(w, r, "Your changes have been saved!")
 }

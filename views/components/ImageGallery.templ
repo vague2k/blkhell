@@ -1,10 +1,14 @@
 package components
 
 import (
+	"fmt"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/input"
 	"github.com/vague2k/blkhell/views/templui/separator"
 )
 
@@ -37,52 +41,133 @@ templ ImageGallery(images []database.File) {
 								{ image.ReadableSize() }
 							</p>
 						</div>
-						@dropdown.Dropdown() {
-							@dropdown.Trigger() {
-								@button.Button(button.Props{
-									Size:    button.SizeIcon,
-									Variant: button.VariantGhost,
-								}) {
-									@icon.EllipsisVertical()
-								}
-							}
-							@dropdown.Content(dropdown.ContentProps{
-								Class: "w-48",
-							}) {
-								@dropdown.Label(dropdown.LabelProps{
-									Class: "truncate",
-								}) {
-									{ image.FullFilename() }
-								}
-								@dropdown.Separator()
-								@dropdown.Group() {
-									@dropdown.Item(dropdown.ItemProps{
-										Href: "/actions/files/download/" + image.ID,
-									}) {
-										<span class="flex items-center text-sm">
-											@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
-											Download
-										</span>
-									}
-									@dropdown.Separator()
-									@dropdown.Item(dropdown.ItemProps{
-										Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
-										Attributes: templ.Attributes{
-											"hx-delete": "/actions/files/delete/" + image.ID,
-											"hx-target": "#global-toast",
-										},
-									}) {
-										<span class="flex items-center text-sm">
-											@icon.Trash(icon.Props{Size: 16, Class: "mr-1.5"})
-											Delete
-										</span>
-									}
-								}
-							}
-						}
+						@imageActionsDropdown(image)
 					</div>
 				</div>
 			</div>
+		}
+	}
+}
+
+templ imageActionsDropdown(image database.File) {
+	@dropdown.Dropdown() {
+		@dropdown.Trigger() {
+			@button.Button(button.Props{
+				Size:    button.SizeIcon,
+				Variant: button.VariantGhost,
+			}) {
+				@icon.EllipsisVertical()
+			}
+		}
+		@dropdown.Content(dropdown.ContentProps{
+			Class: "w-48",
+		}) {
+			@dropdown.Label(dropdown.LabelProps{
+				Class: "truncate",
+			}) {
+				{ image.FullFilename() }
+			}
+			@dropdown.Separator()
+			@dropdown.Group() {
+				@dropdown.Item(dropdown.ItemProps{
+					Href: "/actions/files/download/" + image.ID,
+				}) {
+					<span class="flex items-center text-sm">
+						@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
+						Download
+					</span>
+				}
+				@dropdown.Item(dropdown.ItemProps{
+					ID:   "dropdown-edit-file-button",
+					Href: "/actions/files/rename/" + image.ID,
+				}) {
+					<span class="flex items-center text-sm">
+						@icon.Pencil(icon.Props{Size: 16, Class: "mr-1.5"})
+						Edit
+					</span>
+				}
+				@dropdown.Separator()
+				@dropdown.Item(dropdown.ItemProps{
+					Class: "text-destructive hover:bg-destructive/20 hover:text-destructive",
+					Attributes: templ.Attributes{
+						"hx-delete": "/actions/files/delete/" + image.ID,
+						"hx-target": "#global-toast",
+					},
+				}) {
+					<span class="flex items-center text-sm">
+						@icon.Trash(icon.Props{Size: 16, Class: "mr-1.5"})
+						Delete
+					</span>
+				}
+			}
+		}
+	}
+	@editImageDialog(image)
+	<script>
+        (function () {
+            // opening modals in dropdowns don't work well
+            // by itself, gotta do it via js api
+            const editFileBtn = htmx.find("#dropdown-edit-file-button");
+
+            editFileBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("edit-image-dialog")
+            });
+        })();
+    </script>
+}
+
+templ editImageDialog(image database.File) {
+	@dialog.Dialog(dialog.Props{
+		ID: "edit-image-dialog",
+	}) {
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Edit information for this image
+				}
+			}
+			<form
+				id="edit-image-form"
+				hx-put={ fmt.Sprintf("/actions/files/edit/%s", image.ID) }
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								File Name
+							}
+							@input.Input(input.Props{
+								ID:          "image-filename-input",
+								Form:        "edit-image-form",
+								Type:        input.TypeText,
+								Name:        "filename",
+								Value:       image.Filename,
+								Placeholder: "Cover art",
+							})
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Save Changes
+					}
+				}
+			</form>
 		}
 	}
 }

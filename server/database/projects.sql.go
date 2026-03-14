@@ -275,19 +275,26 @@ const updateProject = `-- name: UpdateProject :one
 UPDATE projects
 SET name = ?,
 type = ?,
+status = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING id, band_id, release_id, name, type, status, created_at, updated_at
 `
 
 type UpdateProjectParams struct {
-	Name string
-	Type string
-	ID   string
+	Name   string
+	Type   string
+	Status string
+	ID     string
 }
 
 func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error) {
-	row := q.db.QueryRowContext(ctx, updateProject, arg.Name, arg.Type, arg.ID)
+	row := q.db.QueryRowContext(ctx, updateProject,
+		arg.Name,
+		arg.Type,
+		arg.Status,
+		arg.ID,
+	)
 	var i Project
 	err := row.Scan(
 		&i.ID,

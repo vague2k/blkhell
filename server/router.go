@@ -54,12 +54,22 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			// ---------- release actions ----------
 			r.Route("/release", func(r chi.Router) {
 				r.Post("/create/{band-id}", h.CreateRelease)
+				r.Put("/{id}/edit", h.EditRelease)
+				r.Delete("/{id}/delete", h.DeleteRelease)
+			})
+
+			// ---------- release actions ----------
+			r.Route("/project", func(r chi.Router) {
+				r.Post("/create/{band-id}/{release-id}", h.CreateProject)
+				r.Put("/{id}/edit", h.EditProject)
+				r.Delete("/{id}/delete", h.DeleteProject)
 			})
 
 			// ---------- file actions ----------
 			r.Route("/files", func(r chi.Router) {
 				r.Get("/download/{id}", h.Download)
 				r.Delete("/delete/{id}", h.Delete)
+				r.Put("/edit/{id}", h.EditFile)
 
 				// ---------- label file actions ----------
 				r.Route("/label", func(r chi.Router) {

@@ -27,6 +27,8 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	toastCookieWarning(w, r, "deleted_release_toast_message")
+	toastCookieWarning(w, r, "deleted_project_toast_message")
 	pages.Band(&band).Render(r.Context(), w)
 }
 
@@ -142,7 +144,7 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toastSuccess(w, r, "Your changes have been saved!")
+	toastSuccess(w, r, "Your changes have been saved! You may have to refresh the page to see your changes")
 }
 
 func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {

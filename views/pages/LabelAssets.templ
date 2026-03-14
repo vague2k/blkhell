@@ -98,6 +98,13 @@ templ LabelAssets() {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
                     }
                 });
+                // refresh gallery when image is edited
+                htmx.on("htmx:afterRequest", function (evt) {
+                    if (evt.detail.elt && evt.detail.elt.getAttribute("hx-put")) {
+                        imageGallery.dispatchEvent(new Event("refreshGallery"));
+                        window.tui.dialog.close("edit-image-dialog")
+                    }
+                });
 
                 // progress bar
                 const progressContainer = htmx.find("#upload-progress-container");

@@ -56,11 +56,19 @@ AND mimetype LIKE 'image/%'
 AND owner_id = ?
 ORDER BY filename ;
 
+
 -- name: GetFileByPartialName :many
 SELECT *
 FROM files
 WHERE filename LIKE ?
 OR ext like ? ;
+
+-- name: UpdateFile :one
+UPDATE files
+SET filename = ?,
+updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+RETURNING * ;
 
 -- name: DeleteFile :one
 DELETE FROM files

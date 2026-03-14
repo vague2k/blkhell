@@ -150,7 +150,7 @@ func (h *Handler) EditRelease(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	toastSuccess(w, r, "Your changes have been saved!")
+	toastSuccess(w, r, "Your changes have been saved! You may have to refresh the page to see your changes")
 }
 
 func (h *Handler) UploadReleaseAsset(w http.ResponseWriter, r *http.Request) {
@@ -177,4 +177,25 @@ func (h *Handler) UploadReleaseAsset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	toastSuccess(w, r, fmt.Sprintf("'%s' was uploaded successfully!", asset.FullFilename()))
+}
+
+func (h *Handler) DeleteRelease(w http.ResponseWriter, r *http.Request) {
+	release, err := h.config.Database.GetReleaseByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get release to upload an asset for")
+			return
+		}
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	err = h.config.Database.DeleteRelease(r.Context(), release.ID)
+	if err != nil {
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	setToastCookie(w, "deleted_release_toast_message", fmt.Sprintf("The release %s was permanently deleted.", release.Name))
+	w.Header().Set("HX-Redirect", "/band/"+release.BandID)
 }

@@ -174,6 +174,7 @@ func (q *Queries) GetFileByID(ctx context.Context, id string) (File, error) {
 const getFileByPartialName = `-- name: GetFileByPartialName :many
 ;
 
+
 SELECT id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds
 FROM files
 WHERE filename LIKE ?
@@ -445,4 +446,39 @@ func (q *Queries) GetReleaseImageFilesByID(ctx context.Context, ownerID string) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateFile = `-- name: UpdateFile :one
+;
+
+UPDATE files
+SET filename = ?,
+updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+RETURNING id, user_id, path, filename, ext, size, mimetype, owner_type, owner_id, created_at, updated_at, audio_duration_seconds
+`
+
+type UpdateFileParams struct {
+	Filename string
+	ID       string
+}
+
+func (q *Queries) UpdateFile(ctx context.Context, arg UpdateFileParams) (File, error) {
+	row := q.db.QueryRowContext(ctx, updateFile, arg.Filename, arg.ID)
+	var i File
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Path,
+		&i.Filename,
+		&i.Ext,
+		&i.Size,
+		&i.Mimetype,
+		&i.OwnerType,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AudioDurationSeconds,
+	)
+	return i, err
 }

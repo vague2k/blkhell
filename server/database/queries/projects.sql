@@ -41,6 +41,7 @@ SELECT * FROM projects WHERE created_at >= DATE('now', '-1 year');
 UPDATE projects
 SET name = ?,
 type = ?,
+status = ?,
 updated_at = CURRENT_TIMESTAMP
 WHERE id = ?
 RETURNING * ;

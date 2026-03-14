@@ -8,9 +8,13 @@ import (
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/input"
 	"github.com/vague2k/blkhell/views/templui/progress"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -21,7 +25,7 @@ templ Project(band *database.Band, release *database.Release, project *database.
 		</div>
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
-			@projectActionsDropdown(project)
+			@projectActionsDropdown(band, release, project)
 			@projectStatus(project.Status)
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
@@ -64,6 +68,7 @@ templ Project(band *database.Band, release *database.Release, project *database.
 	<script>
         (function () {
             const form = htmx.find("#file-upload-form");
+            const editProjectForm = htmx.find("#edit-project-form");
             const uploadBtn = htmx.find("#dropdown-upload-button");
             const imageGallery = htmx.find("#project-assets-image-gallery");
 
@@ -86,6 +91,21 @@ templ Project(band *database.Band, release *database.Release, project *database.
                 }
             });
 
+            // refresh gallery when image is edited
+            htmx.on("htmx:afterRequest", function (evt) {
+                if (evt.detail.elt && evt.detail.elt.getAttribute("hx-put")) {
+                    imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    window.tui.dialog.close("edit-image-dialog")
+                }
+            });
+
+            // closes edit project dialog
+            htmx.on(editProjectForm, "htmx:afterRequest", function (evt) {
+                if (evt.target.id === "edit-project-form") {
+                    window.tui.dialog.close("edit-project-dialog")
+                }
+            });
+
             // progress bar
             const progressContainer = htmx.find("#upload-progress-container");
             const progressBar = htmx.find("#upload-progress-bar");
@@ -100,7 +120,7 @@ templ Project(band *database.Band, release *database.Release, project *database.
     </script>
 }
 
-templ projectActionsDropdown(project *database.Project) {
+templ projectActionsDropdown(band *database.Band, release *database.Release, project *database.Project) {
 	@dropdown.Dropdown(dropdown.Props{
 		ID: "project-actions-dropdown",
 	}) {
@@ -136,6 +156,201 @@ templ projectActionsDropdown(project *database.Project) {
 					Edit Project
 				</span>
 			}
+			@dropdown.Separator()
+			@dropdown.Item(dropdown.ItemProps{
+				ID: "dropdown-delete-project-button",
+			}) {
+				<span class="flex items-center gap-2">
+					@icon.X(icon.Props{Size: 14})
+					Delete Project
+				</span>
+			}
+		}
+	}
+	@editProjectDialog(band, release, project)
+	@deleteProjectDialog(project)
+	<script>
+        (function () {
+            // opening modals in dropdowns don't work well
+            // by itself, gotta do it via js api
+            const editProjectBtn = htmx.find("#dropdown-edit-project-button");
+            const deleteProjectBtn = htmx.find("#dropdown-delete-project-button");
+
+            editProjectBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("edit-project-dialog")
+            });
+            deleteProjectBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("delete-project-dialog")
+            });
+        })();
+	</script>
+}
+
+templ editProjectDialog(band *database.Band, release *database.Release, project *database.Project) {
+	@dialog.Dialog(dialog.Props{
+		ID: "edit-project-dialog",
+	}) {
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Edit Project
+				}
+				@dialog.Description() {
+					{ fmt.Sprintf("This is a %s project for the release '%s' by the band %s", project.Type, release.Name, band.Name) }
+				}
+			}
+			<form
+				id="edit-project-form"
+				hx-put={ fmt.Sprintf("/actions/project/%s/edit", project.ID) }
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Project Name
+							}
+							@input.Input(input.Props{
+								ID:          "project-name-input",
+								Type:        input.TypeText,
+								Name:        "project-name",
+								Value:       project.Name,
+								Placeholder: "Falling Blossom Emotion",
+							})
+						}
+					</div>
+					<!-- Row 2 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Project Type
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "project-type-selector",
+									Form: "edit-project-form",
+									Name: "project-type",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "CD"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeCD}) {
+										CD
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeMerch}) {
+										Merch
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeTapes}) {
+										Tapes
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeVinyl}) {
+										Vinyl
+									}
+								}
+							}
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Project Status
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "project-status-selector",
+									Form: "edit-project-form",
+									Name: "project-status",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "In Progress"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusDone}) {
+										<span class="flex items-center gap-2">
+											<span class="p-1 bg-green-500 rounded-full"></span>
+											Done
+										</span>
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusInProgress}) {
+										<span class="flex items-center gap-2">
+											<span class="p-1 bg-primary rounded-full"></span>
+											In Progress
+										</span>
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusPending}) {
+										<span class="flex items-center gap-2">
+											<span class="p-1 bg-yellow-500 rounded-full"></span>
+											To Do
+										</span>
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Edit Project
+					}
+				}
+			</form>
+		}
+	}
+}
+
+templ deleteProjectDialog(project *database.Project) {
+	@dialog.Dialog(dialog.Props{
+		ID: "delete-project-dialog",
+	}) {
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-xl",
+		}) {
+			<form
+				hx-delete={ fmt.Sprintf("/actions/project/%s/delete", project.ID) }
+				hx-target="#global-toast"
+			>
+				@dialog.Header() {
+					@dialog.Title() {
+						Delete { project.Name }
+					}
+					@dialog.Description() {
+						<span class="text-destructive">
+							This action is permanent and cannot be undone.
+						</span>
+						<span class="text-destructive">
+							Deleting this band WILL delete { project.Name }.
+						</span>
+						Are you sure you want to delete { project.Name }?
+					}
+				}
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantDestructive,
+						Type:    button.TypeSubmit,
+					}) {
+						Delete Project
+					}
+				}
+			</form>
 		}
 	}
 }
@@ -190,7 +405,9 @@ templ projectBreadcrumbs(band *database.Band, release *database.Release, project
 				}
 				@breadcrumb.Separator()
 				@breadcrumb.Item() {
-					@breadcrumb.Page() {
+					@breadcrumb.Link(breadcrumb.LinkProps{
+						Href: fmt.Sprintf("/release/%s", release.ID),
+					}) {
 						{ release.Name }
 					}
 				}
@@ -208,7 +425,7 @@ templ projectBreadcrumbs(band *database.Band, release *database.Release, project
 templ projectStatus(status string) {
 	if status == data.ProjectStatusDone {
 		<span class="flex items-center bg-green-500 gap-2 rounded-lg px-2.5 h-8 text-sm">
-			Complete
+			Done
 		</span>
 	}
 	if status == data.ProjectStatusInProgress {
