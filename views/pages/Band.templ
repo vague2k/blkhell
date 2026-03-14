@@ -2,13 +2,18 @@ package pages
 
 import (
 	"fmt"
+	"github.com/vague2k/blkhell/server/data"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
 	"github.com/vague2k/blkhell/views/templui/breadcrumb"
 	"github.com/vague2k/blkhell/views/templui/button"
+	"github.com/vague2k/blkhell/views/templui/dialog"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
+	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -182,27 +187,25 @@ templ bandActionsDropdown(band *database.Band) {
 			}
 			@dropdown.Separator()
 			@dropdown.Item(dropdown.ItemProps{
-				ID: "dropdown-add-release-button",
+				ID: "dropdown-delete-band-button",
 			}) {
 				<span class="flex items-center gap-2">
 					@icon.X(icon.Props{Size: 14})
-					Remove
+					Delete Band
 				</span>
 			}
 		}
 	}
-	@components.AddReleaseDialog(components.AddReleaseDialogProps{
-		For: band,
-	})
-	@components.EditBandDialog(components.EditBandDialogProps{
-		For: band,
-	})
+	@addReleaseDialog(band)
+	@editBandDialog(band)
+	@deleteBandDialog(band)
 	<script>
         (function () {
             // opening modals in dropdowns don't work well
             // by itself, gotta do it via js api
             const addReleaseBtn = htmx.find("#dropdown-add-release-button");
             const editBandBtn = htmx.find("#dropdown-edit-band-button");
+            const deleteBandBtn = htmx.find("#dropdown-delete-band-button");
 
             addReleaseBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -212,57 +215,259 @@ templ bandActionsDropdown(band *database.Band) {
                 e.preventDefault();
                 window.tui.dialog.open("edit-band-dialog")
             });
+            deleteBandBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.tui.dialog.open("delete-band-dialog")
+            });
         })();
     </script>
 }
 
-templ labelAssetsBreadcrumbs() {
-	<!-- Mobile view (simplified with ellipsis) -->
-	<div class="md:hidden">
-		@breadcrumb.Breadcrumb() {
-			@breadcrumb.List() {
-				@breadcrumb.Item() {
-					@breadcrumb.Link(breadcrumb.LinkProps{
-						Href: "/",
-					}) {
-						Home
-					}
+templ addReleaseDialog(band *database.Band) {
+	@dialog.Dialog(dialog.Props{
+		ID: "add-release-dialog",
+	}) {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					New Release for { band.Name }
 				}
-				@breadcrumb.Separator()
-				@breadcrumb.Item() {
-					@breadcrumb.Link(breadcrumb.LinkProps{
-						Href: "#",
-					}) {
-						...
-					}
-				}
-				@breadcrumb.Separator()
-				@breadcrumb.Item() {
-					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
-						Label Assets
-					}
+				@dialog.Description() {
+					Add a new release for { band.Name }. Optionally add a project for this release as well.
 				}
 			}
-		}
-	</div>
-	<!-- Desktop view (full breadcrumb) -->
-	<div class="hidden md:block">
-		@breadcrumb.Breadcrumb() {
-			@breadcrumb.List() {
-				@breadcrumb.Item() {
-					@breadcrumb.Link(breadcrumb.LinkProps{
-						Href: "/",
+			<form
+				id="add-release-form"
+				hx-post={ fmt.Sprintf("/actions/release/create/%s", band.ID) }
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								<span class="flex items-center gap-1">
+									Release Name
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
+							}
+							@input.Input(input.Props{
+								ID:          "release-name-input",
+								Type:        input.TypeText,
+								Name:        "release-name",
+								Placeholder: "Falling Blossom Emotion",
+							})
+						}
+					</div>
+					<!-- Row 2 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								<span class="flex items-center gap-1">
+									Release Type
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-type-selector",
+									Form: "add-release-form",
+									Name: "release-type",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "Album"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeAlbum}) {
+										Album
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeEP}) {
+										EP
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeSingle}) {
+										Single
+									}
+									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeComp}) {
+										Comp
+									}
+								}
+							}
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								<span class="flex items-center gap-1">
+									Release No.
+									<span class="text-sm text-muted-foreground">(required)</span>
+								</span>
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "release-number-selector",
+									Form: "add-release-form",
+									Name: "release-number",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "000"})
+								}
+								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
+									for i := 1; i <= 100; i++ {
+										@selectbox.Item(selectbox.ItemProps{
+											Value: fmt.Sprintf("%d", i),
+										}) {
+											{ fmt.Sprintf("BH-%d", i) }
+										}
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
 					}) {
-						Home
+						Create Release
 					}
 				}
-				@breadcrumb.Separator()
-				@breadcrumb.Item() {
-					@breadcrumb.Page(breadcrumb.ItemProps{Current: true}) {
-						Label Assets
-					}
+			</form>
+		}
+	}
+}
+
+templ editBandDialog(band *database.Band) {
+	@dialog.Dialog(dialog.Props{
+		ID: "edit-band-dialog",
+	}) {
+		@dialog.Trigger() {
+			{ children... }
+		}
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-2xl",
+		}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Edit details for { band.Name }
 				}
 			}
+			<form
+				id="edit-band-form"
+				hx-put={ fmt.Sprintf("/actions/bands/%s/edit", band.ID) }
+				hx-target="#global-toast"
+				class="flex flex-col gap-3 w-full"
+			>
+				<div class="flex flex-col items-center w-full gap-2">
+					<!-- Row 1 -->
+					<div class="flex flex-col sm:flex-row items-stretch w-full gap-2">
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Band Name
+							}
+							@input.Input(input.Props{
+								ID:          "band-name-input",
+								Form:        "edit-band-form",
+								Type:        input.TypeText,
+								Name:        "band-name",
+								Value:       band.Name,
+								Placeholder: "Ties by Miles",
+							})
+						}
+						@form.Item(form.ItemProps{Class: "w-full"}) {
+							@form.Label() {
+								Country
+							}
+							@selectbox.SelectBox() {
+								@selectbox.Trigger(selectbox.TriggerProps{
+									ID:   "country-selector",
+									Form: "edit-band-form",
+									Name: "band-country",
+								}) {
+									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
+								}
+								@selectbox.Content() {
+									for _, code := range data.SortCountryMap() {
+										{{ name := data.Countries[code] }}
+										@selectbox.Item(selectbox.ItemProps{
+											Value: code,
+										}) {
+											{ code + " - " + name }
+										}
+									}
+								}
+							}
+						}
+					</div>
+				</div>
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
+						Save Changes
+					}
+				}
+			</form>
 		}
-	</div>
+	}
+}
+
+templ deleteBandDialog(band *database.Band) {
+	@dialog.Dialog(dialog.Props{
+		ID: "delete-band-dialog",
+	}) {
+		@dialog.Content(dialog.ContentProps{
+			Class: "sm:max-w-xl",
+		}) {
+			<form
+				hx-delete={ fmt.Sprintf("/actions/bands/%s/delete", band.ID) }
+				hx-target="#global-toast"
+			>
+				@dialog.Header() {
+					@dialog.Title() {
+						Delete { band.Name }
+					}
+					@dialog.Description() {
+						<span class="text-destructive">
+							This action is permanent and cannot be undone.
+						</span>
+						<span class="text-destructive">
+							Deleting this band WILL delete { band.Name }'s release and projects.
+						</span>
+						Are you sure you want to delete { band.Name } from the roster?
+					}
+				}
+				@dialog.Footer(dialog.FooterProps{Class: "mt-3 sm:justify-start"}) {
+					@dialog.Close() {
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+						}) {
+							Cancel
+						}
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantDestructive,
+						Type:    button.TypeSubmit,
+					}) {
+						Delete Band
+					}
+				}
+			</form>
+		}
+	}
 }

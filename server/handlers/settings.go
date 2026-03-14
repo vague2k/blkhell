@@ -75,7 +75,8 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		toastSuccess(w, r, "Your changes have been saved! You must refresh the page and log in again with your new password.")
+		setToastCookie(w, "changed_password_toast_message", "You set a new password! You must log in again.")
+		w.Header().Set("HX-Redirect", "/login")
 		return
 	}
 

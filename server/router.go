@@ -43,6 +43,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			r.Route("/bands", func(r chi.Router) {
 				r.Post("/create", h.CreateBand)
 				r.Put("/{id}/edit", h.EditBand)
+				r.Delete("/{id}/delete", h.DeleteBand)
 			})
 
 			// ---------- release actions ----------
@@ -92,6 +93,10 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 				r.Get("/release-table", h.HXBandsReleaseTable)
 				r.Get("/projects-table", h.HXBandProjectsTable)
 				// r.Get("/{id}/search-image-gallery", )
+			})
+
+			r.Route("/releases/{id}", func(r chi.Router) {
+				r.Get("/projects-table", h.HXReleaseProjectsTable)
 			})
 		})
 	})

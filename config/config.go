@@ -71,6 +71,11 @@ func (c *Config) openDB() (*sql.DB, error) {
 		return nil, fmt.Errorf("could not open db: %w", err)
 	}
 
+	_, err = db.Exec("PRAGMA foreign_keys = 1")
+	if err != nil {
+		return nil, fmt.Errorf("failed to enable foreign keys: %w", err)
+	}
+
 	return db, nil
 }
 

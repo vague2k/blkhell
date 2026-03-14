@@ -5,8 +5,9 @@ import "github.com/vague2k/blkhell/views/templui/table"
 import "github.com/vague2k/blkhell/server/database"
 
 import "github.com/vague2k/blkhell/views/templui/badge"
+import "github.com/vague2k/blkhell/server/data"
 
-templ BandProjectsTable(projects []database.Project) {
+templ ProjectsTable(projects []database.Project) {
 	@table.Table(table.Props{
 		Class: "p-4",
 	}) {
@@ -19,6 +20,9 @@ templ BandProjectsTable(projects []database.Project) {
 			}
 			@table.Head() {
 				Type
+			}
+			@table.Head() {
+				Status
 			}
 			@table.Head() {
 				Added
@@ -43,10 +47,37 @@ templ BandProjectsTable(projects []database.Project) {
 						}
 					}
 					@table.Cell() {
+						@projectStatus(project.Status)
+					}
+					@table.Cell() {
 						{ project.CreatedAt.Format("2006-01-02") }
 					}
 				}
 			}
+		}
+	}
+}
+
+templ projectStatus(status string) {
+	if status == data.ProjectStatusDone {
+		@badge.Badge(badge.Props{
+			Class: "bg-green-500 text-white",
+		}) {
+			{ status }
+		}
+	}
+	if status == data.ProjectStatusInProgress {
+		@badge.Badge(badge.Props{
+			Class: "bg-primary text-white",
+		}) {
+			{ status }
+		}
+	}
+	if status == data.ProjectStatusPending {
+		@badge.Badge(badge.Props{
+			Class: "bg-yellow-500 text-white",
+		}) {
+			{ status }
 		}
 	}
 }

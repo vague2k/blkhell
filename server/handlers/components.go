@@ -17,7 +17,7 @@ func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) 
 }
 
 func (h *Handler) HXSidebarBandsDropdown(w http.ResponseWriter, r *http.Request) {
-	bands, err := h.config.Database.GetBands(r.Context())
+	bands, err := h.config.Database.GetActiveBands(r.Context())
 	if err != nil {
 		toastError(w, r, errors.ErrDb.Error())
 		return

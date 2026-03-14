@@ -2,7 +2,7 @@
 SELECT
     (SELECT COUNT(*) FROM files WHERE owner_type = 'label')
         AS label_assets_count,
-    (SELECT COUNT(*) FROM bands) AS bands_count,
+    (SELECT COUNT(*) FROM bands WHERE bands.removed = 0) AS bands_count,
     (SELECT COUNT(*) FROM releases) AS releases_count,
     (SELECT COUNT(*) FROM projects) AS projects_count,
 
@@ -35,5 +35,6 @@ SELECT
 FROM bands b
 LEFT JOIN releases r ON b.id = r.band_id
 LEFT JOIN projects p ON b.id = p.band_id
+WHERE b.removed = 0
 GROUP BY b.id, b.name, b.country, b.created_at
 ORDER BY b.created_at DESC;

@@ -12,6 +12,7 @@ func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 		return
 	}
+	toastCookieSuccess(w, r, "changed_password_toast_message")
 	pages.Login().Render(r.Context(), w)
 }
 

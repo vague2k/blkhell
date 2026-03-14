@@ -31,18 +31,26 @@ templ Release(band *database.Band, release *database.Release) {
 			@components.UploadForm(components.UploadFormProps{
 				HxPost: fmt.Sprintf("/actions/files/releases/%s/upload", release.ID),
 			})
+			<span
+				id="release-projects-count"
+				class="font-light text-muted-foreground text-sm"
+			>
+				0 PROJECTS
+			</span>
+			<div
+				id="dashboard-roster-table"
+				hx-get={ fmt.Sprintf("/hx/releases/%s/projects-table", release.ID) }
+				hx-trigger="load, refreshTable"
+				hx-target="this"
+				class="w-full overflow-y-auto border rounded-lg"
+			></div>
 		</div>
 	}
 	<script>
         (function () {
             const fileUploadForm = htmx.find("#file-upload-form");
-            const uploadAudioBtn = htmx.find("#dropdown-upload-audio-button");
             const uploadBtn = htmx.find("#dropdown-upload-button");
 
-            uploadAudioBtn.addEventListener("click", (e) => {
-                e.preventDefault();
-                input.click();
-            });
             uploadBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 input.click();
@@ -71,14 +79,6 @@ templ releaseActionsDropdown(release *database.Release) {
 				Actions
 			}
 			@dropdown.Separator()
-			@dropdown.Item(dropdown.ItemProps{
-				ID: "dropdown-upload-audio-button",
-			}) {
-				<span class="flex items-center gap-2">
-					@icon.Upload(icon.Props{Size: 14})
-					Upload Audio
-				</span>
-			}
 			@dropdown.Item(dropdown.ItemProps{
 				ID: "dropdown-upload-button",
 			}) {

@@ -10,7 +10,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/table"
 )
 
-templ BandReleasesTable(releases []database.Release) {
+templ ReleasesTable(releases []database.Release) {
 	@table.Table(table.Props{
 		Class: "p-4",
 	}) {

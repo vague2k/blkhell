@@ -46,13 +46,52 @@ func (q *Queries) CreateBand(ctx context.Context, arg CreateBandParams) (Band, e
 }
 
 const deleteBand = `-- name: DeleteBand :exec
-DELETE FROM bands
-WHERE id = ?
+;
+
+DELETE FROM bands WHERE id = ?
 `
 
 func (q *Queries) DeleteBand(ctx context.Context, id string) error {
 	_, err := q.db.ExecContext(ctx, deleteBand, id)
 	return err
+}
+
+const getActiveBands = `-- name: GetActiveBands :many
+;
+
+SELECT id, name, country, created_at, updated_at, removed FROM bands
+WHERE removed = 0
+ORDER BY name
+`
+
+func (q *Queries) GetActiveBands(ctx context.Context) ([]Band, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveBands)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Band
+	for rows.Next() {
+		var i Band
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Country,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Removed,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getBandByID = `-- name: GetBandByID :one
@@ -147,6 +186,28 @@ func (q *Queries) GetBandsFromPreviousYear(ctx context.Context) ([]Band, error) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeBand = `-- name: RemoveBand :one
+UPDATE bands
+SET removed = 1,
+updated_at = CURRENT_TIMESTAMP
+WHERE id = ?
+RETURNING id, name, country, created_at, updated_at, removed
+`
+
+func (q *Queries) RemoveBand(ctx context.Context, id string) (Band, error) {
+	row := q.db.QueryRowContext(ctx, removeBand, id)
+	var i Band
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Country,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Removed,
+	)
+	return i, err
 }
 
 const updateBand = `-- name: UpdateBand :one

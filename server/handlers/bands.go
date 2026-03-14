@@ -35,7 +35,7 @@ func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	components.BandReleasesTable(releases).Render(r.Context(), w)
+	components.ReleasesTable(releases).Render(r.Context(), w)
 	fmt.Fprintf(
 		w,
 		`<span id="band-releases-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d RELEASES</span>`,
@@ -50,7 +50,7 @@ func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	components.BandProjectsTable(projects).Render(r.Context(), w)
+	components.ProjectsTable(projects).Render(r.Context(), w)
 	if len(projects) > 0 {
 		fmt.Fprintf(
 			w,
@@ -152,4 +152,25 @@ func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
 	}
 
 	toastSuccess(w, r, fmt.Sprintf("'%s' was uploaded successfully!", asset.FullFilename()))
+}
+
+func (h *Handler) DeleteBand(w http.ResponseWriter, r *http.Request) {
+	band, err := h.config.Database.GetBandByID(r.Context(), chi.URLParam(r, "id"))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			toastError(w, r, "Could not get band to delete")
+			return
+		}
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	err = h.config.Database.DeleteBand(r.Context(), band.ID)
+	if err != nil {
+		toastError(w, r, serverErrors.ErrDb.Error())
+		return
+	}
+
+	setToastCookie(w, "deleted_band_toast_message", fmt.Sprintf("The band %s was permanently deleted.", band.Name))
+	w.Header().Set("HX-Redirect", "/")
 }
