@@ -7,7 +7,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
-	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/progress"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -35,28 +35,36 @@ templ LabelAssets() {
 		<div class="p-2 bg-background z-10 top-0 sticky flex items-center gap-1 border border-transparent border-b-border">
 			@sidebar.Trigger()
 			@labelActionsDropdown()
-			@input.Input(input.Props{
-				Name:        "q",
-				Placeholder: "Search images...",
-				Class:       "max-w-md",
-				Attributes: templ.Attributes{
-					"hx-get":     "/hx/label-assets/search-image-gallery",
-					"hx-trigger": "keyup changed delay:300ms",
-					"hx-target":  "#label-assets-image-gallery",
-				},
-			})
 		</div>
 		<div class="p-4 flex flex-col border border-transparent border-b-border">
-			<h1 class="text-3xl tracking-wider font-unison">Blackheaven Assets</h1>
+			<h1 class="text-4xl tracking-tight font-semibold">Blackheaven Assets</h1>
 			<p class="text-muted-foreground text-sm">
 				A central location for all our logos, assets, etc.
 			</p>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
 			@components.UploadForm(components.UploadFormProps{
-				HxPost: "/actions/files/label/upload",
+				HxPost:      "/actions/files/label/upload",
+				HxIndicator: "#upload-progress-container",
 			})
-			<span id="label-assets-image-count"></span>
+			<div class="flex items-center gap-2 w-full">
+				<span id="label-assets-image-count"></span>
+				<div
+					id="upload-progress-container"
+					class="htmx-indicator w-full max-w-lg"
+				>
+					<span class="flex items-center">
+						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						<span class="text-sm min-w-24">
+							Uploading file
+						</span>
+						@progress.Progress(progress.Props{
+							ID:    "upload-progress-bar",
+							Class: "ml-1",
+						})
+					</span>
+				</div>
+			</div>
 			<div
 				id="label-assets-image-gallery"
 				hx-get="/hx/label-assets/image-gallery"
@@ -71,6 +79,7 @@ templ LabelAssets() {
                 const form = htmx.find("#file-upload-form");
                 const input = htmx.find("#file-upload-form-input");
                 const uploadBtn = htmx.find("#dropdown-upload-button");
+                const imageGallery = htmx.find("#label-assets-image-gallery");
 
                 uploadBtn.addEventListener("click", (e) => {
                     e.preventDefault();
@@ -87,6 +96,17 @@ templ LabelAssets() {
                 htmx.on("htmx:afterRequest", function (evt) {
                     if (evt.detail.elt && evt.detail.elt.getAttribute("hx-delete")) {
                         imageGallery.dispatchEvent(new Event("refreshGallery"));
+                    }
+                });
+
+                // progress bar
+                const progressContainer = htmx.find("#upload-progress-container");
+                const progressBar = htmx.find("#upload-progress-bar");
+
+                htmx.on(form, "htmx:xhr:progress", function (evt) {
+                    if (evt.detail.lengthComputable) {
+                        const percent = (evt.detail.loaded / evt.detail.total) * 100;
+                        progressBar.setAttribute("aria-valuenow", percent);
                     }
                 });
             })();
@@ -107,13 +127,13 @@ templ labelActionsDropdown() {
 					<span id="band-actions-dropdown-button-icon" class="transition-transform duration-200">
 						@icon.ChevronDown(icon.Props{Size: 10})
 					</span>
-					Actions
+					Label Actions
 				</span>
 			}
 		}
 		@dropdown.Content() {
 			@dropdown.Label() {
-				Actions
+				Label Actions
 			}
 			@dropdown.Separator()
 			@dropdown.Item(dropdown.ItemProps{

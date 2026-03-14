@@ -9,6 +9,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/button"
 	"github.com/vague2k/blkhell/views/templui/dropdown"
 	"github.com/vague2k/blkhell/views/templui/icon"
+	"github.com/vague2k/blkhell/views/templui/progress"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
 
@@ -31,6 +32,31 @@ templ Release(band *database.Band, release *database.Release) {
 			@components.UploadForm(components.UploadFormProps{
 				HxPost: fmt.Sprintf("/actions/files/releases/%s/upload", release.ID),
 			})
+			<div class="flex items-center gap-2 w-full">
+				<span id="release-assets-image-count"></span>
+				<div
+					id="upload-progress-container"
+					class="htmx-indicator w-full max-w-lg"
+				>
+					<span class="flex items-center">
+						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						<span class="text-sm min-w-24">
+							Uploading file
+						</span>
+						@progress.Progress(progress.Props{
+							ID:    "upload-progress-bar",
+							Class: "ml-1",
+						})
+					</span>
+				</div>
+			</div>
+			<div
+				id="release-assets-image-gallery"
+				hx-get={ fmt.Sprintf("/hx/releases/%s/image-gallery", band.ID) }
+				hx-trigger="load, refreshGallery"
+				hx-target="this"
+				class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"
+			></div>
 			<span
 				id="release-projects-count"
 				class="font-light text-muted-foreground text-sm"
@@ -70,13 +96,13 @@ templ releaseActionsDropdown(release *database.Release) {
 			}) {
 				<span class="flex items-center gap-1">
 					@icon.ChevronDown(icon.Props{Size: 10})
-					Actions
+					Release Actions
 				</span>
 			}
 		}
 		@dropdown.Content() {
 			@dropdown.Label() {
-				Actions
+				Release Actions
 			}
 			@dropdown.Separator()
 			@dropdown.Item(dropdown.ItemProps{

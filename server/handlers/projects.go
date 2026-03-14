@@ -17,11 +17,18 @@ func (h *Handler) HXReleaseProjectsTable(w http.ResponseWriter, r *http.Request)
 	}
 
 	components.ProjectsTable(projects).Render(r.Context(), w)
-	if len(projects) > 0 {
+
+	count := len(projects)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="release-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No projects to show yet</span>`,
+		)
+	} else {
 		fmt.Fprintf(
 			w,
-			`<span id="release-projects-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d PROJECTS</span>`,
-			len(projects),
+			`<span id="release-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d PROJECTS</span>`,
+			count,
 		)
 	}
 }

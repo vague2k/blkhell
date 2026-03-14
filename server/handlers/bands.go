@@ -25,6 +25,7 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 		toastError(w, r, serverErrors.ErrDb.Error())
 		return
 	}
+
 	pages.Band(&band).Render(r.Context(), w)
 }
 
@@ -36,11 +37,20 @@ func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
 	}
 
 	components.ReleasesTable(releases).Render(r.Context(), w)
-	fmt.Fprintf(
-		w,
-		`<span id="band-releases-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d RELEASES</span>`,
-		len(releases),
-	)
+
+	count := len(releases)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="band-releases-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No releases to show yet</span>`,
+		)
+	} else {
+		fmt.Fprintf(
+			w,
+			`<span id="band-releases-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d RELEASES</span>`,
+			count,
+		)
+	}
 }
 
 func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
@@ -51,11 +61,17 @@ func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
 	}
 
 	components.ProjectsTable(projects).Render(r.Context(), w)
-	if len(projects) > 0 {
+	count := len(projects)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="band-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No projects to show yet</span>`,
+		)
+	} else {
 		fmt.Fprintf(
 			w,
-			`<span id="band-projects-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d PROJECTS</span>`,
-			len(projects),
+			`<span id="band-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d PROJECTS</span>`,
+			count,
 		)
 	}
 }
@@ -145,7 +161,7 @@ func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(r, user.ID, band.ID, "band")
+	asset, err := h.FilesService.Upload(w, r, user.ID, band.ID, "band")
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

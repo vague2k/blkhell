@@ -13,6 +13,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/form"
 	"github.com/vague2k/blkhell/views/templui/icon"
 	"github.com/vague2k/blkhell/views/templui/input"
+	"github.com/vague2k/blkhell/views/templui/progress"
 	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
 )
@@ -47,17 +48,33 @@ templ Band(band *database.Band) {
 				<h1 class="text-4xl font-inter tracking-tight font-semibold">{ band.Name }</h1>
 				<h1 class="text-xl font-inter text-muted-foreground tracking-tight font-semibold">({ band.FullCountry() })</h1>
 			</span>
+			<p class="text-muted-foreground text-sm">
+				See details for { band.Name } here
+			</p>
 		</div>
 		<div class="p-4 flex flex-col gap-4 w-full h-full">
 			@components.UploadForm(components.UploadFormProps{
-				HxPost: fmt.Sprintf("/actions/files/bands/%s/upload", band.ID),
+				HxPost:      fmt.Sprintf("/actions/files/bands/%s/upload", band.ID),
+				HxIndicator: "#upload-progress-container",
 			})
-			<span
-				id="band-assets-image-count"
-				class="hidden font-light text-muted-foreground text-sm"
-			>
-				0 ASSETS
-			</span>
+			<div class="flex items-center gap-2 w-full">
+				<span id="band-assets-image-count"></span>
+				<div
+					id="upload-progress-container"
+					class="htmx-indicator w-full max-w-lg"
+				>
+					<span class="flex items-center">
+						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						<span class="text-sm min-w-24">
+							Uploading file
+						</span>
+						@progress.Progress(progress.Props{
+							ID:    "upload-progress-bar",
+							Class: "ml-1",
+						})
+					</span>
+				</div>
+			</div>
 			<div
 				id="band-assets-image-gallery"
 				hx-get={ fmt.Sprintf("/hx/bands/%s/image-gallery", band.ID) }
@@ -68,12 +85,7 @@ templ Band(band *database.Band) {
 			></div>
 			<div class="flex flex-col xl:flex-row gap-4">
 				<div class="flex-1 flex-col gap-2">
-					<span
-						id="band-releases-count"
-						class="font-light text-muted-foreground text-sm"
-					>
-						0 RELEASES
-					</span>
+					<span id="band-releases-count"></span>
 					<div
 						id="band-releases-table"
 						hx-get={ fmt.Sprintf("/hx/bands/%s/release-table", band.ID) }
@@ -84,12 +96,7 @@ templ Band(band *database.Band) {
 					></div>
 				</div>
 				<div class="flex-1 flex-col gap-2">
-					<span
-						id="band-projects-count"
-						class="font-light text-muted-foreground text-sm"
-					>
-						0 PROJECTS
-					</span>
+					<span id="band-projects-count"></span>
 					<div
 						id="band-projects-table"
 						hx-get={ fmt.Sprintf("/hx/bands/%s/projects-table", band.ID) }
@@ -104,8 +111,8 @@ templ Band(band *database.Band) {
 		<script>
             (function () {
                 const fileUploadForm = htmx.find("#file-upload-form");
-                const addReleaseForm = htmx.find("#add-release-form");
                 const input = htmx.find("#file-upload-form-input");
+                const addReleaseForm = htmx.find("#add-release-form");
                 const uploadBtn = htmx.find("#dropdown-upload-button");
                 const imageGallery = htmx.find("#band-assets-image-gallery");
                 const releasesTable = htmx.find("#band-releases-table");
@@ -136,6 +143,17 @@ templ Band(band *database.Band) {
                         window.tui.dialog.close("add-release-dialog")
                     }
                 });
+
+                // progress bar
+                const progressContainer = htmx.find("#upload-progress-container");
+                const progressBar = htmx.find("#upload-progress-bar");
+
+                htmx.on(form, "htmx:xhr:progress", function (evt) {
+                    if (evt.detail.lengthComputable) {
+                        const percent = (evt.detail.loaded / evt.detail.total) * 100;
+                        progressBar.setAttribute("aria-valuenow", percent);
+                    }
+                });
             })();
         </script>
 	}
@@ -152,13 +170,13 @@ templ bandActionsDropdown(band *database.Band) {
 			}) {
 				<span class="flex items-center gap-1">
 					@icon.ChevronDown(icon.Props{Size: 10})
-					Actions
+					Band Actions
 				</span>
 			}
 		}
 		@dropdown.Content() {
 			@dropdown.Label() {
-				Actions
+				Band Actions
 			}
 			@dropdown.Separator()
 			@dropdown.Item(dropdown.ItemProps{

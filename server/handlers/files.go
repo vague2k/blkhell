@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
@@ -21,11 +20,20 @@ func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
-	fmt.Fprintf(
-		w,
-		`<span id="label-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
-		len(images),
-	)
+
+	count := len(images)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="label-assets-image-count" hx-swap-oob="true"></span>`,
+		)
+	} else {
+		fmt.Fprintf(
+			w,
+			`<span id="label-assets-image-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d ASSETS</span>`,
+			count,
+		)
+	}
 }
 
 func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
@@ -35,30 +43,43 @@ func (h *Handler) HXBandsAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	components.ImageGallery(images).Render(r.Context(), w)
-	fmt.Fprintf(
-		w,
-		`<span id="band-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
-		len(images),
-	)
+
+	count := len(images)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="band-assets-image-count" hx-swap-oob="true"></span>`,
+		)
+	} else {
+		fmt.Fprintf(
+			w,
+			`<span id="band-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+			count,
+		)
+	}
 }
 
-func (h *Handler) HXSearchLabelAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
-	input := r.URL.Query().Get("q")
-	images, err := h.config.Database.GetFileByPartialName(r.Context(), database.GetFileByPartialNameParams{
-		Filename: "%" + input + "%",
-		Ext:      "%" + input + "%",
-	})
+func (h *Handler) HXReleaseAssetsImageGallery(w http.ResponseWriter, r *http.Request) {
+	images, err := h.config.Database.GetReleaseImageFilesByID(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
-		toastError(w, r, "Search for asset image failed")
+		toastError(w, r, "Could not get releases images to display")
 		return
 	}
-
 	components.ImageGallery(images).Render(r.Context(), w)
-	fmt.Fprintf(
-		w,
-		`<span id="label-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
-		len(images),
-	)
+
+	count := len(images)
+	if count <= 0 {
+		fmt.Fprint(
+			w,
+			`<span id="release-assets-image-count" hx-swap-oob="true"></span>`,
+		)
+	} else {
+		fmt.Fprintf(
+			w,
+			`<span id="release-assets-image-count" hx-swap-oob="true" class="font-light text-muted-foreground text-sm">%d ASSETS</span>`,
+			count,
+		)
+	}
 }
 
 func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
@@ -68,7 +89,7 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(r, user.ID, "label", "label")
+	asset, err := h.FilesService.Upload(w, r, user.ID, "label", "label")
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

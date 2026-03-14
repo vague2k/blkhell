@@ -85,18 +85,19 @@ func (s *FilesService) DeleteFile(ctx context.Context, id string) (*database.Fil
 	return &file, nil
 }
 
-func (s *FilesService) Upload(r *http.Request, userID, ownerID, ownerType string) (*database.File, error) {
+func (s *FilesService) Upload(w http.ResponseWriter, r *http.Request, userID, ownerID, ownerType string) (*database.File, error) {
 	// max file size: 100MB
-	// r.Body = http.MaxBytesReader(w, r.Body, 100<<20) // aggresively strict max size
-	if err := r.ParseMultipartForm(100 << 20); err != nil {
-		return nil, errors.New("The uploaded file is too big. Please choose an file that's less than 100MB in size")
-	}
+	r.Body = http.MaxBytesReader(w, r.Body, 100<<20+1)
 
 	file, fileHeader, err := r.FormFile("file")
 	if err != nil {
 		return nil, serverErrors.ErrInternal
 	}
 	defer file.Close()
+
+	if fileHeader.Size > 100<<20 {
+		return nil, errors.New("The uploaded file is too big. Please choose a file that's less than 100MB in size")
+	}
 
 	metadata, err := s.WriteToDisk(file, fileHeader)
 	if err != nil {

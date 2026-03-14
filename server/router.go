@@ -85,7 +85,6 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			// ---------- label assets page fragments ----------
 			r.Route("/label-assets", func(r chi.Router) {
 				r.Get("/image-gallery", h.HXLabelAssetsImageGallery)
-				r.Get("/search-image-gallery", h.HXSearchLabelAssetsImageGallery)
 			})
 
 			r.Route("/bands/{id}", func(r chi.Router) {
@@ -96,6 +95,7 @@ func (s *Server) RegisterRoutes(h *handlers.Handler, middleware *middleware.Midd
 			})
 
 			r.Route("/releases/{id}", func(r chi.Router) {
+				r.Get("/image-gallery", h.HXReleaseAssetsImageGallery)
 				r.Get("/projects-table", h.HXReleaseProjectsTable)
 			})
 		})

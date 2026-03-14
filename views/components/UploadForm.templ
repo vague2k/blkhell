@@ -1,13 +1,14 @@
 package components
 
 import "github.com/vague2k/blkhell/views/templui/icon"
-import "github.com/vague2k/blkhell/views/templui/progress"
+
 import "github.com/vague2k/blkhell/views/templui/utils"
 
 type UploadFormProps struct {
-	ID     string
-	HxPost string
-	Class  string
+	ID          string
+	HxPost      string
+	HxIndicator string
+	Class       string
 }
 
 templ UploadForm(props ...UploadFormProps) {
@@ -18,6 +19,7 @@ templ UploadForm(props ...UploadFormProps) {
 	<form
 		id="file-upload-form"
 		hx-post={ p.HxPost }
+		hx-indicator={ p.HxIndicator }
 		hx-encoding="multipart/form-data"
 		hx-trigger="submit"
 		hx-target="#global-toast"
@@ -40,21 +42,6 @@ templ UploadForm(props ...UploadFormProps) {
 			<span class="text-sm">Drop files or click to upload</span>
 		</span>
 	</form>
-	<div
-		id="upload-progress-container"
-		class="opacity-0 max-w-lg transition-all duration-200"
-	>
-		<span class="flex items-center">
-			@icon.LoaderCircle(icon.Props{Size: 20, Class: "animate-spin mr-1"})
-			<span class="text-sm min-w-24">
-				Uploading file
-			</span>
-			@progress.Progress(progress.Props{
-				ID:    "upload-progress-bar",
-				Class: "ml-1",
-			})
-		</span>
-	</div>
 	<script>
         (function () {
             const form = htmx.find("#file-upload-form");
@@ -92,31 +79,6 @@ templ UploadForm(props ...UploadFormProps) {
                     input.files = e.dataTransfer.files;
                     htmx.trigger(form, "submit");
                 }
-            });
-
-            // progress bar
-            const progressContainer = document.getElementById(
-                "upload-progress-container",
-            );
-            const progressBar = document.getElementById("upload-progress-bar");
-
-            htmx.on(form, "htmx:xhr:loadstart", function () {
-                progressContainer.classList.remove("opacity-0");
-                progressBar.setAttribute("aria-valuenow", 0);
-            });
-
-            htmx.on(form, "htmx:xhr:progress", function (evt) {
-                if (evt.detail.lengthComputable) {
-                const percent = (evt.detail.loaded / evt.detail.total) * 100;
-                progressBar.setAttribute("aria-valuenow", percent);
-                }
-            });
-
-            htmx.on(form, "htmx:xhr:loadend", function () {
-                setTimeout(() => {
-                progressContainer.classList.add("opacity-0");
-                progressBar.setAttribute("aria-valuenow", 0);
-                }, 400);
             });
         })();
     </script>
