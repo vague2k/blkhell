@@ -54,7 +54,7 @@ templ LabelAssets() {
 					class="htmx-indicator w-full max-w-lg"
 				>
 					<span class="flex items-center">
-						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						@icon.Loader(icon.Props{Class: "size-[20px] animate-spin mr-1"})
 						<span class="text-sm min-w-24">
 							Uploading file
 						</span>
@@ -132,7 +132,7 @@ templ labelActionsDropdown() {
 			}) {
 				<span class="flex items-center gap-1">
 					<span id="band-actions-dropdown-button-icon" class="transition-transform duration-200">
-						@icon.ChevronDown(icon.Props{Size: 10})
+						@icon.ChevronDown(icon.Props{Class: "size-[10px]"})
 					</span>
 					Label Actions
 				</span>
@@ -147,7 +147,7 @@ templ labelActionsDropdown() {
 				ID: "dropdown-upload-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Upload(icon.Props{Size: 14})
+					@icon.Upload(icon.Props{Class: "size-[14px]"})
 					Upload Label Asset
 				</span>
 			}

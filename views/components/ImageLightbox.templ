@@ -32,7 +32,7 @@ templ ImageLightbox(image database.File) {
 							Variant: button.VariantOutline,
 						}) {
 							<span class="flex items-center text-sm">
-								@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
+								@icon.Download(icon.Props{Class: "size-[16px] mr-1.5"})
 								Download
 							</span>
 						}
@@ -45,7 +45,7 @@ templ ImageLightbox(image database.File) {
 								"hx-target": "#global-toast",
 							},
 						}) {
-							@icon.Trash(icon.Props{Size: 16})
+							@icon.Trash(icon.Props{Class: "size-[16px]"})
 						}
 					</div>
 				</div>

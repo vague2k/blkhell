@@ -64,7 +64,7 @@ templ Band(band *database.Band) {
 					class="htmx-indicator w-full max-w-lg"
 				>
 					<span class="flex items-center">
-						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						@icon.Loader(icon.Props{Class: "size-[20px] animate-spin mr-1"})
 						<span class="text-sm min-w-24">
 							Uploading file
 						</span>
@@ -185,7 +185,7 @@ templ bandActionsDropdown(band *database.Band) {
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.ChevronDown(icon.Props{Size: 10})
+					@icon.ChevronDown(icon.Props{Class: "size-[10px]"})
 					Band Actions
 				</span>
 			}
@@ -199,7 +199,7 @@ templ bandActionsDropdown(band *database.Band) {
 				ID: "dropdown-add-release-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Plus(icon.Props{Size: 14})
+					@icon.Plus(icon.Props{Class: "size-[14px]"})
 					Create Release
 				</span>
 			}
@@ -207,7 +207,7 @@ templ bandActionsDropdown(band *database.Band) {
 				ID: "dropdown-upload-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Upload(icon.Props{Size: 14})
+					@icon.Upload(icon.Props{Class: "size-[14px]"})
 					Upload Band Asset
 				</span>
 			}
@@ -215,7 +215,7 @@ templ bandActionsDropdown(band *database.Band) {
 				ID: "dropdown-edit-band-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Pencil(icon.Props{Size: 14})
+					@icon.Pencil(icon.Props{Class: "size-[14px]"})
 					Edit Band
 				</span>
 			}
@@ -224,7 +224,7 @@ templ bandActionsDropdown(band *database.Band) {
 				ID: "dropdown-delete-band-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.X(icon.Props{Size: 14})
+					@icon.X(icon.Props{Class: "size-[14px]"})
 					Delete Band
 				</span>
 			}

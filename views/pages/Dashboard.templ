@@ -115,7 +115,7 @@ templ dashboardActionsDropdown() {
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.ChevronDown(icon.Props{Size: 10})
+					@icon.ChevronDown()
 					Actions
 				</span>
 			}
@@ -129,7 +129,7 @@ templ dashboardActionsDropdown() {
 				ID: "dropdown-add-band-button",
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.Plus(icon.Props{Size: 10})
+					@icon.Plus(icon.Props{Class: "size-[16px]"})
 					Create a band
 				</span>
 			}

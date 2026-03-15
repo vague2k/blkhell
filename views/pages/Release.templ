@@ -44,7 +44,7 @@ templ Release(band *database.Band, release *database.Release) {
 					class="htmx-indicator w-full max-w-lg"
 				>
 					<span class="flex items-center">
-						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						@icon.Loader(icon.Props{Class: "size-[20px] animate-spin mr-1"})
 						<span class="text-sm min-w-24">
 							Uploading file
 						</span>
@@ -148,7 +148,7 @@ templ releaseActionsDropdown(band *database.Band, release *database.Release) {
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.ChevronDown(icon.Props{Size: 10})
+					@icon.ChevronDown(icon.Props{Class: "size-[10px]"})
 					Release Actions
 				</span>
 			}
@@ -162,7 +162,7 @@ templ releaseActionsDropdown(band *database.Band, release *database.Release) {
 				ID: "dropdown-add-project-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Plus(icon.Props{Size: 14})
+					@icon.Plus(icon.Props{Class: "size-[14px]"})
 					Create Project
 				</span>
 			}
@@ -170,7 +170,7 @@ templ releaseActionsDropdown(band *database.Band, release *database.Release) {
 				ID: "dropdown-upload-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Upload(icon.Props{Size: 14})
+					@icon.Upload(icon.Props{Class: "size-[14px]"})
 					Upload Release Asset
 				</span>
 			}
@@ -178,7 +178,7 @@ templ releaseActionsDropdown(band *database.Band, release *database.Release) {
 				ID: "dropdown-edit-release-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Pencil(icon.Props{Size: 14})
+					@icon.Pencil(icon.Props{Class: "size-[14px]"})
 					Edit Release
 				</span>
 			}
@@ -187,7 +187,7 @@ templ releaseActionsDropdown(band *database.Band, release *database.Release) {
 				ID: "dropdown-delete-release-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.X(icon.Props{Size: 14})
+					@icon.X(icon.Props{Class: "size-[14px]"})
 					Delete Release
 				</span>
 			}

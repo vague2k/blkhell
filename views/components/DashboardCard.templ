@@ -31,7 +31,7 @@ templ DashboardCard(props ...DashboardCardProps) {
 				<span class="flex flex-col w-full items-start text-xs text-muted-foreground">
 					{ p.Desc }
 					<a href={ p.Href } class="flex w-full items-center gap-1 text-lg text-foreground underline hover:text-primary">
-						@icon.ExternalLink(icon.Props{Size: 15})
+						@icon.ExternalLink(icon.Props{Class: "size-[15px]"})
 						<p class="truncate">
 							if p.Name != "" {
 								{ p.Name }

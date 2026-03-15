@@ -19,7 +19,7 @@ templ ImageGallery(images []database.File) {
 			Class:      "col-span-full",
 		}) {
 			<span class="flex justify-center items-center gap-1">
-				@icon.FileQuestionMark(icon.Props{Size: 16})
+				@icon.FileQuestionMark(icon.Props{Class: "size-[16px]"})
 				No assets to show yet!
 			</span>
 		}
@@ -73,7 +73,7 @@ templ imageActionsDropdown(image database.File) {
 					Href: "/actions/files/download/" + image.ID,
 				}) {
 					<span class="flex items-center text-sm">
-						@icon.Download(icon.Props{Size: 16, Class: "mr-1.5"})
+						@icon.Download(icon.Props{Class: "size-[16px] mr-1.5"})
 						Download
 					</span>
 				}
@@ -82,7 +82,7 @@ templ imageActionsDropdown(image database.File) {
 					Href: "/actions/files/rename/" + image.ID,
 				}) {
 					<span class="flex items-center text-sm">
-						@icon.Pencil(icon.Props{Size: 16, Class: "mr-1.5"})
+						@icon.Pencil(icon.Props{Class: "size-[16px] mr-1.5"})
 						Edit
 					</span>
 				}
@@ -95,7 +95,7 @@ templ imageActionsDropdown(image database.File) {
 					},
 				}) {
 					<span class="flex items-center text-sm">
-						@icon.Trash(icon.Props{Size: 16, Class: "mr-1.5"})
+						@icon.Trash(icon.Props{Class: "size-[16px] mr-1.5"})
 						Delete
 					</span>
 				}

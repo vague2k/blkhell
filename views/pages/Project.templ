@@ -45,7 +45,7 @@ templ Project(band *database.Band, release *database.Release, project *database.
 					class="htmx-indicator w-full max-w-lg"
 				>
 					<span class="flex items-center">
-						@icon.Loader(icon.Props{Size: 20, Class: "animate-spin mr-1"})
+						@icon.Loader(icon.Props{Class: "size-[20px] animate-spin mr-1"})
 						<span class="text-sm min-w-24">
 							Uploading file
 						</span>
@@ -130,7 +130,7 @@ templ projectActionsDropdown(band *database.Band, release *database.Release, pro
 				Variant: button.VariantOutline,
 			}) {
 				<span class="flex items-center gap-1">
-					@icon.ChevronDown(icon.Props{Size: 10})
+					@icon.ChevronDown(icon.Props{Class: "size-[10px]"})
 					Project Actions
 				</span>
 			}
@@ -144,7 +144,7 @@ templ projectActionsDropdown(band *database.Band, release *database.Release, pro
 				ID: "dropdown-upload-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Upload(icon.Props{Size: 14})
+					@icon.Upload(icon.Props{Class: "size-[14px]"})
 					Upload Project Asset
 				</span>
 			}
@@ -152,7 +152,7 @@ templ projectActionsDropdown(band *database.Band, release *database.Release, pro
 				ID: "dropdown-edit-project-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.Pencil(icon.Props{Size: 14})
+					@icon.Pencil(icon.Props{Class: "size-[14px]"})
 					Edit Project
 				</span>
 			}
@@ -161,7 +161,7 @@ templ projectActionsDropdown(band *database.Band, release *database.Release, pro
 				ID: "dropdown-delete-project-button",
 			}) {
 				<span class="flex items-center gap-2">
-					@icon.X(icon.Props{Size: 14})
+					@icon.X(icon.Props{Class: "size-[14px]"})
 					Delete Project
 				</span>
 			}

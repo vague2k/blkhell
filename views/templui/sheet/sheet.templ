@@ -1,4 +1,4 @@
-// templui component sheet - version: v1.5.0 installed by templui v1.5.0
+// templui component sheet - version: v1.8.0 installed by templui v1.8.0
 // 📚 Documentation: https://templui.io/docs/components/sheet
 package sheet
 
@@ -314,5 +314,13 @@ func getSideClasses(side Side) string {
 			"!translate-y-0 " +
 			"data-[tui-dialog-open=false]:!translate-x-full " +
 			"data-[tui-dialog-open=true]:!translate-x-0"
+	}
+}
+
+var scriptOnce = templ.NewOnceHandle()
+
+templ Script() {
+	@scriptOnce.Once() {
+		@dialog.Script()
 	}
 }
