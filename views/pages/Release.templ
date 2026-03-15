@@ -16,6 +16,7 @@ import (
 	"github.com/vague2k/blkhell/views/templui/progress"
 	"github.com/vague2k/blkhell/views/templui/selectbox"
 	"github.com/vague2k/blkhell/views/templui/sidebar"
+	"strconv"
 )
 
 templ Release(band *database.Band, release *database.Release) {
@@ -365,16 +366,28 @@ templ editReleaseDialog(release *database.Release) {
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "Album"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeAlbum}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ReleaseTypeAlbum,
+										Selected: release.Type == data.ReleaseTypeAlbum,
+									}) {
 										Album
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeEP}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ReleaseTypeEP,
+										Selected: release.Type == data.ReleaseTypeEP,
+									}) {
 										EP
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeSingle}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ReleaseTypeSingle,
+										Selected: release.Type == data.ReleaseTypeSingle,
+									}) {
 										Single
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeComp}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ReleaseTypeComp,
+										Selected: release.Type == data.ReleaseTypeComp,
+									}) {
 										Comp
 									}
 								}
@@ -394,10 +407,12 @@ templ editReleaseDialog(release *database.Release) {
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
 									for i := 1; i <= 100; i++ {
+										{{ num, _ := strconv.ParseInt(release.Number, 0, 64) }}
 										@selectbox.Item(selectbox.ItemProps{
-											Value: fmt.Sprintf("%d", i),
+											Value:    fmt.Sprintf("%d", i),
+											Selected: num == int64(i),
 										}) {
-											{ fmt.Sprintf("BH-%d", i) }
+											{ fmt.Sprintf("BH%d", i) }
 										}
 									}
 								}

@@ -240,16 +240,28 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "CD"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeCD}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectTypeCD,
+										Selected: project.Type == data.ProjectTypeCD,
+									}) {
 										CD
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeMerch}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectTypeMerch,
+										Selected: project.Type == data.ProjectTypeMerch,
+									}) {
 										Merch
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeTapes}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectTypeTapes,
+										Selected: project.Type == data.ProjectTypeTapes,
+									}) {
 										Tapes
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeVinyl}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectTypeVinyl,
+										Selected: project.Type == data.ProjectTypeVinyl,
+									}) {
 										Vinyl
 									}
 								}
@@ -268,19 +280,28 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "In Progress"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusDone}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectStatusDone,
+										Selected: project.Status == data.ProjectStatusDone,
+									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-green-500 rounded-full"></span>
 											Done
 										</span>
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusInProgress}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectStatusInProgress,
+										Selected: project.Status == data.ProjectStatusInProgress,
+									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-primary rounded-full"></span>
 											In Progress
 										</span>
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectStatusPending}) {
+									@selectbox.Item(selectbox.ItemProps{
+										Value:    data.ProjectStatusPending,
+										Selected: project.Status == data.ProjectStatusPending,
+									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-yellow-500 rounded-full"></span>
 											To Do

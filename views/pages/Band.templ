@@ -432,7 +432,8 @@ templ editBandDialog(band *database.Band) {
 									for _, code := range data.SortCountryMap() {
 										{{ name := data.Countries[code] }}
 										@selectbox.Item(selectbox.ItemProps{
-											Value: code,
+											Value:    code,
+											Selected: band.Country == code,
 										}) {
 											{ code + " - " + name }
 										}
