@@ -1,9 +1,9 @@
 package database
 
 import (
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 )
 
 func (b Band) FullCountry() string {
-	return data.Countries[b.Country]
+	return common.Countries[b.Country]
 }

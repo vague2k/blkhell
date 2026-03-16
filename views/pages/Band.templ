@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
@@ -317,16 +317,16 @@ templ addReleaseDialog(band *database.Band) {
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "Album"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeAlbum}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ReleaseTypeAlbum}) {
 										Album
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeEP}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ReleaseTypeEP}) {
 										EP
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeSingle}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ReleaseTypeSingle}) {
 										Single
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ReleaseTypeComp}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ReleaseTypeComp}) {
 										Comp
 									}
 								}
@@ -429,8 +429,8 @@ templ editBandDialog(band *database.Band) {
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "US"})
 								}
 								@selectbox.Content() {
-									for _, code := range data.SortCountryMap() {
-										{{ name := data.Countries[code] }}
+									for _, code := range common.CountryCodes {
+										{{ name := common.Countries[code] }}
 										@selectbox.Item(selectbox.ItemProps{
 											Value:    code,
 											Selected: band.Country == code,

@@ -6,7 +6,7 @@ import (
 	"math/rand"
 
 	"github.com/google/uuid"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 )
 
 // GenerateFakeData generates dummy data for bands, releases, and projects tables
@@ -41,8 +41,8 @@ func (q *Queries) GenerateFakeData(ctx context.Context) error {
 		country string
 	}, len(bandNames))
 
-	countryCodes := make([]string, 0, len(data.Countries))
-	for code := range data.Countries {
+	countryCodes := make([]string, 0, len(common.Countries))
+	for code := range common.Countries {
 		countryCodes = append(countryCodes, code)
 	}
 	for i, name := range bandNames {

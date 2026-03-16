@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
@@ -241,26 +241,26 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectTypeCD,
-										Selected: project.Type == data.ProjectTypeCD,
+										Value:    common.ProjectTypeCD,
+										Selected: project.Type == common.ProjectTypeCD,
 									}) {
 										CD
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectTypeMerch,
-										Selected: project.Type == data.ProjectTypeMerch,
+										Value:    common.ProjectTypeMerch,
+										Selected: project.Type == common.ProjectTypeMerch,
 									}) {
 										Merch
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectTypeTapes,
-										Selected: project.Type == data.ProjectTypeTapes,
+										Value:    common.ProjectTypeTapes,
+										Selected: project.Type == common.ProjectTypeTapes,
 									}) {
 										Tapes
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectTypeVinyl,
-										Selected: project.Type == data.ProjectTypeVinyl,
+										Value:    common.ProjectTypeVinyl,
+										Selected: project.Type == common.ProjectTypeVinyl,
 									}) {
 										Vinyl
 									}
@@ -281,8 +281,8 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectStatusDone,
-										Selected: project.Status == data.ProjectStatusDone,
+										Value:    common.ProjectStatusDone,
+										Selected: project.Status == common.ProjectStatusDone,
 									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-green-500 rounded-full"></span>
@@ -290,8 +290,8 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 										</span>
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectStatusInProgress,
-										Selected: project.Status == data.ProjectStatusInProgress,
+										Value:    common.ProjectStatusInProgress,
+										Selected: project.Status == common.ProjectStatusInProgress,
 									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-primary rounded-full"></span>
@@ -299,8 +299,8 @@ templ editProjectDialog(band *database.Band, release *database.Release, project 
 										</span>
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ProjectStatusPending,
-										Selected: project.Status == data.ProjectStatusPending,
+										Value:    common.ProjectStatusPending,
+										Selected: project.Status == common.ProjectStatusPending,
 									}) {
 										<span class="flex items-center gap-2">
 											<span class="p-1 bg-yellow-500 rounded-full"></span>
@@ -444,17 +444,17 @@ templ projectBreadcrumbs(band *database.Band, release *database.Release, project
 }
 
 templ projectStatus(status string) {
-	if status == data.ProjectStatusDone {
+	if status == common.ProjectStatusDone {
 		<span class="flex items-center bg-green-500 gap-2 rounded-lg px-2.5 h-8 text-sm">
 			Done
 		</span>
 	}
-	if status == data.ProjectStatusInProgress {
+	if status == common.ProjectStatusInProgress {
 		<span class="flex items-center bg-primary gap-2 rounded-lg px-2.5 h-8 text-sm">
 			In Progress
 		</span>
 	}
-	if status == data.ProjectStatusPending {
+	if status == common.ProjectStatusPending {
 		<span class="flex items-center bg-yellow-500 gap-2 rounded-lg px-2.5 h-8 text-sm">
 			To Do
 		</span>

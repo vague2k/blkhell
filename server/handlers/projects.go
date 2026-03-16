@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/pages"
@@ -91,7 +91,7 @@ func (h *Handler) CreateProject(w http.ResponseWriter, r *http.Request) {
 		ReleaseID: release.ID,
 		Name:      projectName,
 		Type:      projectType,
-		Status:    data.ProjectStatusPending,
+		Status:    common.ProjectStatusPending,
 	})
 	if err != nil {
 		toastError(w, r, serverErrors.ErrDb.Error())
@@ -165,7 +165,7 @@ func (h *Handler) UploadProjectAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(w, r, user.ID, project.ID, data.FileOwnerTypeProject)
+	asset, err := h.FilesService.Upload(w, r, user.ID, project.ID, common.FileOwnerTypeProject)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
 	"github.com/vague2k/blkhell/views/components"
@@ -117,7 +117,7 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(w, r, user.ID, "label", data.FileOwnerTypeLabel)
+	asset, err := h.FilesService.Upload(w, r, user.ID, "label", common.FileOwnerTypeLabel)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

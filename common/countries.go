@@ -1,14 +1,25 @@
-package data
+package common
 
-import "slices"
-
-func SortCountryMap() []string {
-	codes := make([]string, 0, len(Countries))
-	for code := range Countries {
-		codes = append(codes, code)
-	}
-	slices.Sort(codes)
-	return codes
+var CountryCodes = []string{
+	"US",
+	"CA",
+	"MX",
+	"BR",
+	"AR",
+	"GB",
+	"DE",
+	"FR",
+	"ES",
+	"IT",
+	"NL",
+	"SE",
+	"NO",
+	"FI",
+	"JP",
+	"KR",
+	"CN",
+	"AU",
+	"NZ",
 }
 
 var Countries = map[string]string{

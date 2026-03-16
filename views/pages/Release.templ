@@ -2,7 +2,7 @@ package pages
 
 import (
 	"fmt"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/layouts"
@@ -278,16 +278,16 @@ templ addProjectDialog(band *database.Band, release *database.Release) {
 									@selectbox.Value(selectbox.ValueProps{Placeholder: "CD"})
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeCD}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ProjectTypeCD}) {
 										CD
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeMerch}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ProjectTypeMerch}) {
 										Merch
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeTapes}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ProjectTypeTapes}) {
 										Tapes
 									}
-									@selectbox.Item(selectbox.ItemProps{Value: data.ProjectTypeVinyl}) {
+									@selectbox.Item(selectbox.ItemProps{Value: common.ProjectTypeVinyl}) {
 										Vinyl
 									}
 								}
@@ -367,26 +367,26 @@ templ editReleaseDialog(release *database.Release) {
 								}
 								@selectbox.Content(selectbox.ContentProps{NoSearch: true}) {
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ReleaseTypeAlbum,
-										Selected: release.Type == data.ReleaseTypeAlbum,
+										Value:    common.ReleaseTypeAlbum,
+										Selected: release.Type == common.ReleaseTypeAlbum,
 									}) {
 										Album
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ReleaseTypeEP,
-										Selected: release.Type == data.ReleaseTypeEP,
+										Value:    common.ReleaseTypeEP,
+										Selected: release.Type == common.ReleaseTypeEP,
 									}) {
 										EP
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ReleaseTypeSingle,
-										Selected: release.Type == data.ReleaseTypeSingle,
+										Value:    common.ReleaseTypeSingle,
+										Selected: release.Type == common.ReleaseTypeSingle,
 									}) {
 										Single
 									}
 									@selectbox.Item(selectbox.ItemProps{
-										Value:    data.ReleaseTypeComp,
-										Selected: release.Type == data.ReleaseTypeComp,
+										Value:    common.ReleaseTypeComp,
+										Selected: release.Type == common.ReleaseTypeComp,
 									}) {
 										Comp
 									}

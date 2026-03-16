@@ -2,7 +2,7 @@ package components
 
 import (
 	"fmt"
-	"github.com/vague2k/blkhell/server/data"
+	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	"github.com/vague2k/blkhell/views/templui/badge"
 	"github.com/vague2k/blkhell/views/templui/button"
@@ -74,7 +74,7 @@ templ ProjectsTable(projects []database.Project) {
 }
 
 templ projectStatus(status string) {
-	if status == data.ProjectStatusDone {
+	if status == common.ProjectStatusDone {
 		@badge.Badge(badge.Props{
 			Variant: badge.VariantOutline,
 		}) {
@@ -84,7 +84,7 @@ templ projectStatus(status string) {
 			</span>
 		}
 	}
-	if status == data.ProjectStatusInProgress {
+	if status == common.ProjectStatusInProgress {
 		@badge.Badge(badge.Props{
 			Variant: badge.VariantOutline,
 		}) {
@@ -94,7 +94,7 @@ templ projectStatus(status string) {
 			</span>
 		}
 	}
-	if status == data.ProjectStatusPending {
+	if status == common.ProjectStatusPending {
 		@badge.Badge(badge.Props{
 			Variant: badge.VariantOutline,
 		}) {
