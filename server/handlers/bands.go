@@ -11,7 +11,6 @@ import (
 	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
-	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
 
@@ -30,53 +29,6 @@ func (h *Handler) BandPage(w http.ResponseWriter, r *http.Request) {
 	toastCookieWarning(w, r, "deleted_release_toast_message")
 	toastCookieWarning(w, r, "deleted_project_toast_message")
 	pages.Band(&band).Render(r.Context(), w)
-}
-
-func (h *Handler) HXBandsReleaseTable(w http.ResponseWriter, r *http.Request) {
-	releases, err := h.config.Database.GetReleasesByBand(r.Context(), chi.URLParam(r, "id"))
-	if err != nil {
-		toastError(w, r, serverErrors.ErrDb.Error())
-		return
-	}
-
-	components.ReleasesTable(releases).Render(r.Context(), w)
-
-	count := len(releases)
-	if count <= 0 {
-		fmt.Fprint(
-			w,
-			`<span id="band-releases-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No releases to show yet</span>`,
-		)
-	} else {
-		fmt.Fprintf(
-			w,
-			`<span id="band-releases-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d RELEASES</span>`,
-			count,
-		)
-	}
-}
-
-func (h *Handler) HXBandProjectsTable(w http.ResponseWriter, r *http.Request) {
-	projects, err := h.config.Database.GetProjectsByBandID(r.Context(), chi.URLParam(r, "id"))
-	if err != nil {
-		toastError(w, r, serverErrors.ErrDb.Error())
-		return
-	}
-
-	components.ProjectsTable(projects).Render(r.Context(), w)
-	count := len(projects)
-	if count <= 0 {
-		fmt.Fprint(
-			w,
-			`<span id="band-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No projects to show yet</span>`,
-		)
-	} else {
-		fmt.Fprintf(
-			w,
-			`<span id="band-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d PROJECTS</span>`,
-			count,
-		)
-	}
 }
 
 func (h *Handler) CreateBand(w http.ResponseWriter, r *http.Request) {

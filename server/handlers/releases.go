@@ -11,7 +11,6 @@ import (
 	"github.com/vague2k/blkhell/common"
 	"github.com/vague2k/blkhell/server/database"
 	serverErrors "github.com/vague2k/blkhell/server/errors"
-	"github.com/vague2k/blkhell/views/components"
 	"github.com/vague2k/blkhell/views/pages"
 )
 
@@ -38,30 +37,6 @@ func (h *Handler) ReleasePage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	pages.Release(&band, &release).Render(r.Context(), w)
-}
-
-func (h *Handler) HXReleaseProjectsTable(w http.ResponseWriter, r *http.Request) {
-	projects, err := h.config.Database.GetProjectsByRelease(r.Context(), chi.URLParam(r, "id"))
-	if err != nil {
-		toastError(w, r, serverErrors.ErrDb.Error())
-		return
-	}
-
-	components.ProjectsTable(projects).Render(r.Context(), w)
-
-	count := len(projects)
-	if count <= 0 {
-		fmt.Fprint(
-			w,
-			`<span id="release-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">No projects to show yet</span>`,
-		)
-	} else {
-		fmt.Fprintf(
-			w,
-			`<span id="release-projects-count" hx-swap-oob="true" class="text-muted-foreground text-xs">%d PROJECTS</span>`,
-			count,
-		)
-	}
 }
 
 func (h *Handler) CreateRelease(w http.ResponseWriter, r *http.Request) {
