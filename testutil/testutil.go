@@ -2,12 +2,18 @@ package testutil
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"fmt"
 	"io"
+	"math/big"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/a-h/templ"
@@ -15,6 +21,8 @@ import (
 	"github.com/golang-migrate/migrate/v4/database/sqlite"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/vague2k/blkhell/config"
+	"github.com/vague2k/blkhell/server/handlers"
+	"github.com/vague2k/blkhell/server/services"
 	_ "modernc.org/sqlite"
 )
 
@@ -23,7 +31,18 @@ type TB interface {
 	Cleanup(func())
 }
 
-func NewTestConfig(t TB) (*config.Config, func()) {
+type Test struct {
+	AuthService      *services.AuthService
+	FilesService     *services.FilesService
+	DashboardService *services.DashboardService
+	Config           *config.Config
+	Handler          *handlers.Handler
+
+	ctx context.Context
+	t   TB // *testing.T
+}
+
+func NewTest(t TB) *Test {
 	os.Setenv("GO_ENV", "testing")
 	os.Setenv("PORT", "8080")
 	os.Setenv("UPLOADS_DIR", "/tmp/blkhell_test_uploads")
@@ -36,11 +55,63 @@ func NewTestConfig(t TB) (*config.Config, func()) {
 	}
 
 	cleanup := func() {
-		cfg.SqlDB.Close()
+		if err := cfg.SqlDB.Close(); err != nil {
+			t.Fatalf("failed to close db: %v", err)
+		}
 		os.RemoveAll("/tmp/blkhell_test_uploads")
 		os.RemoveAll("/tmp/blkhell_test_database")
 	}
-	return cfg, cleanup
+
+	t.Cleanup(cleanup)
+
+	return &Test{
+		AuthService:      services.NewAuthService(cfg),
+		FilesService:     services.NewFilesService(cfg),
+		DashboardService: services.NewDashboardService(cfg),
+		Handler:          handlers.NewHandler(cfg),
+		Config:           cfg,
+		ctx:              context.Background(),
+		t:                t,
+	}
+}
+
+func (t *Test) Context() context.Context {
+	return t.ctx
+}
+
+func (t *Test) NewRecorder() *httptest.ResponseRecorder {
+	return httptest.NewRecorder()
+}
+
+func (t *Test) NewFormRequest(path string, values url.Values) *http.Request {
+	return httptest.NewRequestWithContext(t.ctx, http.MethodPost, path, strings.NewReader(values.Encode()))
+}
+
+func (t *Test) RenderComponent(component templ.Component) (*goquery.Document, error) {
+	reader, writer := io.Pipe()
+	go func() {
+		err := component.Render(t.ctx, writer)
+		if err != nil {
+			writer.CloseWithError(err)
+			return
+		}
+		writer.Close()
+	}()
+
+	doc, err := goquery.NewDocumentFromReader(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	return doc, nil
+}
+
+func (t *Test) RandomUsername() string {
+	return "user_" + randomString(8)
+}
+
+func (t *Test) RandomPassword() string {
+	return "pass_" + randomString(12)
 }
 
 func migrateUpTest(db *sql.DB) error {
@@ -82,25 +153,12 @@ func migrateUpTest(db *sql.DB) error {
 	return nil
 }
 
-func Context() context.Context {
-	return context.Background()
-}
-
-func RenderComponent(component templ.Component) (*goquery.Document, error) {
-	reader, writer := io.Pipe()
-	go func() {
-		err := component.Render(context.Background(), writer)
-		if err != nil {
-			writer.CloseWithError(err)
-			return
-		}
-		writer.Close()
-	}()
-
-	doc, err := goquery.NewDocumentFromReader(reader)
-	if err != nil {
-		return nil, err
+func randomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		n, _ := rand.Int(rand.Reader, big.NewInt(int64(len(charset))))
+		b[i] = charset[n.Int64()]
 	}
-
-	return doc, nil
+	return string(b)
 }
