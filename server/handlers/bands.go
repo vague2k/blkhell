@@ -100,7 +100,7 @@ func (h *Handler) EditBand(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
+	user, ok := h.authService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user from context.")
 		return
@@ -116,7 +116,7 @@ func (h *Handler) UploadBandAsset(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	asset, err := h.FilesService.Upload(w, r, user.ID, band.ID, common.FileOwnerTypeBand)
+	asset, err := h.filesService.Upload(w, r, user.ID, band.ID, common.FileOwnerTypeBand)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

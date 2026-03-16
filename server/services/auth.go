@@ -21,8 +21,8 @@ type AuthService struct {
 	config *config.Config
 }
 
-func NewAuthService(config *config.Config) *AuthService {
-	return &AuthService{config: config}
+func NewAuthService(cfg *config.Config) *AuthService {
+	return &AuthService{config: cfg}
 }
 
 func (s *AuthService) CreateNewUser(ctx context.Context, username, password, role string) error {

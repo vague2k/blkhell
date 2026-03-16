@@ -29,7 +29,7 @@ var (
 	MimeFlac      = "audio/flac"
 )
 
-type FileMetadata struct {
+type fileMetadata struct {
 	Filename string
 	Ext      string
 	Path     string
@@ -46,8 +46,8 @@ type FilesService struct {
 	config *config.Config
 }
 
-func NewFilesService(config *config.Config) *FilesService {
-	return &FilesService{config: config}
+func NewFilesService(cfg *config.Config) *FilesService {
+	return &FilesService{config: cfg}
 }
 
 func (s *FilesService) DownloadFile(w http.ResponseWriter, ctx context.Context, id string) error {
@@ -99,7 +99,7 @@ func (s *FilesService) Upload(w http.ResponseWriter, r *http.Request, userID, ow
 		return nil, errors.New("The uploaded file is too big. Please choose a file that's less than 100MB in size")
 	}
 
-	metadata, err := s.WriteToDisk(file, fileHeader)
+	metadata, err := s.writeToDisk(file, fileHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (s *FilesService) Upload(w http.ResponseWriter, r *http.Request, userID, ow
 	metadata.OwnerID = ownerID
 	metadata.OwnerType = ownerType
 
-	asset, err := s.WriteToDb(r.Context(), metadata)
+	asset, err := s.writeToDb(r.Context(), metadata)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (s *FilesService) Upload(w http.ResponseWriter, r *http.Request, userID, ow
 	return asset, nil
 }
 
-func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.FileHeader) (*FileMetadata, error) {
+func (s *FilesService) writeToDisk(file multipart.File, fileHeader *multipart.FileHeader) (*fileMetadata, error) {
 	buf := make([]byte, 512)
 	_, err := file.Read(buf)
 	if err != nil {
@@ -161,7 +161,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 		return nil, errors.New("what the fuck?")
 	}
 
-	return &FileMetadata{
+	return &fileMetadata{
 		Filename: fileName,
 		Path:     relativeDir,
 		Ext:      fileExt,
@@ -170,7 +170,7 @@ func (s *FilesService) WriteToDisk(file multipart.File, fileHeader *multipart.Fi
 	}, nil
 }
 
-func (s *FilesService) WriteToDb(ctx context.Context, metadata *FileMetadata) (*database.File, error) {
+func (s *FilesService) writeToDb(ctx context.Context, metadata *fileMetadata) (*database.File, error) {
 	file, err := s.config.Database.CreateFile(ctx, database.CreateFileParams{
 		ID:        uuid.NewString(),
 		Path:      metadata.Path,

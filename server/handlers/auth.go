@@ -7,7 +7,7 @@ import (
 )
 
 func (h *Handler) LoginPage(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
+	user, ok := h.authService.UserFromContext(r.Context())
 	if ok && user != nil {
 		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 		return
@@ -20,13 +20,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
-	user, err := h.AuthService.Authenticate(r.Context(), username, password)
+	user, err := h.authService.Authenticate(r.Context(), username, password)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
 
-	sessionToken, expires, err := h.AuthService.CreateSession(r.Context(), user.ID)
+	sessionToken, expires, err := h.authService.CreateSession(r.Context(), user.ID)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
@@ -46,7 +46,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
-	err := h.AuthService.DestroySession(w, r)
+	err := h.authService.DestroySession(w, r)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

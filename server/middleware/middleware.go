@@ -16,8 +16,8 @@ type Middleware struct {
 	config *config.Config
 }
 
-func New(config *config.Config) *Middleware {
-	return &Middleware{config: config}
+func New(cfg *config.Config) *Middleware {
+	return &Middleware{config: cfg}
 }
 
 func (m *Middleware) RedirectIfAuth(next http.Handler) http.Handler {

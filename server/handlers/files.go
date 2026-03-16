@@ -42,13 +42,13 @@ func (h *Handler) HXLabelAssetsImageGallery(w http.ResponseWriter, r *http.Reque
 }
 
 func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
+	user, ok := h.authService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user from context.")
 		return
 	}
 
-	asset, err := h.FilesService.Upload(w, r, user.ID, "label", common.FileOwnerTypeLabel)
+	asset, err := h.filesService.Upload(w, r, user.ID, "label", common.FileOwnerTypeLabel)
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
@@ -58,7 +58,7 @@ func (h *Handler) UploadLabelAsset(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
-	err := h.FilesService.DownloadFile(w, r.Context(), chi.URLParam(r, "id"))
+	err := h.filesService.DownloadFile(w, r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
@@ -66,7 +66,7 @@ func (h *Handler) Download(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	asset, err := h.FilesService.DeleteFile(r.Context(), chi.URLParam(r, "id"))
+	asset, err := h.filesService.DeleteFile(r.Context(), chi.URLParam(r, "id"))
 	if err != nil {
 		toastError(w, r, err.Error())
 		return

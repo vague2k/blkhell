@@ -6,17 +6,17 @@ import (
 )
 
 type Handler struct {
-	AuthService      *services.AuthService
-	FilesService     *services.FilesService
-	DashboardService *services.DashboardService
+	authService      *services.AuthService
+	filesService     *services.FilesService
+	dashboardService *services.DashboardService
 	config           *config.Config
 }
 
-func NewHandler(config *config.Config) *Handler {
+func NewHandler(cfg *config.Config) *Handler {
 	return &Handler{
-		AuthService:      services.NewAuthService(config),
-		FilesService:     services.NewFilesService(config),
-		DashboardService: services.NewDashboardService(config),
-		config:           config,
+		authService:      services.NewAuthService(cfg),
+		filesService:     services.NewFilesService(cfg),
+		dashboardService: services.NewDashboardService(cfg),
+		config:           cfg,
 	}
 }

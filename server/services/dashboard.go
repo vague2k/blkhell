@@ -12,8 +12,8 @@ type DashboardService struct {
 	config *config.Config
 }
 
-func NewDashboardService(config *config.Config) *DashboardService {
-	return &DashboardService{config: config}
+func NewDashboardService(cfg *config.Config) *DashboardService {
+	return &DashboardService{config: cfg}
 }
 
 func (s *DashboardService) GetBandsFromPreviousYear(ctx context.Context) (*chart.Dataset, error) {

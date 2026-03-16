@@ -12,7 +12,7 @@ type Cli struct {
 	cmd         *cobra.Command
 }
 
-func NewCli(config *config.Config) *Cli {
+func NewCli(cfg *config.Config) *Cli {
 	cmd := &cobra.Command{
 		Use:   "blkhell",
 		Short: "Blkhell CLI",
@@ -22,7 +22,7 @@ func NewCli(config *config.Config) *Cli {
 	}
 
 	return &Cli{
-		config: config,
+		config: cfg,
 		cmd:    cmd,
 	}
 }

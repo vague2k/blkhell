@@ -8,7 +8,7 @@ import (
 )
 
 func (h *Handler) HXSidebarUserDropdown(w http.ResponseWriter, r *http.Request) {
-	user, ok := h.AuthService.UserFromContext(r.Context())
+	user, ok := h.authService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user from context.")
 		return

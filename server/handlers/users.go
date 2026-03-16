@@ -23,7 +23,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, ok := h.AuthService.UserFromContext(r.Context())
+	user, ok := h.authService.UserFromContext(r.Context())
 	if !ok {
 		toastError(w, r, "Could not get user from context.")
 		return
@@ -70,7 +70,7 @@ func (h *Handler) EditUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if newPassword != "" {
-		if err := h.AuthService.DestroySession(w, r); err != nil {
+		if err := h.authService.DestroySession(w, r); err != nil {
 			toastError(w, r, err.Error())
 			return
 		}

@@ -51,17 +51,17 @@ func (h *Handler) HXDashboardCards(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) HXDashboardChart(w http.ResponseWriter, r *http.Request) {
-	bandsDataSet, err := h.DashboardService.GetBandsFromPreviousYear(r.Context())
+	bandsDataSet, err := h.dashboardService.GetBandsFromPreviousYear(r.Context())
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
-	releasesDataSet, err := h.DashboardService.GetReleasesFromPreviousYear(r.Context())
+	releasesDataSet, err := h.dashboardService.GetReleasesFromPreviousYear(r.Context())
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
 	}
-	projectsDataSet, err := h.DashboardService.GetProjectsFromPreviousYear(r.Context())
+	projectsDataSet, err := h.dashboardService.GetProjectsFromPreviousYear(r.Context())
 	if err != nil {
 		toastError(w, r, err.Error())
 		return
