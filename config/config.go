@@ -10,6 +10,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/vague2k/blkhell/server/database"
+	"github.com/vague2k/blkhell/views/templui/utils"
 	_ "modernc.org/sqlite"
 )
 
@@ -43,6 +44,10 @@ func Init() *Config {
 		Port:        requireEnv("PORT"),
 		UploadsDir:  requireEnv("UPLOADS_DIR"),
 		DBDir:       requireEnv("DB_DIR"),
+	}
+
+	if c.Environment == EnvDevelopment {
+		utils.UseUnminifiedScripts = true
 	}
 
 	if err := os.MkdirAll(c.UploadsDir, 0o755); err != nil {
